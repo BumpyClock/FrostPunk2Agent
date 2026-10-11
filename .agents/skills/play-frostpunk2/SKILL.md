@@ -60,14 +60,13 @@ All mutations validate through the game and charge normal costs; most accept `dr
 
 Pass arrays in PowerShell as single-quoted `'cells=[1,2,3]'`.
 
-### Council (measured working flow)
+### Council (measured working flow, bridge-only)
 
-1. `fp2 laws` → pick a policy with high `seats.For` and low `Against` (the Council predicts the same split).
-2. `fp2 council-open` (presses C, skips the chamber cutscene; needs a built Council Hall and an open session —
-   `fp2 council` → `minTicksToNextSession` is ~10 weeks after each vote).
-3. UI: **Propose a law** → law tab (Survival/City/Society/Rule) → law → option → **Propose** → **Vote** → **I see**.
-   Take a screenshot per step; positions depend on the window/monitor, so use fractions from the screenshot.
-4. Verify: `fp2 council` → `activePolicies` contains the policy.
+1. `fp2 laws` → pick a policy with high `seats.For` and zero `Against` (the game predicts the same split).
+2. When `fp2 council` shows phase 1 (Agenda; the watcher emits `council.sessionAvailable.changed`):
+   `fp2 pass-law policy=<id>` → council-open (key C + cutscene skip) → `propose` (RequestSession) →
+   `vote` (InstructVote) → Escape on the result → returns `{vote, active}`.
+3. Sessions reopen ~10 weeks after each vote.
 
 Never act while a cutscene plays: `choose`/`vote`/`propose`, `click` and `hold` refuse while a `Cutscene` pause
 reason is active (override with `--force`). Bridge `propose`/`vote` are guarded/experimental (see MOD_GAPS).

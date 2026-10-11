@@ -23,6 +23,7 @@ const HELP = `fp2 <subcommand> [key=value ...] [--compact] [--timeout S] [--args
 Local subcommands:
   status                 heartbeat (no game-thread round trip)
   launch                 kill leftover CrashReportClient, start the game via Steam, wait for the bridge
+  pass-law policy=<id>   bridge-only Council: open, propose, vote, dismiss, verify (needs an open session)
   council-open           open the Council (key C), skip its intro cutscene, return council state
   new-game               from the main menu: Utopia Builder, Windswept Peaks, 3 communities, intro skipped, paused
   saves [limit=20]       save files on disk, newest first (load with: fp2 load name=<name>; save: fp2 save name=<new>)

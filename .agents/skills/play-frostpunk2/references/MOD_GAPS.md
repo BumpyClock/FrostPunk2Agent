@@ -4,8 +4,8 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 
 ## Not covered yet
 
-- Council / laws: proposing, voting, promises (`PXInstructionUtils.InstructVote/InstructNegotiate`,
-  `PXPolicyUtils.GetAllInactivePolicies`, `PXParliamentSubsystem.PredictVote`). See `research/ACTION_CANDIDATES.md`.
+- Council negotiation and promises (`InstructNegotiate`, `PXDesireUtils.MakePromise`). Proposing/voting work.
+- Utopia Tree node unlocks: no reflected command path (only UI widget handlers).
 - Faction/community trust and standing extractor (`PXTrustSubsystem`, `PXCommunityComponent` modifiers).
 - Total population (HUD number); `population` sums unassigned community sizes only.
 - Frostland: expeditions, outposts, colonies, trails (`InstructStartTerritoryExploration`, `InstructConstructOutpost`, `BuildTrail`).
@@ -23,7 +23,8 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - `vote` (InstructVote) **works inside the Council scene** after a proposal (measured 2026-10-11: UI went to
   "Law passed", one Escape returned to the city, policy active). **Outside the scene it locked all game input**
   (only a reload recovered); the command refuses unless `IsInParliament` and no cutscene is playing.
-- Bridge `propose` (RequestSession) desynced the Council UI once (state then unclear: wrong monitor + possible
-  cutscene). Disabled pending a clean re-test; propose via UI for now.
+- Bridge `propose` (RequestSession) + `vote` inside the Council passed a law with the UI following (measured,
+  saved before the test). An earlier attempt outside those conditions desynced the UI, so both refuse unless
+  `IsInParliament` and no cutscene. `fp2 pass-law` wraps the flow.
 - `choose` is untested on a real decision (only tutorial modals seen so far).
 - Calendar `week` = floor(ticks/1680); HUD week/day labels can lag the logic tick.
