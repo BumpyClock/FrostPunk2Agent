@@ -64,6 +64,27 @@ local function try(obj, fn, params)
     return { error = tostring(v) }
 end
 
+
+-- Pause reasons currently active (e.g. "UserPaused", "WBP_Modal_C", "Cutscene active - ...").
+function A.pauseReasons()
+    local out = {}
+    pcall(function()
+        local t = FindFirstOf("PXTimeSubsystem")
+        t.PauseState.PauseReasons:ForEach(function(_, r) out[#out + 1] = r:get():ToString() end)
+    end)
+    return out
+end
+
+-- Measured: Council/decision input issued while a cutscene (e.g. the chamber intro) is still
+-- playing left the UI unresponsive. Block choice-type actions until the cutscene is skipped.
+function A.assertNoCutscene(what)
+    for _, r in ipairs(A.pauseReasons()) do
+        if r:find("Cutscene", 1, true) then
+            error(what .. " blocked: cutscene still active (" .. r .. "). Skip it first (fp2 keys e@3000 or fp2 council-open).", 0)
+        end
+    end
+end
+
 ---------------------------------------------------------------------------
 -- Time
 
@@ -395,6 +416,7 @@ end
 
 -- args: index (choice, default 0), ref (modal; default first open), close=true
 function A.choose(args)
+    A.assertNoCutscene("choose")
     local w
     if args.ref then w = reflect.find(args.ref) else w = A.openModals()[1] end
     if not reflect.isValid(w) then error("no open modal", 0) end
@@ -650,6 +672,9 @@ function A.council(args)
     local out = {}
     pcall(function() out.active = pu:IsParliamentActive(nation) end)
     pcall(function() out.inParliament = pu:IsInParliament(ctx()) end)
+    for _, r in ipairs(A.pauseReasons()) do
+        if r:find("Cutscene", 1, true) then out.cutscene = r end
+    end
     pcall(function() out.phase = pu:GetCurrentParliamentPhase(ctx()) end)
     pcall(function() out.minTicksToNextSession = pu:GetMinTimeToNextSession(ctx()).ScaledTicks end)
     pcall(function() out.ticksToForcedVote = pu:GetTimeToForcedVote(ctx()).ScaledTicks end)
@@ -730,6 +755,7 @@ end
 
 -- Request a council session that votes on `policy` (the in-game "propose law" flow).
 function A.propose(args)
+    A.assertNoCutscene("propose")
     -- Measured: RequestSession from the bridge set the agenda but desynced the Council UI
     -- (Propose button dead, input stuck). Disabled until the UI flow is mapped.
     if not args.unsafe then
@@ -745,6 +771,7 @@ end
 
 -- Cast the player's vote on a policy in the current session.
 function A.vote(args)
+    A.assertNoCutscene("vote")
     -- Measured: InstructVote outside the Council scene locked all game input (no recovery
     -- short of reloading). Only allow it while the player is in the parliament view.
     local inParl = false

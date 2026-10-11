@@ -50,6 +50,18 @@ All mutations validate through the game and charge normal costs; most accept `dr
 | Time | `fp2 date`, `fp2 game.pause`, `fp2 game.resume`, `fp2 game.speed level=0..2` |
 
 Pass arrays in PowerShell as single-quoted `'cells=[1,2,3]'`.
+
+### Council (measured working flow)
+
+1. `fp2 laws` → pick a policy with high `seats.For` and low `Against` (the Council predicts the same split).
+2. `fp2 council-open` (presses C, skips the chamber cutscene; needs a built Council Hall and an open session —
+   `fp2 council` → `minTicksToNextSession` is ~10 weeks after each vote).
+3. UI: **Propose a law** → law tab (Survival/City/Society/Rule) → law → option → **Propose** → **Vote** → **I see**.
+   Take a screenshot per step; positions depend on the window/monitor, so use fractions from the screenshot.
+4. Verify: `fp2 council` → `activePolicies` contains the policy.
+
+Never act while a cutscene plays: `choose`/`vote`/`propose`, `click` and `hold` refuse while a `Cutscene` pause
+reason is active (override with `--force`). Bridge `propose`/`vote` are guarded/experimental (see MOD_GAPS).
 Research needs a Research Institute (Housing district building); without it `ResearchSpeedMultiplier` is 0.
 
 Coordinates are **game client pixels** at full resolution (a `scale=0.5` screenshot pixel ×2).

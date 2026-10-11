@@ -22,6 +22,8 @@ const HELP = `fp2 <subcommand> [key=value ...] [--compact] [--timeout S] [--args
 Local subcommands:
   status                 heartbeat (no game-thread round trip)
   launch                 kill leftover CrashReportClient, start the game via Steam, wait for the bridge
+  council-open           open the Council (key C), skip its intro cutscene, return council state
+  new-game               from the main menu: Utopia Builder, Windswept Peaks, 3 communities, intro skipped, paused
   saves [limit=20]       save files on disk, newest first (load with: fp2 load name=<name>; save: fp2 save name=<new>)
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
@@ -32,7 +34,7 @@ Local subcommands:
   keys <chord...>       send keys to the game window, e.g. keys space | keys ctrl+r  (--keep-focus)
   screenshot [region=hud|objectives|bottom|center|x0,y0,x1,y1] [scale=0.5] [out=path]
                          capture the game client area to PNG (pixels or 0..1 fractions); prints the path
-  click x,y [--double]   left-click at client pixel (or 0..1 fraction) coordinates from a scale=1 screenshot
+  click x,y [--double]   (refused while a cutscene plays unless --force) left-click at client pixel (or 0..1 fraction) coordinates from a scale=1 screenshot
   rclick x,y             right-click
   hold x,y [ms=1500]     press-and-hold (FP2 confirm buttons need a hold)
   move x,y | drag x,y x2,y2 | scroll x,y <ticks>   (scroll: + up / - down)
@@ -117,6 +119,53 @@ async function advance(ticks: number, timeoutMs: number) {
   return { advancedTicks: (t.gameTimeTicks ?? 0) - from, stoppedBy, brief: await brief() };
 }
 
+// Clear intro/story dialogs (resolved through the game via `choose`) and skip cutscenes
+// (hold E; Space would toggle pause). Stops once only UserPaused remains.
+async function settleIntro(maxSteps = 12) {
+  for (let i = 0; i < maxSteps; i++) {
+    await sleep(1500);
+    const t = await time();
+    const reasons = (t.pauseReasons ?? []).filter((r) => r !== "UserPaused");
+    if (!reasons.length) return;
+    if (reasons.some((r) => /Cutscene/i.test(r))) {
+      await sendKeys(["e@3000"], true); // cutscene first: choices are blocked while it plays
+      continue;
+    }
+    const modals = await call<any[]>("modals").catch(() => []);
+    if (Array.isArray(modals) && modals.length) await call("choose", { index: 0 });
+  }
+}
+
+const cutsceneReason = (t: TimeInfo) => (t.pauseReasons ?? []).find((r) => /Cutscene/i.test(r));
+
+// Skip any running cutscene (hold E) until its pause reason clears.
+async function skipCutscenes(maxTries = 6): Promise<TimeInfo> {
+  let t = await time();
+  for (let i = 0; i < maxTries && cutsceneReason(t); i++) {
+    await sendKeys(["e@3000"], true);
+    await sleep(1500);
+    t = await time();
+  }
+  if (cutsceneReason(t)) throw new BridgeError(`cutscene still active: ${cutsceneReason(t)}`);
+  return t;
+}
+
+// Open the Council (House of Delegates, key C), skip its intro cutscene, and only then hand
+// control back. Measured: clicking Council UI while the intro cutscene was active left it unresponsive.
+async function councilOpen() {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const c = await call<any>("council");
+    if (c.inParliament) break;
+    await sendKeys(["c"], true);
+    await sleep(4000);
+  }
+  const c = await call<any>("council");
+  if (!c.inParliament) throw new BridgeError("Council did not open (is the Council Hall built?)");
+  await skipCutscenes();
+  await sleep(1500);
+  return { ...(await call<any>("council")), pauseReasons: (await time()).pauseReasons };
+}
+
 async function reload() {
   const before = (await readStatus()).started;
   await sendKeys(["ctrl+r"]);
@@ -191,9 +240,16 @@ async function main(argv: string[]): Promise<number> {
       print(await screenshot({ out: String(args.out ?? join(repoRoot(), ".runtime", "shots", `${name}.png`)), region, scale: args.scale }));
       return 0;
     }
+    case "council-open":
+      print(await councilOpen());
+      return 0;
     case "click":
     case "rclick":
     case "hold": {
+      if (!flags.force) {
+        const cs = await time().then(cutsceneReason).catch(() => undefined);
+        if (cs) throw new BridgeError(`${cmd} blocked: cutscene active (${cs}); skip it (fp2 keys e@3000) or pass --force`);
+      }
       const pt = String(rest[0] ?? "").split(",").map(Number);
       if (pt.length !== 2 || pt.some(Number.isNaN)) throw new BridgeError(`${cmd} needs x,y`);
       print(await click(pt, { right: cmd === "rclick", holdMs: cmd === "hold" ? Number(args.ms ?? 1500) : undefined, double: Boolean(flags.double) }));
@@ -236,6 +292,46 @@ async function main(argv: string[]): Promise<number> {
         await sleep(2000);
       }
       throw new BridgeError("game/bridge did not come up in time");
+    }
+    case "new-game": {
+      // Main menu -> Utopia Builder (no tales) -> first 3 communities + first faction -> Windswept Peaks
+      // -> Start -> intro hold-confirm -> cutscene skip. Coordinates are client fractions measured on a
+      // maximized 3840x1600 window (fp2 focus --max). Steps that open screens wait for UI transitions.
+      await focusGame(true);
+      await sleep(1500);
+      const step = async (pt: number[], ms = 1500) => {
+        await click(pt);
+        await sleep(ms);
+      };
+      const NEXT = [0.888, 0.944];
+      await sendKeys(["enter"], true); // "press any key" title
+      await sleep(3000);
+      await step([0.25, 0.489], 3000); // Utopia Builder
+      await step(NEXT, 2500); // Tales -> Communities
+      for (const x of [0.356, 0.4146, 0.4734]) await step([x, 0.3825], 500);
+      await step([0.3268, 0.5594], 1000); // starting faction
+      await step(NEXT, 2500); // -> Map
+      await step([0.169, 0.2], 1000); // Windswept Peaks
+      await step(NEXT, 2500); // -> Challenge
+      await step(NEXT, 1000); // Start
+      const deadline = Date.now() + 240_000;
+      for (;;) {
+        try {
+          const cities = await call<any>("find_all", { class: "PXCityComponent", limit: 1 });
+          const t = await time();
+          if ((t as any).gameplayBegan && cities.total > 0) break;
+        } catch {}
+        if (Date.now() > deadline) throw new BridgeError("new game did not load");
+        await sleep(2000);
+      }
+      await setPaused(true);
+      await settleIntro();
+      const t = await setPaused(true);
+      try {
+        await call("call", { ref: "/Script/Frostpunk2.Default__PXUserSettingsUtils", fn: "SetPopupTutorialsEnabled", args: [false], mutate: true });
+      } catch {}
+      print({ started: true, time: t, brief: await brief() });
+      return 0;
     }
     case "keys":
       await sendKeys(rest, Boolean(flags["keep-focus"]));
