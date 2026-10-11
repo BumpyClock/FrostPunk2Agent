@@ -7,6 +7,10 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `utopia` reads each faction's Utopia Tree (points, nodes, state, descriptions, links);
+  `utopia-assign node=X` spends a point through the game's panel handlers.
+- Watcher `autoAck` (on in `watch-start`) dismisses one-option dialogs and reports `dialog.acknowledged`.
+- `modals` choices include hidden `actions` and `affinities`; game text decodes HTML entities.
 - `frostbreak_path`: plans frostbreaking to a cell or deposit (shortest frozen route plus room for a
   district) in expander-sized batches; `go=true` starts the first batch.
 - `research` reports `progress` and `weeksLeft`; `research_topics` reports names, questions, outcome

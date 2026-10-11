@@ -414,6 +414,10 @@ end
 -- Game rich text to plain text: <img id="FoodPositive"></> -> [Food+], style tags dropped.
 function A.plainText(v)
     if type(v) ~= "string" then return v end
+    v = v:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&amp;", "&"):gsub("
+
+", "
+")
     v = v:gsub('<img id="(%a-)Positive">', "[%1+]"):gsub('<img id="(%a-)Negative">', "[%1-]")
     v = v:gsub('<img id="(.-)">', "[%1]"):gsub("</>", ""):gsub("<%a+>", ""):gsub("  +", " ")
     return v
@@ -440,6 +444,18 @@ function A.modals()
                         pcall(function() ce.name = c.Name:ToString() end)
                         pcall(function() ce.description = c.Description:ToString() end)
                         pcall(function() ce.effects = A.plainText(c.GameplayInfo:ToString()) end)
+                        -- Hidden consequences the UI text may not mention.
+                        pcall(function()
+                            local acts = json.array()
+                            for _, a in ipairs(uarray(c.ImmediateActions)) do
+                                if reflect.isValid(a) then acts[#acts + 1] = (reflect.className(a) or "?"):gsub("^PX", "") end
+                            end
+                            if #acts > 0 then ce.actions = acts end
+                        end)
+                        pcall(function()
+                            local aff = reflect.plain(c.AffinitiesChange, 3)
+                            if type(aff) == "table" and next(aff) ~= nil then ce.affinities = aff end
+                        end)
                         choices[#choices + 1] = ce
                     end)
                 end)
@@ -1356,6 +1372,108 @@ function A.frostbreakPath(args)
     local out = { target = target, deposits = info[target].deposits, distance = info[target].d, pathLength = #path, batches = batches, steps = #batches }
     if args.go then out.started = A.expand({ cells = batches[1], type = args.type, city = args.city }) end
     return out
+end
+
+---------------------------------------------------------------------------
+-- Utopia Tree (faction trees): read-only. Assigning points has no reflected command path;
+-- the game does it through UI widget handlers (PXUtopiaNodeDetailsPanel.AssignPoint).
+
+local function tagName(t)
+    local ok, v = pcall(function() return t.TagName:ToString() end)
+    return ok and v or nil
+end
+
+-- args: faction (community type or utopia name substring), brief=true (no descriptions)
+function A.utopia(args)
+    local out = json.array()
+    local want = args.faction and tostring(args.faction):lower() or nil
+    for _, comp in ipairs(FindAllOf("PXUtopiaToolComponent") or {}) do
+        if reflect.isValid(comp) then
+            local e = {}
+            pcall(function() e.utopia = comp.UtopiaName:ToString() end)
+            pcall(function()
+                local owner = comp:GetOwner()
+                local cc = owner:GetComponentByClass(StaticFindObject("/Script/Frostpunk2.PXCommunityComponent"))
+                if reflect.isValid(cc) then e.faction = assetId(cc.Type) end
+            end)
+            pcall(function()
+                local st = comp.ScoreTracker
+                e.points = st.Points
+                e.pointsEarned = st.PointsEarned
+                e.pointsCap = st.PointsCap
+                e.assigned = st.AssignedNonBonusPoints
+                e.nextThreshold = st.Threshold
+            end)
+            local nodes = json.array()
+            for _, inst in ipairs(uarray(comp.NodeInstances)) do
+                if reflect.isValid(inst) then
+                    local n = {}
+                    pcall(function() n.tag = tagName(inst.GameplayTag) end)
+                    pcall(function() n.state = (inst.State and tostring(reflect.enumNames("EPXUtopiaToolNodeState")[inst.State] or inst.State)) end)
+                    pcall(function()
+                        local def = inst.Node
+                        local setup = def.setup
+                        n.name = textOf(setup.IngameName)
+                        n.type = textOf(setup.Type) or tostring(setup.Type)
+                        if not args.brief then n.description = textOf(setup.Description) end
+                        local unlocks = json.array()
+                        for _, b in ipairs(uarray(def.Blocking)) do
+                            if reflect.isValid(b) then unlocks[#unlocks + 1] = tagName(b.GameplayTag) end
+                        end
+                        if #unlocks > 0 then n.unlocks = unlocks end
+                        local req = json.array()
+                        for _, b in ipairs(uarray(def.BlockedBy)) do
+                            if reflect.isValid(b) then req[#req + 1] = tagName(b.GameplayTag) end
+                        end
+                        if #req > 0 then n.requires = req end
+                    end)
+                    nodes[#nodes + 1] = n
+                end
+            end
+            e.nodes = nodes
+            local hay = ((e.faction or "") .. " " .. (e.utopia or "")):lower()
+            if not want or hay:find(want, 1, true) then out[#out + 1] = e end
+        end
+    end
+    return out
+end
+
+local function liveWidget(className)
+    for _, w in ipairs(FindAllOf(className) or {}) do
+        if reflect.isValid(w) and (reflect.path(w) or ""):find("^/Engine/Transient") then
+            local ok, vis = pcall(function() return w:IsVisible() end)
+            if not ok or vis then return w end
+        end
+    end
+end
+
+-- Spend a Utopia Tree point through the panel's own handlers (needs the Utopia panel open: key U).
+-- args: node (tag suffix or name substring)
+function A.utopiaAssign(args)
+    local want = tostring(args.node or ""):lower()
+    if want == "" then error("node required (tag or name)", 0) end
+    local panel = liveWidget("PXUtopiaToolNodesPanel")
+    if not panel then error("Utopia panel not open (press U, or use the CLI utopia-assign)", 0) end
+    local target, inst
+    for _, w in ipairs(FindAllOf("PXUtopiaToolNodeWidget") or {}) do
+        if reflect.isValid(w) and (reflect.path(w) or ""):find("^/Engine/Transient") then
+            local okI, ni = pcall(function() return w["Node Instance"] end)
+            if okI and reflect.isValid(ni) then
+                local tag = (tagName(ni.GameplayTag) or ""):lower()
+                local name = ""
+                pcall(function() name = (textOf(ni.Node.setup.IngameName) or ""):lower() end)
+                if tag == want or tag:sub(-#want) == want or name:find(want, 1, true) then target, inst = w, ni; break end
+            end
+        end
+    end
+    if not target then error("no node widget matching " .. want .. " (is the right faction's tree shown?)", 0) end
+    local before = inst.State
+    panel:HandleUtopiaToolNodeClicked(target)
+    local details = liveWidget("PXUtopiaNodeDetailsPanel")
+    if not details then error("node details panel did not open", 0) end
+    details:AssignPoint()
+    local names = reflect.enumNames("EPXUtopiaToolNodeState")
+    return { node = tagName(inst.GameplayTag), before = names[before] or before, after = names[inst.State] or inst.State }
 end
 
 return A

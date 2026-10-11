@@ -31,6 +31,7 @@ Local subcommands:
   watch [interval=2] [pauseOn=critical|kind,..]
                          stream one JSON line per meaningful change (dialogs, construction/research done,
                          deficits, stat bands, stock runway, quest progress, map icons, council phase)
+  utopia-assign node=X   spend a Utopia Tree point (opens/closes the panel; fp2 utopia lists nodes)
   watch-start [pauseOn=..] [saveEvery=2] [saveName=agent-rolling] / watch-stop
                          detached watcher appending to .runtime/watch.jsonl (tail it from a Monitor);
                          overwrites one rolling save every saveEvery in-game weeks (0 = off);
@@ -326,6 +327,27 @@ async function main(argv: string[]): Promise<number> {
     case "council-open":
       print(await councilOpen());
       return 0;
+    case "utopia-assign": {
+      // The game assigns Utopia points only through its panel: open it (U), assign via the bridge, close it.
+      const node = String(args.node ?? "");
+      if (!node) throw new BridgeError("utopia-assign needs node=<tag suffix or name> (see fp2 utopia)");
+      let res = await call("utopia_assign", { node }).catch((e) => e as Error);
+      let opened = false;
+      if (res instanceof Error && /panel not open/.test(res.message)) {
+        focusGame();
+        sendKeys(["u"]);
+        opened = true;
+        await Bun.sleep(1500);
+        res = await call("utopia_assign", { node }).catch((e) => e as Error);
+      }
+      if (opened) {
+        sendKeys(["u"]);
+        await Bun.sleep(500);
+      }
+      if (res instanceof Error) throw res;
+      print(res);
+      return 0;
+    }
     case "pass-law": {
       // Bridge-only Council flow: open (skip cutscene) -> propose -> vote -> dismiss result -> verify.
       const policy = String(args.policy ?? "");

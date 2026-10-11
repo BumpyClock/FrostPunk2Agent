@@ -584,6 +584,8 @@ def("territories", { help = "Frostland territories by state (default revealed = 
 def("explore", { help = "Start exploring a revealed territory (InstructStartTerritoryExploration). args: territory (ref or name substring), dryRun", mutation = true, run = function(args) return actions.explore(args) end })
 def("expanders", { help = "Area expander (frostbreaking) types for the city.", run = function(args) return actions.expanders(args) end })
 def("frostbreak_path", { help = "Plan frostbreaking to a target: shortest frozen route from thawed land, split into expander batches in build order. args: target (cell) or deposit (type substring, e.g. Logistics), around (extra cells thawed around the target; default 5 for deposit), batch=8, go=true starts batch 1", mutation = true, run = function(args) return actions.frostbreakPath(args) end })
+def("utopia", { help = "Utopia Tree per faction: points, cap, next threshold, nodes (tag, name, type, state, description, unlocks/requires). Read-only. args: faction, brief=true", run = function(args) return actions.utopia(args) end })
+def("utopia_assign", { help = "Spend a Utopia Tree point on a node via the panel handlers. Needs the Utopia panel open (key U). args: node (tag suffix like Venturers.Hub, or name)", mutation = true, run = function(args) return actions.utopiaAssign(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",
     mutation = true,

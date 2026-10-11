@@ -5,7 +5,9 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 ## Not covered yet
 
 - Council negotiation and promises (`InstructNegotiate`, `PXDesireUtils.MakePromise`).
-- Utopia Tree node unlocks: no reflected command path (only UI widget handlers).
+- Utopia Tree node unlocks: no non-UI command path. `utopia_assign` drives the panel's own handlers
+  (`PXUtopiaToolNodesPanel.HandleUtopiaToolNodeClicked`, then `PXUtopiaNodeDetailsPanel.AssignPoint`) while the
+  panel is open; the CLI `utopia-assign` opens and closes it with U (measured: Goods Emporium Open -> Unlocked).
 - Total population as the HUD shows it. `population.population` sums unassigned community sizes only;
   `society.population` is the candidate but is not compared to the HUD.
 - Frostland beyond exploration: expeditions, outposts, colonies, trails (`InstructConstructOutpost`, `BuildTrail`).
