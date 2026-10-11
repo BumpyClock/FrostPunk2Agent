@@ -69,7 +69,9 @@ export async function brief() {
   } catch (e) {
     modals = { error: String(e) };
   }
-  if (Array.isArray(modals) && modals.length) alerts.unshift(`${modals.length} modal(s) open: answer with fp2 choose index=N`);
+  // Only dialogs with choices need an answer; notifications (no choices) do not block play.
+  const decisions = Array.isArray(modals) ? modals.filter((m: any) => Array.isArray(m?.choices) && m.choices.length > 0) : [];
+  if (decisions.length) alerts.unshift(`${decisions.length} decision(s) open: answer with fp2 choose index=N`);
   let date: unknown = null;
   try {
     date = await call("date");
