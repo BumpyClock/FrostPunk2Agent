@@ -85,7 +85,8 @@ builds. State guesses and mistakes plainly. Keep entries brief; the log is secon
 ## Commands
 
 Never pipe `fp2` output through python or `ConvertFrom-Json`; use `--fields a.b,c[0].d` (one path prints the value,
-several print an object keyed by path). Never `Start-Sleep` after an input; use `wait=<cond>`. Mutating commands
+several print an object keyed by path; `*` maps over an array: `fp2 laws --fields "*.id,*.name,*.seats"` prints one
+row per law). Never `Start-Sleep` after an input; use `wait=<cond>`. Mutating commands
 validate through the game and charge normal costs; most accept `dryRun=true`.
 
 | Need | Command |

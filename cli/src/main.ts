@@ -129,17 +129,32 @@ let compact = false;
 let fields: string[] = [];
 
 /** Resolve a dotted path like `cities[0].stock.Core_FoodResource` against a value. */
+// Path segments: names, [N] indices, and `*` to map the rest of the path over an array.
 function pick(v: unknown, path: string): unknown {
+  const parts = path.match(/[^.[\]]+/g) ?? [];
   let node: any = v;
-  for (const part of path.match(/[^.[\]]+/g) ?? []) {
+  for (let i = 0; i < parts.length; i++) {
     if (node == null) return undefined;
-    node = node[part];
+    if (parts[i] === "*") {
+      if (!Array.isArray(node)) return undefined;
+      const rest = parts.slice(i + 1).join(".");
+      return rest ? node.map((el) => pick(el, rest)) : node;
+    }
+    node = node[parts[i]];
   }
   return node;
 }
 
+function project(v: unknown, paths: string[]): unknown {
+  // `*.a,*.b` on an array yields [{a, b}, ...]: one row per element.
+  if (Array.isArray(v) && paths.every((f) => f.startsWith("*."))) {
+    return v.map((el) => Object.fromEntries(paths.map((f) => [f.slice(2), pick(el, f.slice(2))])));
+  }
+  return paths.length === 1 ? pick(v, paths[0]) : Object.fromEntries(paths.map((f) => [f, pick(v, f)]));
+}
+
 const print = (v: unknown) => {
-  if (fields.length) v = fields.length === 1 ? pick(v, fields[0]) : Object.fromEntries(fields.map((f) => [f, pick(v, f)]));
+  if (fields.length) v = project(v, fields);
   console.log(compact ? JSON.stringify(v) : JSON.stringify(v, null, 2));
 };
 
