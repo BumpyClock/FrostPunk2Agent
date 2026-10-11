@@ -407,7 +407,21 @@ function A.modals()
             e.description = textOf(mp.DescriptionText)
             e.info = textOf(mp.GameplayInfo)
             e.speaker = textOf(mp.Speaker)
-            if reflect.isValid(mp.Decision) then e.decision = reflect.ref(mp.Decision) end
+            if reflect.isValid(mp.Decision) then
+                e.decision = reflect.ref(mp.Decision)
+                local choices = json.array()
+                pcall(function()
+                    mp.Decision.Choices:ForEach(function(i, ch)
+                        local c = ch:get()
+                        local ce = { index = i - 1 }
+                        pcall(function() ce.name = c.Name:ToString() end)
+                        pcall(function() ce.description = c.Description:ToString() end)
+                        pcall(function() ce.effects = c.GameplayInfo:ToString() end)
+                        choices[#choices + 1] = ce
+                    end)
+                end)
+                e.choices = choices
+            end
         end)
         out[#out + 1] = e
     end

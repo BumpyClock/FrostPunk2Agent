@@ -29,7 +29,7 @@ export function facts(s: Snap): Map<string, string> {
   const reasons: string[] = asArray(s.pauseReasons).filter((r: string) => r !== "UserPaused");
   put("ui.pauseReasons", [...reasons].sort());
   put("ui.cutscene", s.cutscene ?? null);
-  for (const m of Array.isArray(s.modals) ? s.modals : []) put(`modal.${m.title ?? m.class}`, { title: m.title, description: m.description, hasDecision: Boolean(m.decision) });
+  for (const m of Array.isArray(s.modals) ? s.modals : []) put(`modal.${m.title ?? m.class}`, { title: m.title, description: m.description, choices: m.choices });
 
   for (const c of Array.isArray(s.construction) ? s.construction : []) put(`construction.${c.district ?? c.target}#${c.ref?.slice(-12)}`, c.state);
 
@@ -68,7 +68,8 @@ export function facts(s: Snap): Map<string, string> {
   }
 
   const kinds: Record<string, number> = {};
-  for (const i of Array.isArray(s.icons) ? s.icons : []) kinds[i.kind] = (kinds[i.kind] ?? 0) + 1;
+  // Bark speech bubbles come and go constantly; they carry no actionable state.
+  for (const i of Array.isArray(s.icons) ? s.icons : []) if (!/^Bark/.test(i.kind)) kinds[i.kind] = (kinds[i.kind] ?? 0) + 1;
   for (const [k, n] of Object.entries(kinds)) put(`icons.${k}`, n);
 
   put("districts", (Array.isArray(s.districts) ? s.districts : []).map((d: any) => `${d.type}:${(d.buildings ?? []).join("+")}`).sort());
