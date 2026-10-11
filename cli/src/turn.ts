@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { BridgeError, call, readStatus, repoRoot } from "./bridge";
 import { brief } from "./brief";
 import { goalView } from "./goals";
+import { nextRollingSlot } from "./saves";
 import { TICKS_PER_WEEK, setPaused, setSpeed, sleep, userPaused } from "./game";
 import { diff, facts, isAckOnly, type WatchEvent } from "./watch";
 
@@ -62,6 +63,7 @@ export type TurnOptions = {
   stopOn: Set<string>;
   speed?: number;
   saveEveryWeeks: number;
+  /** Prefix of the rotating save slots (<saveName>-a/-b/-c). */
   saveName: string;
   autoAck: boolean;
   intervalMs: number;
@@ -167,8 +169,9 @@ export async function turn(opts: TurnOptions) {
     else if (Date.now() > deadline) stoppedBy = { reason: "timeout", kinds: [] };
 
     if (opts.saveEveryWeeks > 0 && ticks - lastSaveTicks >= opts.saveEveryWeeks * TICKS_PER_WEEK) {
-      const r = await call("save", { name: opts.saveName, override: true }).then((x) => ({ ok: true, x }), (e) => ({ ok: false, x: String(e) }));
-      emit({ kind: r.ok ? "watch.saved" : "watch.saveFailed", detail: { name: opts.saveName, result: r.x } });
+      const name = nextRollingSlot(opts.saveName);
+      const r = await call("save", { name, override: true }).then((x) => ({ ok: true, x }), (e) => ({ ok: false, x: String(e) }));
+      emit({ kind: r.ok ? "watch.saved" : "watch.saveFailed", detail: { name, result: r.x } });
       lastSaveTicks = ticks;
     }
   }

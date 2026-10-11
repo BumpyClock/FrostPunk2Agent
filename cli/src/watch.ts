@@ -1,6 +1,7 @@
 // `fp2 watch`: poll the bridge snapshot and print one JSON line per meaningful change.
 // Designed to run under an agent's Monitor tool: quiet while nothing important happens.
 import { call } from "./bridge";
+import { nextRollingSlot } from "./saves";
 
 type Snap = any;
 export type WatchEvent = { kind: string; detail: unknown };
@@ -209,7 +210,8 @@ export function isAckOnly(m: any): boolean {
 
 export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; saveEveryWeeks?: number; saveName?: string; autoAck?: boolean; out: (line: unknown) => void }) {
   let prev: Map<string, string> | null = null;
-  // Rolling save: one slot overwritten every N in-game weeks, so a crash or closed game loses at most N weeks.
+  // Rolling saves every N in-game weeks, rotating over <saveName>-a/-b/-c (oldest overwritten), so a crash loses
+  // at most N weeks and one unloadable save still leaves two older ones.
   let lastSaveTicks: number | null = null;
   for (;;) {
     let s: Snap;
@@ -257,7 +259,7 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
     if (opts.saveEveryWeeks && Number.isFinite(ticks)) {
       if (lastSaveTicks === null || ticks < lastSaveTicks) lastSaveTicks = ticks;
       else if (ticks - lastSaveTicks >= opts.saveEveryWeeks * TICKS_PER_WEEK) {
-        const name = opts.saveName ?? "agent-rolling";
+        const name = nextRollingSlot(opts.saveName ?? "agent-rolling");
         try {
           const r = await call("save", { name, override: true });
           opts.out({ at: new Date().toISOString(), date: s.date?.date, kind: "watch.saved", detail: { name, result: r } });

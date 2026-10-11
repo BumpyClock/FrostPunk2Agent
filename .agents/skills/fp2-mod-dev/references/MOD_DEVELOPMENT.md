@@ -101,6 +101,11 @@ not play (see the no-cheats rule in SKILL.md).
   `PXTerritoryUtils.GetAllCurrentlyExploringTerritories` plus `GetOwner():GetComponentByClass(...)`. Check
   `reflect.isValid(x)` before every call on an object that a game function returned, and prefer paths that
   already work (here: filter the revealed territory list on `inProgress`).
+- Reading the object an instruction acted on, through the reference held before the instruction, crashed the game
+  (access violation in `UObject::HasAnyInternalFlags`, measured: `target.City` read right after
+  `InstructConstructOutpost` on a food-herd outpost). `Instruct*`, `Start*` and `Create*` calls can destroy or
+  replace that object. In actions, read everything before the instruction; after it, capture `reflect.path(x)`
+  first and re-find with `fresh(path)` (nil when gone), or drop the read and verify with a read command.
 - A guessed world-context argument crashed the game (access violation in Wwise
   `AK::WriteBytesMem::SetCount`, measured right after `PXOutpostUtils.GetAllOutposts` was called with a level
   path as `WorldContextObject`). `call` now always fills `WorldContextObject` with the PlayerController; pass
@@ -120,6 +125,11 @@ not play (see the no-cheats rule in SKILL.md).
 - After a crash: `fp2 recover [name=<save>]` launches the game, loads the save from the main menu, waits until
   ready, closes the loading screen and pauses. Loading uses `ForceLoadGame`; plain `LoadGame` returns true from the
   main menu and does nothing (measured).
+- A save can crash the game while loading (measured: the single `agent-rolling` slot crashed in Wwise on load,
+  twice). `turn` and the watcher therefore rotate `agent-rolling-a/-b/-c`. `recover` treats a dead process, a new
+  crash report, a running CrashReportClient or a heartbeat stale for 60 s during a load as a crash, records the save
+  in `.runtime/bad-saves.json` (keyed by name and file time; an overwritten slot is usable again), kills the game
+  and tries the next save, up to 3 loads.
 
 ## Verify
 

@@ -79,6 +79,11 @@ The project has no tagged releases yet.
 
 ### Changed
 
+- `turn` and `watch-start` rotate saves over `<saveName>-a/-b/-c` (oldest overwritten) instead of one
+  `agent-rolling` slot, which became unloadable once and left no fallback.
+- `recover` detects a crash during load (process gone, new crash report, crash reporter, stale heartbeat), marks the
+  save in `.runtime/bad-saves.json`, kills the game and tries the next save (`agent-rolling*`, `agent-*`,
+  `AutoSave*`), up to `attempts=3`, and reports each failed save. `saves` flags bad saves.
 - `pass-law` refuses without an open Council session unless `--force`.
 - Cutscene guard: `choose`, `vote`, `propose`, `ability` and `overdrive` refuse during a cutscene, and
   `click`, `rclick` and `hold` refuse unless `--force`.
@@ -89,6 +94,10 @@ The project has no tagged releases yet.
 - `cells`, `pick_cells` and `place_district` treat `Outside` cells as buildable (measured with a Logistics district on an Outside deposit cell).
 - UE4SS crash classes are guarded: FText inside struct parameters, and SoftObject property reads.
 - `vote` refuses outside the Council scene, where it locked all game input.
+- Actions no longer read the object an instruction acted on through the old reference (stale-object crash after
+  `InstructConstructOutpost`). They re-find it by path or drop the read: `ability`, `overdrive`, `heat_adjust`,
+  `district_active`, `explore`, `expand_district`, `deconstruct`, `connect_outpost`, `utopia_assign`; `choose`
+  reads the modal before clicking; `build_outpost` returns no post-instruction state.
 
 ### Known issues
 

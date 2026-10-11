@@ -64,6 +64,17 @@ local function try(obj, fn, params)
     return { error = tostring(v) }
 end
 
+-- Re-find an object by path after an Instruct*/Start*/Create* call. The instruction can destroy or replace
+-- the object it acted on, and a call on the old userdata crashed the game (access violation in
+-- UObject::HasAnyInternalFlags, measured after InstructConstructOutpost). Capture the path before the
+-- instruction; returns nil when the object is gone.
+local function fresh(path)
+    if type(path) ~= "string" then return nil end
+    local o = reflect.find(path)
+    if reflect.isValid(o) then return o end
+    return nil
+end
+
 
 -- Pause reasons currently active (e.g. "UserPaused", "WBP_Modal_C", "Cutscene active - ...").
 function A.pauseReasons()
@@ -507,8 +518,10 @@ function A.choose(args)
     pcall(function() decision = w.messageParams.Decision end)
     if not reflect.isValid(decision) then decision = nil end
     local idx = tonumber(args.index) or 0
+    -- Read everything before the click: closing the modal can destroy the widget (stale-object crash class).
+    local out = { chose = idx, modal = reflect.className(w), decision = decision and reflect.ref(decision) or nil }
     w:OnChoiceButtonClicked(decision, idx, args.close ~= false)
-    return { chose = idx, modal = reflect.className(w), decision = decision and reflect.ref(decision) or nil }
+    return out
 end
 
 ---------------------------------------------------------------------------
@@ -1158,9 +1171,11 @@ function A.setAbility(args)
             for _, ab in ipairs(objList(au:GetActorVisibleAbilities(ctx(), a.actor))) do
                 if (assetId(ab) or ""):lower():find(want, 1, true) then
                     local active = args.active ~= false
+                    local actorPath = reflect.path(a.actor)
                     cdo("PXInstructionUtils"):InstructSetActorAbilityActive(ctx(), a.actor, ab, active, A.leaderOrigin())
                     local now
-                    pcall(function() now = au:IsActorAbilityActive(ctx(), a.actor, ab) end)
+                    local actor = fresh(actorPath)
+                    if actor then pcall(function() now = au:IsActorAbilityActive(ctx(), actor, ab) end) end
                     return { owner = a.label, ability = assetId(ab), requested = active, activeNow = now }
                 end
             end
@@ -1219,8 +1234,12 @@ function A.overdrive(args)
     local g = city.Generator
     local active = args.active ~= false
     if active and not gu:CanActivateOverdrive(g) then error("overdrive not available now", 0) end
+    local gPath = reflect.path(g)
     gu:SetGeneratorOverdriveActive(ctx(), g, active, A.leaderOrigin())
-    return { overdriveActive = gu:IsGeneratorOverdriveActive(g) }
+    local now = fresh(gPath)
+    local out = { requested = active }
+    if now then pcall(function() out.overdriveActive = gu:IsGeneratorOverdriveActive(now) end) end
+    return out
 end
 
 ---------------------------------------------------------------------------
@@ -1286,8 +1305,16 @@ function A.heatAdjust(args)
         if l:lower() == want then target, label = comp, l; return true end
     end)
     if not target then error("no heat allocation for district " .. tostring(args.district), 0) end
+    local targetPath = reflect.path(target)
     cdo("PXHeatManagementUtils"):SetHeatAllocationAdjustmentLevel(ctx(), target, tonumber(args.adjustment) or 1)
-    return { district = label, allocation = target.Allocation, needed = target.AllocationsNeeded, heat = target.HeatAllocated }
+    local out = { district = label }
+    local now = fresh(targetPath)
+    if now then
+        pcall(function() out.allocation = now.Allocation end)
+        pcall(function() out.needed = now.AllocationsNeeded end)
+        pcall(function() out.heat = now.HeatAllocated end)
+    end
+    return out
 end
 
 function A.heatDistribute(args)
@@ -1331,15 +1358,19 @@ function A.setDistrictActive(args)
     end
     if not reflect.isValid(reason) then error("PlayerChoice deactivation reason not found", 0) end
     local active = args.active ~= false
+    local ownerPath = reflect.path(owner)
     if active then
         cdo("PXInstructionUtils"):InstructActivateLogic(ctx(), owner)
     else
         cdo("PXInstructionUtils"):InstructDeactivateLogic(ctx(), owner, reason)
     end
     local reasons = json.array()
-    pcall(function()
-        for _, r in ipairs(objList(au:GetDeactivationReasons(owner))) do reasons[#reasons + 1] = assetId(r) end
-    end)
+    local now = fresh(ownerPath)
+    if now then
+        pcall(function()
+            for _, r in ipairs(objList(au:GetDeactivationReasons(now))) do reasons[#reasons + 1] = assetId(r) end
+        end)
+    end
     return { district = label, requested = active, deactivationReasons = reasons }
 end
 
@@ -1419,8 +1450,10 @@ function A.explore(args)
     local out = territoryInfo(target, nation, geo.location(city))
     pcall(function() out.preparationWeeks = tu:GetExplorationPreparationTime(ctx(), target, city).ScaledTicks / 1680 end)
     if args.dryRun then return out end
+    local exPath = reflect.path(ex)
     cdo("PXInstructionUtils"):InstructStartTerritoryExploration(ctx(), ex, city, city)
-    pcall(function() out.inProgressNow = ex:IsExplorationInProgress() end)
+    local now = fresh(exPath)
+    if now then pcall(function() out.inProgressNow = now:IsExplorationInProgress() end) end
     return out
 end
 
@@ -1616,12 +1649,17 @@ function A.utopiaAssign(args)
     end
     if not target then error("no node widget matching " .. want .. " (is the right faction's tree shown?)", 0) end
     local before = inst.State
+    local node = tagName(inst.GameplayTag)
+    local instPath = reflect.path(inst)
     panel:HandleUtopiaToolNodeClicked(target)
     local details = liveWidget("PXUtopiaNodeDetailsPanel")
     if not details then error("node details panel did not open", 0) end
     details:AssignPoint()
     local names = reflect.enumNames("EPXUtopiaToolNodeState")
-    return { node = tagName(inst.GameplayTag), before = names[before] or before, after = names[inst.State] or inst.State }
+    local out = { node = node, before = names[before] or before }
+    local now = fresh(instPath)
+    if now then pcall(function() out.after = names[now.State] or now.State end) end
+    return out
 end
 
 -- Long-term planning: ordered research path to a topic (prerequisites first), with the
@@ -1979,9 +2017,13 @@ function A.expandDistrict(args)
     local id = (args.idFrom == "actor") and owner:GetFName() or exp:GetFName()
     info.id = id:ToString()
     local world = owner:GetWorld()
+    local expPath = reflect.path(exp)
     cdo("PXInstructionUtils"):ExpandDistrict(world, id, cells, {}, false)
-    pcall(function() info.underExpansionNow = reflect.isValid(exp.Operation) end)
-    pcall(function() info.queuedCells = #uarray(exp.QueuedCells) end)
+    local now = fresh(expPath)
+    if now then
+        pcall(function() info.underExpansionNow = reflect.isValid(now.Operation) end)
+        pcall(function() info.queuedCells = #uarray(now.QueuedCells) end)
+    end
     return info
 end
 
@@ -2067,8 +2109,10 @@ function A.deconstruct(args)
     pcall(function() out.underDeconstruction = du:IsUnderDeconstruction(owner) end)
     if args.dryRun or out.underDeconstruction then return out end
     if ticks <= 0 then error("could not read the normal deconstruction duration; refusing to start with an override of 0", 0) end
+    local ownerPath = reflect.path(owner)
     du:StartDeconstruction(ctx(), owner, A.leaderOrigin(), { ScaledTicks = ticks }, true)
-    pcall(function() out.underDeconstructionNow = du:IsUnderDeconstruction(owner) end)
+    local now = fresh(ownerPath)
+    if now then pcall(function() out.underDeconstructionNow = du:IsUnderDeconstruction(now) end) end
     return out
 end
 
@@ -2097,8 +2141,9 @@ function A.buildOutpost(args)
     pcall(function() out.builtBefore = reflect.isValid(target.City) end)
     if args.dryRun then return out end
     cdo("PXInstructionUtils"):InstructConstructOutpost(ctx(), city, target, A.leaderOrigin())
-    pcall(function() out.builtNow = reflect.isValid(target.City) end)
-    pcall(function() out.underConstruction = cdo("PXConstructionUtils"):IsUnderConstruction(target) end)
+    -- Do not touch `target` after the instruction: a call on it right afterwards crashed the game
+    -- (null UObject in HasAnyInternalFlags, measured on a food-herd outpost). Read state via frost_sites.
+    out.next = "verify with: fp2 frost_sites territory=<name>"
     return out
 end
 
@@ -2129,7 +2174,8 @@ function A.connectOutpost(args)
     end)
     if args.dryRun then return out end
     cdo("PXInstructionUtils"):InstructConnectOutpostToCity(ctx(), target, city)
-    pcall(function() out.connectedNow = reflect.isValid(target.CurrentConnection) end)
+    local now = fresh(out.ref)
+    if now then pcall(function() out.connectedNow = reflect.isValid(now.CurrentConnection) end) end
     return out
 end
 

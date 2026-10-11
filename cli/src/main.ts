@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 // fp2: single CLI for playing Frostpunk 2 through the FP2AgentBridge mod.
-import { closeSync, openSync, readFileSync, readSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { BridgeError, bridgeDir, call, callEnvelope, readStatus } from "./bridge";
 import { focusGame, sendKeys } from "./win32";
 import { brief } from "./brief";
@@ -9,9 +9,11 @@ import { click, drag, move, scroll } from "./mouse";
 import { watch } from "./watch";
 import { join } from "node:path";
 import { repoRoot } from "./bridge";
-import { cutsceneReason, overdriveCycle, setPaused, setSpeed, sleep, time, userPaused, waitAlive, waitFor, waitReady } from "./game";
+import { cutsceneReason, overdriveCycle, setPaused, setSpeed, sleep, time, userPaused, waitFor, waitReady } from "./game";
 import { addGoal, goalView, loadGoals, removeGoal, updateGoal } from "./goals";
 import { STOP_DEFAULT, turn } from "./turn";
+import { RECOVER_MAX_ATTEMPTS, launchGame, recover, resolveSaveName } from "./recover";
+import { isBadSave, listSaves, SAVE_DIR } from "./saves";
 
 // Named crop regions as fractions of the client area (calibrated on a 21:9 maximized window).
 const REGIONS: Record<string, number[]> = {
@@ -24,11 +26,14 @@ const REGIONS: Record<string, number[]> = {
 const HELP = `fp2 <subcommand> [key=value ...] [--compact] [--fields a.b,c[0].d] [--timeout S] [--args-file F|-]
 
 Play loop:
-  recover [name=X]       relaunch if the bridge is dead, load X or the newest agent-rolling/AutoSave from the
-                         main menu, wait until ready, pause; in a loaded game it only pauses
+  recover [name=X] [attempts=3]
+                         relaunch if the bridge is dead, load X or the newest agent-rolling-*, agent-*, AutoSave*
+                         save from the main menu, wait until ready, pause; in a loaded game it only pauses. A load
+                         that crashes the game marks the save bad (.runtime/bad-saves.json) and tries the next one
   turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]
                          resume, run until a stop event or weeks pass, pause; returns {turn, events, dropped,
-                         goals, brief}. Events also append to .runtime/watch.jsonl. Default stopOn: ${STOP_DEFAULT.join(",")}
+                         goals, brief}. Saves rotate over <saveName>-a/-b/-c (oldest overwritten).
+                         Events also append to .runtime/watch.jsonl. Default stopOn: ${STOP_DEFAULT.join(",")}
   goals                  open goals (all=true includes done); file .runtime/goals.jsonl, one JSON per line
   goals add text=".." [horizon=long|short|check] [due=<week>] [expect=".."]
   goals done id=N [note=".."] | goals edit id=N [text=..] [due=..] [expect=..] [horizon=..] | goals rm id=N
@@ -50,7 +55,7 @@ Local subcommands:
   utopia-assign node=X   spend a Utopia Tree point (opens/closes the panel; fp2 utopia lists nodes)
   watch-start [pauseOn=..] [saveEvery=2] [saveName=agent-rolling] / watch-stop
                          detached watcher appending to .runtime/watch.jsonl (tail it from a Monitor);
-                         overwrites one rolling save every saveEvery in-game weeks (0 = off);
+                         saves every saveEvery in-game weeks (0 = off), rotating <saveName>-a/-b/-c;
                          autoAck=true (default) dismisses one-option "I see" dialogs, emitting dialog.acknowledged
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
@@ -76,24 +81,6 @@ Bridge subcommands (run inside the game; 'fp2 help' lists them):
 
 Values parse as JSON when valid, else strings. Dotted keys nest: a.b=1 -> {"a":{"b":1}}.
 --fields prints only the given paths: one path prints the value, several print {path: value}.`;
-
-const SAVE_DIR = join(process.env.LOCALAPPDATA ?? "", "11bitstudios", "Frostpunk2", "Steam", "Saved", "SaveGames");
-
-// .sav header: int32 magic, then an FString (int32 length incl. NUL, bytes) holding the display name.
-function saveDisplayName(path: string): string | undefined {
-  try {
-
-    const fd = openSync(path, "r");
-    const buf = Buffer.alloc(512);
-    readSync(fd, buf, 0, 512, 0);
-    closeSync(fd);
-    const len = buf.readInt32LE(4);
-    if (len <= 1 || len > 500) return undefined;
-    return buf.toString("utf8", 8, 8 + len - 1);
-  } catch {
-    return undefined;
-  }
-}
 
 function parseValue(text: string): unknown {
   try {
@@ -274,67 +261,6 @@ async function reload(full: boolean) {
   throw new BridgeError("no reload observed within 15s; check ue4ss/UE4SS.log");
 }
 
-/** Start the game via Steam if it is not running (closing a leftover crash reporter first) and wait for the bridge. */
-async function launchGame(timeoutMs: number) {
-  Bun.spawnSync(["taskkill", "/IM", "CrashReportClient.exe", "/F"], { stdout: "ignore", stderr: "ignore" });
-  const running = Bun.spawnSync(["tasklist", "/FI", "IMAGENAME eq Frostpunk2-Win64-Shipping.exe"]).stdout.toString();
-  if (!running.includes("Frostpunk2-Win64-Shipping")) {
-    Bun.spawn(["C:/Program Files (x86)/Steam/steam.exe", "-applaunch", "1601580"], { stdout: "ignore", stderr: "ignore" });
-  }
-  return waitAlive(timeoutMs);
-}
-
-type SaveEntry = { file: string; display?: string; modified: string; bytes: number };
-async function listSaves(): Promise<SaveEntry[]> {
-  const { readdirSync, statSync } = await import("node:fs");
-  return readdirSync(SAVE_DIR)
-    .filter((f) => f.endsWith(".sav"))
-    .map((f) => ({ file: f.slice(0, -4), display: saveDisplayName(join(SAVE_DIR, f)), modified: statSync(join(SAVE_DIR, f)).mtime.toISOString(), bytes: statSync(join(SAVE_DIR, f)).size }))
-    .sort((a, b) => b.modified.localeCompare(a.modified));
-}
-
-/** Newest agent rolling save or game autosave (by file time); the name `load` takes. */
-async function newestRecoverySave(): Promise<string> {
-  const s = (await listSaves()).find((x) => /^agent-|^AutoSave/i.test(x.display ?? x.file));
-  if (!s) throw new BridgeError("no agent-* or AutoSave* save found; pass name=<save>");
-  return s.display ?? s.file;
-}
-
-// Session start and crash recovery in one call. Measured sequence from past recoveries: launch, Enter on the
-// title screen, ForceLoadGame from the main menu (retried: the save subsystem is not ready at once),
-// wait until a city exists, a key to close the loading screen, then the player pause.
-async function recover(name: string | undefined, timeoutMs: number) {
-  const steps: string[] = [];
-  const st = await readStatus();
-  if (!st.alive) {
-    await launchGame(timeoutMs);
-    steps.push("launched");
-    await sleep(3000);
-  }
-  const ready = await waitReady(5_000).then(() => true, () => false);
-  if (ready) {
-    const t = await setPaused(true);
-    return { recovered: false, reason: "already in a loaded game", steps, time: t, brief: await brief() };
-  }
-  const save = name ?? (await newestRecoverySave());
-  await sendKeys(["enter"], true); // "press any key" title screen (harmless in the menu)
-  steps.push("title dismissed");
-  const deadline = Date.now() + 60_000;
-  for (;;) {
-    const err = await call("load", { name: save }).then(() => undefined, (e) => String(e));
-    if (!err) break;
-    if (Date.now() > deadline) throw new BridgeError(`load ${save} failed: ${err}`);
-    await sleep(5000);
-  }
-  steps.push(`loading ${save}`);
-  await waitReady(timeoutMs);
-  await sendKeys(["space"], true); // closes the loading screen (measured)
-  await sleep(2000);
-  const t = await setPaused(true);
-  steps.push("ready, paused");
-  return { recovered: true, save, steps, time: t, brief: await brief() };
-}
-
 async function main(argv: string[]): Promise<number> {
   const { positional, args, flags } = parse(argv);
   compact = Boolean(flags.compact);
@@ -427,7 +353,7 @@ async function main(argv: string[]): Promise<number> {
       }
     }
     case "recover":
-      print(await recover(args.name === undefined ? undefined : String(args.name), flags.timeout ? timeoutMs : 240_000));
+      print(await recover(args.name === undefined ? undefined : String(args.name), flags.timeout ? timeoutMs : 240_000, Number(args.attempts ?? RECOVER_MAX_ATTEMPTS)));
       return 0;
     case "wait-for":
       print(await waitFor(String(args.cond ?? rest[0] ?? ""), Number(args.timeout ?? 20) * 1000));
@@ -568,15 +494,11 @@ async function main(argv: string[]): Promise<number> {
       return 0;
     case "saves":
       // Disk listing (works without the game); newest first. `display` is the name `load` takes.
-      print({ dir: SAVE_DIR, saves: (await listSaves()).slice(0, Number(args.limit ?? 20)) });
+      print({ dir: SAVE_DIR, saves: listSaves().slice(0, Number(args.limit ?? 20)).map((s) => (isBadSave(s) ? { ...s, bad: true } : s)) });
       return 0;
     case "load": {
       // Accepts a display name or a file name (FrostPunk2SaveGame9); the game loads by display name.
-      const { existsSync } = await import("node:fs");
-      const name = String(args.name ?? "");
-      const file = join(SAVE_DIR, `${name}.sav`);
-      const display = existsSync(file) ? saveDisplayName(file) ?? name : name;
-      print(await call("load", { ...args, name: display }));
+      print(await call("load", { ...args, name: resolveSaveName(String(args.name ?? "")) }));
       return 0;
     }
     case "launch":

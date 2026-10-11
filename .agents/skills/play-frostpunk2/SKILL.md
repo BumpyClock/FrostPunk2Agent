@@ -51,8 +51,9 @@ These habits separated good turns from bad ones in past runs. They do not say wh
 
 ## Session start
 
-1. `fp2 status`, then `fp2 recover` (launches if needed, loads `name=X` or the newest `agent-rolling` or `AutoSave*`,
-   ends paused). First install: `./scripts/Install-Bridge.ps1` with the game closed. If `turn` warns about a
+1. `fp2 status`, then `fp2 recover` (launches if needed, loads `name=X` or the newest `agent-rolling-*`, `agent-*`
+   or `AutoSave*`, ends paused; a save that crashes the game on load is marked bad and the next one is tried, up to
+   3 loads). First install: `./scripts/Install-Bridge.ps1` with the game closed. If `turn` warns about a
    detached watcher, run `fp2 watch-stop`.
 2. `fp2 goals`. If empty, seed it: `long` = the scenario quest (`fp2 snapshot --fields quests`); `short` = one
    city-problem target, one capacity goal, and the research path from `fp2 research_plan topic=X`. Then `fp2 turn`.
@@ -92,9 +93,9 @@ validate through the game and charge normal costs; most accept `dryRun=true`.
 
 | Need | Command |
 |---|---|
-| Play a turn | `fp2 turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]` |
+| Play a turn | `fp2 turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]`; saves rotate over `agent-rolling-a/-b/-c` |
 | Goal stack | `fp2 goals [all=true]`, `goals add text=".." [horizon=long\|short\|check] [due=<week>] [expect=".."]`, `goals done id=N [note=..]`, `goals edit id=N [text=..] [due=..] [expect=..] [horizon=..]`, `goals rm id=N`. File: `.runtime/goals.jsonl` |
-| Start, crash recovery | `fp2 recover [name=<save display name>]`; in a loaded game it only pauses |
+| Start, crash recovery | `fp2 recover [name=<save display name>] [attempts=3]`; in a loaded game it only pauses. Load crashes go to `.runtime/bad-saves.json` (`fp2 saves` shows `bad`) |
 | Wait for state | `fp2 wait-for cond=<c> [timeout=20]`; `c`: `modal`, `no-modal`, `council`, `no-council`, `cutscene`, `no-cutscene`, `paused`, `running`, `ready`, `reason:<s>`, `no-reason:<s>`. `click`, `hold`, `keys` take `wait=<c>` |
 | HUD, triage | `fp2 snapshot` (every HUD section), `fp2 brief` (alerts, deficits, depleting stocks, modals, construction), `fp2 extract name=<x>` (omit `name` to list), `fp2 date` |
 | Districts | `fp2 districts` (efficiency, proximity, workforce), `fp2 district_types`, `fp2 district_active district=Production#2 active=false` (frees workforce) |
