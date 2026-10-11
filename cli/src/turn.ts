@@ -149,13 +149,16 @@ export async function turn(opts: TurnOptions) {
     const ticks = Number(s.date?.ticks ?? fromTicks);
     const stops = events.filter((e) => isStop(e, opts.stopOn)).map((e) => e.kind);
     const reasons = pauseReasons.filter((r) => r !== "SavingGame");
-    // The game pauses itself (player pause flag) a moment before an event dialog registers (measured: two
-    // "UserPaused" stops with no human present, each followed by a story dialog). Re-poll once before
-    // reporting a bare UserPaused so the dialog arrives as a stop event.
+    // A story event sets the player pause flag, and its dialog widget is only created once time runs again
+    // (measured: resuming showed "Venturers' Rallies Build Support" within 350 ms; waiting while paused never
+    // did). So on a bare UserPaused, resume once and let the dialog appear as a stop event. A real player pause
+    // ends the turn the second time.
     const bareUserPause = !stops.length && reasons.length > 0 && reasons.every((r) => r === "UserPaused");
     if (bareUserPause && !pauseGraceUsed) {
       pauseGraceUsed = true;
-      await sleep(1500);
+      warnings.push("game self-paused (story event); resumed once to let its dialog appear");
+      await setPaused(false).catch(() => undefined);
+      await sleep(1200);
       continue;
     }
     if (stops.length) stoppedBy = { reason: "event", kinds: [...new Set(stops)] };

@@ -63,7 +63,7 @@ These habits separated good turns from bad ones in past runs. They do not say wh
 returns `{turn: {fromWeek, toWeek, date, advancedWeeks, stoppedBy: {reason, kinds}}, events, dropped,
 goals: {open, due, file}, brief, warnings?}`. Each turn:
 
-- Pauses: `turn` ends paused by design. The game also pauses itself just before a story dialog registers; `turn` re-polls once, so a bare `UserPaused` after that is a real player pause. Your own district toggles and temperature rises do not stop a turn.
+- Pauses: `turn` ends paused by design. A story event sets the player pause flag, and its dialog only appears once time runs; `turn` resumes once on a bare `UserPaused` so the dialog shows up as a stop event (measured). A second bare `UserPaused` is a real player pause. Your own district toggles and temperature rises do not stop a turn.
 - Read `stoppedBy.reason`. `event` or `heartbeat`: continue below. A modal class: `fp2 modals`, decide,
   `fp2 choose index=N`. `Cutscene ...`: skip with `fp2 keys e@3000`. `UserPaused`: the user paused; ask before
   resuming. With a modal or cutscene already open, `turn` returns at once without resuming time.
