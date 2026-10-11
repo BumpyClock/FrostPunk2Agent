@@ -42,6 +42,15 @@ Frostpunk 2 knowledge; verify before relying on it.
 - If the generator is at its power limit, distribution does not help. Check `fp2 generator`
   (`power`, `powerLimit`, `capacityPct`, `overdriveSupported`, `canOverdrive`) and fuel stock. (general)
 
+## Stability check before expanding
+
+Before spending on colonies, settlements or big builds, audit the base (`fp2 snapshot`): generator `power`
+vs `powerLimit` (headroom), food `change`, free workforce, Squalor/Tension trends, death waves, and whether
+the expansion competes with survival for scarce inputs (Cores, prefabs, workers). Expansion that consumes the
+city's safety margin is short-term pain that can become collapse in the next cold snap. Decide per run;
+expanding early can be right when the base has slack. (observed: at 92% generator load and negative food,
+the run paused colonies and built the generator upgrade first)
+
 ## Priorities early (general)
 
 1. Shelter and Heating deficits first; they drive Cold, Sickliness and Tension.

@@ -754,7 +754,10 @@ function A.placeBuilding(args)
         local du = cdo("PXDistrictUtils")
         for _, d in ipairs(objList(city:GetDistricts())) do
             local okS, sup = pcall(function() return du:IsDistrictSupportingBuilding(city.Nation, d.DistrictType, btype) end)
-            local typeOk = not args.district or (assetId(d.DistrictType) or ""):lower():find(tostring(args.district):lower(), 1, true)
+            -- district accepts a type substring ("MainQuarter") or a label from `districts` ("MainQuarter#0").
+            local wantD = args.district and tostring(args.district):lower() or nil
+            local label = ((assetId(d.DistrictType) or "") .. "#" .. tostring(d.DistrictId)):lower()
+            local typeOk = not wantD or label == wantD or (not wantD:find("#", 1, true) and (assetId(d.DistrictType) or ""):lower():find(wantD, 1, true))
             if okS and sup and typeOk then district = d; break end
         end
     end
