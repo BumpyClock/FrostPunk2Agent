@@ -587,7 +587,8 @@ def("snapshot", {
         out.districts = try(function()
             local list = json.array()
             for _, d in ipairs(actions.districts(args)) do
-                list[#list + 1] = { type = d.type, id = d.id, buildings = d.buildings, underConstruction = d.underConstruction }
+                list[#list + 1] = { type = d.type, id = d.id, label = d.label, active = d.active, inactiveReasons = d.inactiveReasons,
+                    efficiencyPct = d.efficiencyPct, workforce = d.workforce, buildings = d.buildings, underConstruction = d.underConstruction }
             end
             return list
         end)

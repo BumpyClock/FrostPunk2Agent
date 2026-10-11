@@ -38,6 +38,12 @@ export function facts(s: Snap): Map<string, string> {
 
   for (const c of Array.isArray(s.construction) ? s.construction : []) put(`construction.${c.name ?? c.building ?? c.district ?? c.target}#${c.ref?.slice(-12)}`, c.state);
 
+  // District on/off with the game's reason (e.g. NoDeposit when a deposit runs dry, PlayerChoice).
+  for (const d of asArray(s.districts)) {
+    if (!d?.label) continue;
+    put(`dstate.${d.label}`, d.active === false ? asArray(d.inactiveReasons).join("+") || "inactive" : "active");
+  }
+
   // New buildings/abilities become available: announce them with their in-game meaning.
   for (const b of asArray(s.unlocks?.buildings)) put(`unlock.building.${b.id}`, { name: b.name, description: b.description, effects: b.effects, statistics: b.statistics, economy: b.economy });
   for (const a of asArray(s.unlocks?.abilities)) put(`unlock.ability.${a.owner}.${a.id}`, { owner: a.owner, name: a.name, description: a.description });
@@ -116,6 +122,13 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
       case "notice":
         if (b !== undefined) ev.push({ kind: "notification", detail: to });
         break;
+      case "dstate":
+        if (a !== undefined && b !== undefined) {
+          const label = k.slice(7);
+          if (to === "active") ev.push({ kind: "district.activated", detail: { district: label, from } });
+          else ev.push({ kind: "district.deactivated", detail: { district: label, reasons: String(to).split("+"), noDeposit: String(to).includes("NoDeposit") } });
+        }
+        break;
       case "unlock":
         if (a === undefined && b !== undefined) {
           const isBuilding = k.startsWith("unlock.building.");
@@ -184,7 +197,7 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
   return ev;
 }
 
-const CRITICAL = new Set(["dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
+const CRITICAL = new Set(["district.deactivated", "dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
 const TICKS_PER_WEEK = 1680;
 

@@ -134,6 +134,7 @@ Each line has `at`, `date`, `week`, `kind`, `detail`.
 | `ui.cutscene.changed`, `ui.pauseReasons.changed` | A cutscene or pause reason appeared or cleared | Do not click or choose during a cutscene |
 | `deaths.increased` | Death toll rose; `detail` has from, to, `byCause` | Find the cause (cold, hunger, sickness) and fix its need |
 | `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
+| `district.deactivated` / `district.activated` | A district went off or back on; `detail.reasons` (`NoDeposit` = its deposit is exhausted, `PlayerChoice`) | `NoDeposit`: expand onto a new deposit or build elsewhere before stocks run out |
 | `building.unlocked`, `ability.available` | A building type or ability became available; `detail` has name, description, effects | Weigh it against the goal stack |
 | `watch.started`, `watch.autopaused`, `bridge.error` | Watcher status | `bridge.error`: `fp2 status` |
 
