@@ -60,6 +60,7 @@ export function facts(s: Snap): Map<string, string> {
 
   const soc = city(s, "society");
   if (soc?.totalTrust !== undefined) put("trust.total", band(soc.totalTrust));
+  if (soc?.deathToll !== undefined) put("deaths.toll", soc.deathToll);
   for (const c of soc?.communities ?? []) put(`standing.${c.community}`, band(c.standing ?? 0));
   put("temperature", pop?.temperatureLevel ?? null);
 
@@ -120,6 +121,9 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         ev.push({ kind: worse ? "stock.runway" : "stock.recovered", detail: { resource: name, weeksLeftUnder: to, stock: res?.stock?.[name], perDay: res?.change?.[name] } });
         break;
       }
+      case "deaths":
+        ev.push({ kind: "deaths.increased", detail: { from, to, byCause: city(s, "society")?.deathsByCause } });
+        break;
       case "trust":
       case "standing":
         ev.push({ kind: `${group}.${(to ?? 0) > (from ?? 0) ? "up" : "down"}`, detail: { what: k, band: to } });

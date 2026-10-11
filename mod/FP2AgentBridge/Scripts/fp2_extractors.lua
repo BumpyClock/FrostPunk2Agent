@@ -392,6 +392,19 @@ return function(X)
                     end
                 end)
                 e.communities = comms
+                -- HUD "Death toll" counter (WBP_UnnaturalDeathCounterWidget_C) and its death-meter script.
+                pcall(function()
+                    local w = FindFirstOf("WBP_UnnaturalDeathCounterWidget_C")
+                    e.deathToll = w.TargetDeathCount
+                    local script = w.DeathMeterScript
+                    local causes = json.object()
+                    script["Special Cause Deaths"]:ForEach(function(k, v)
+                        local key = k:get()
+                        local val = v:get()
+                        causes[(reflect.shortName(key) or "?"):gsub("^DA_S2F_", ""):gsub("_DeathCause$", "")] = type(val) == "number" and val or reflect.plain(val, 1)
+                    end)
+                    e.deathsByCause = causes
+                end)
             end)
         end,
     })
