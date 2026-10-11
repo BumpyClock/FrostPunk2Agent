@@ -397,6 +397,14 @@ function A.openModals()
     return list
 end
 
+-- Game rich text to plain text: <img id="FoodPositive"></> -> [Food+], style tags dropped.
+function A.plainText(v)
+    if type(v) ~= "string" then return v end
+    v = v:gsub('<img id="(%a-)Positive">', "[%1+]"):gsub('<img id="(%a-)Negative">', "[%1-]")
+    v = v:gsub('<img id="(.-)">', "[%1]"):gsub("</>", ""):gsub("<%a+>", ""):gsub("  +", " ")
+    return v
+end
+
 function A.modals()
     local out = json.array()
     for _, w in ipairs(A.openModals()) do
@@ -417,7 +425,7 @@ function A.modals()
                         local ce = { index = i - 1 }
                         pcall(function() ce.name = c.Name:ToString() end)
                         pcall(function() ce.description = c.Description:ToString() end)
-                        pcall(function() ce.effects = c.GameplayInfo:ToString() end)
+                        pcall(function() ce.effects = A.plainText(c.GameplayInfo:ToString()) end)
                         choices[#choices + 1] = ce
                     end)
                 end)
@@ -826,10 +834,7 @@ function A.laws(args)
             local function text(prop)
                 local ok, v = pcall(function() return p[prop]:ToString() end)
                 if ok and v and v ~= "" and not v:find("BLANK_ON_PURPOSE", 1, true) then
-                    -- Rich text: <img id="FoodPositive"></> -> [Food+], drop style tags.
-                    v = v:gsub('<img id="(%a-)Positive">', "[%1+]"):gsub('<img id="(%a-)Negative">', "[%1-]")
-                    v = v:gsub('<img id="(.-)">', "[%1]"):gsub("</>", ""):gsub("<%a+>", ""):gsub("  +", " ")
-                    return v
+                    return A.plainText(v)
                 end
             end
             e.name = text("IngameName")
