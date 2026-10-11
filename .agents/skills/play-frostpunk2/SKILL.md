@@ -135,7 +135,7 @@ Measurements are in [MOD_GAPS.md](references/MOD_GAPS.md). Research needs a Rese
 | Start or recover the game | `fp2 launch` (closes a stuck crash reporter, starts via Steam, waits for the bridge) |
 | New game from the main menu | `fp2 new-game` (Utopia Builder, Windswept Peaks, first 3 communities, intro skipped, paused) |
 | Save | `fp2 save name=X`, then `fp2 advance ticks=10` to flush |
-| Load | `fp2 load name=X` (main menu or in game), then `fp2 wait-ready` |
+| Load | `fp2 load name=X` (main menu or in game), `fp2 wait-ready`, `fp2 pause`, `fp2 keys space` (closes the loading screen) |
 
 ### UI fallback
 

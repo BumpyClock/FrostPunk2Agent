@@ -91,9 +91,17 @@ not play (see the no-cheats rule in SKILL.md).
   and maps, and `get` refuses them.
 - Area expander and construction cost checks return FText structs and hit the first guard. The `expand`
   action reads costs through `try` (errors become data) and still runs; the game validates and returns `ok`.
+- Calling a method on, or passing, a null or stale UObject crashes the game (access violation in
+  `UObject::HasAnyInternalFlags` inside `process_lua_function`). `pcall` does not catch it. Measured with
+  `PXTerritoryUtils.GetAllCurrentlyExploringTerritories` plus `GetOwner():GetComponentByClass(...)`. Check
+  `reflect.isValid(x)` before every call on an object that a game function returned, and prefer paths that
+  already work (here: filter the revealed territory list on `inProgress`).
+- Save before testing a new read on a live game. `fp2 save` then `fp2 advance ticks=10` flushes it.
 - Game crash reports are in `%LOCALAPPDATA%\11bitstudios\Frostpunk2\Steam\Saved\Crashes\*\CrashContext.runtime-xml`
   (`<ErrorMessage>`, `<CallStack>`).
-- After a crash: `fp2 launch`, choose Continue from the main menu, then `fp2 wait-ready`.
+- After a crash: `fp2 launch`, `fp2 keys enter` on the title screen, `fp2 load name=<save>` (uses
+  `ForceLoadGame` from the main menu; plain `LoadGame` returns true there and does nothing, measured),
+  `fp2 wait-ready`, `fp2 pause`, then `fp2 keys space` to close the loading screen.
 
 ## Verify
 

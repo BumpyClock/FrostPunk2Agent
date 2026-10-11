@@ -614,13 +614,16 @@ def("save", {
     end,
 })
 def("load", {
-    help = "Load a save by name (from 'saves'). Works from the main menu or in game.",
+    help = "Load a save by name (from 'saves'). Uses ForceLoadGame from the main menu or with force=true. Press Space on the loading screen.",
     mutation = true,
     run = function(args)
         if type(args.name) ~= "string" then error("name required", 0) end
         local sub = FindFirstOf("PXSaveSubsystem")
         if not sub:DoesSaveGameExists(args.name) then error("no save named " .. args.name, 0) end
-        return { loading = sub:LoadGame(args.name), name = args.name }
+        -- LoadGame returns true but does nothing from the main menu (measured); ForceLoadGame works there.
+        local inGame = reflect.isValid(FindFirstOf("PXCityComponent"))
+        if inGame and not args.force then return { loading = sub:LoadGame(args.name), name = args.name } end
+        return { loading = sub:ForceLoadGame(args.name), name = args.name, forced = true }
     end,
 })
 
