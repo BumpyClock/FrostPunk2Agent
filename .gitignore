@@ -1,0 +1,14 @@
+# Build outputs and runtime state
+fp2.exe
+cli/node_modules/
+.runtime/
+mod/FP2AgentBridge/bridge/*
+!mod/FP2AgentBridge/bridge/.gitkeep
+
+# Skill discovery junctions (point at .agents/skills; recreate locally)
+.claude/skills/
+.codex/skills/
+
+# Large/raw game dumps (regenerate with the bridge)
+research/city/
+research/*.json

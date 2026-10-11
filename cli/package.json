@@ -1,0 +1,14 @@
+{
+  "name": "fp2-cli",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build src/main.ts --compile --outfile ../fp2.exe",
+    "dev": "bun run src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "1.2.20",
+    "typescript": "5.8.3"
+  }
+}

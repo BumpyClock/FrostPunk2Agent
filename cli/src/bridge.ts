@@ -1,0 +1,122 @@
+// File-based client for the FP2AgentBridge UE4SS mod.
+// Protocol: write request.json (atomic rename), mod deletes it, writes response.json.
+import { existsSync, mkdirSync, openSync, closeSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+
+export class BridgeError extends Error {}
+
+const HEARTBEAT_STALE_SECONDS = 5;
+const STALE_LOCK_SECONDS = 120;
+
+/** Repo root: FP2_ROOT, else the first ancestor of the exe/cwd/source that contains mod/FP2AgentBridge. */
+export function repoRoot(): string {
+  if (process.env.FP2_ROOT) return resolve(process.env.FP2_ROOT);
+  const starts = [dirname(process.execPath), process.cwd(), import.meta.dir];
+  for (const start of starts) {
+    let dir = resolve(start);
+    for (let i = 0; i < 8; i++) {
+      if (existsSync(join(dir, "mod", "FP2AgentBridge", "Scripts", "main.lua"))) return dir;
+      const up = dirname(dir);
+      if (up === dir) break;
+      dir = up;
+    }
+  }
+  throw new BridgeError("cannot find repo root (mod/FP2AgentBridge); set FP2_ROOT");
+}
+
+export function bridgeDir(): string {
+  return process.env.FP2_BRIDGE_DIR ? resolve(process.env.FP2_BRIDGE_DIR) : join(repoRoot(), "mod", "FP2AgentBridge", "bridge");
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export type Status = {
+  alive: boolean;
+  reason?: string;
+  ageSeconds?: number;
+  started?: number;
+  busy?: boolean;
+  handled?: number;
+  [k: string]: unknown;
+};
+
+export async function readStatus(): Promise<Status> {
+  const path = join(bridgeDir(), "status.json");
+  // The mod replaces status.json every second (remove + rename): retry briefly.
+  for (let i = 0; i < 20; i++) {
+    try {
+      const st = JSON.parse(readFileSync(path, "utf8")) as Status;
+      const age = Date.now() / 1000 - Number(st.time ?? 0);
+      st.ageSeconds = Math.round(age * 10) / 10;
+      st.alive = age < HEARTBEAT_STALE_SECONDS;
+      if (!st.alive) st.reason = "heartbeat stale; game closed, hung, or mod unloaded";
+      return st;
+    } catch {
+      await sleep(50);
+    }
+  }
+  return { alive: false, reason: "no readable status.json; game not running with the mod, or mod failed to load" };
+}
+
+async function withLock<T>(fn: () => Promise<T>): Promise<T> {
+  const dir = bridgeDir();
+  mkdirSync(dir, { recursive: true });
+  const lock = join(dir, "client.lock");
+  const deadline = Date.now() + 60_000;
+  for (;;) {
+    try {
+      const fd = openSync(lock, "wx");
+      writeFileSync(fd, String(process.pid));
+      closeSync(fd);
+      break;
+    } catch {
+      try {
+        if (Date.now() - statSync(lock).mtimeMs > STALE_LOCK_SECONDS * 1000) rmSync(lock, { force: true });
+      } catch {}
+      if (Date.now() > deadline) throw new BridgeError(`another client holds ${lock}`);
+      await sleep(50);
+    }
+  }
+  try {
+    return await fn();
+  } finally {
+    rmSync(lock, { force: true });
+  }
+}
+
+export type Envelope = { id?: string; ok: boolean; result?: unknown; error?: string; elapsedMs?: number };
+
+export async function callEnvelope(command: string, args: Record<string, unknown> = {}, timeoutMs = 30_000): Promise<Envelope> {
+  const st = await readStatus();
+  if (!st.alive) throw new BridgeError(`bridge not alive: ${st.reason}`);
+  const dir = bridgeDir();
+  const req = join(dir, "request.json");
+  const resp = join(dir, "response.json");
+  const id = crypto.randomUUID().slice(0, 12);
+  return withLock(async () => {
+    rmSync(resp, { force: true });
+    writeFileSync(req + ".tmp", JSON.stringify({ id, command, args }));
+    renameSync(req + ".tmp", req);
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (existsSync(resp)) {
+        try {
+          const env = JSON.parse(readFileSync(resp, "utf8")) as Envelope;
+          if (env.id === id || env.id == null) {
+            rmSync(resp, { force: true });
+            return env;
+          }
+        } catch {}
+      }
+      await sleep(15);
+    }
+    rmSync(req, { force: true });
+    throw new BridgeError(`timeout after ${timeoutMs / 1000}s waiting for '${command}' (game thread busy or loading?)`);
+  });
+}
+
+export async function call<T = any>(command: string, args: Record<string, unknown> = {}, timeoutMs?: number): Promise<T> {
+  const env = await callEnvelope(command, args, timeoutMs);
+  if (!env.ok) throw new BridgeError(String(env.error));
+  return env.result as T;
+}
