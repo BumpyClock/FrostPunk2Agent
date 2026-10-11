@@ -28,6 +28,7 @@ export function facts(s: Snap): Map<string, string> {
 
   const reasons: string[] = asArray(s.pauseReasons).filter((r: string) => r !== "UserPaused");
   put("ui.pauseReasons", [...reasons].sort());
+  put("game.paused", asArray(s.pauseReasons).includes("UserPaused"));
   put("ui.cutscene", s.cutscene ?? null);
   for (const m of Array.isArray(s.modals) ? s.modals : []) put(`modal.${m.title ?? m.class}`, { title: m.title, description: m.description, choices: m.choices });
 
@@ -128,6 +129,13 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         break;
       case "icons":
         ev.push({ kind: "icons.changed", detail: { kind: k.slice(6), from: from ?? 0, to: to ?? 0 } });
+        break;
+      case "game":
+        if (k === "game.paused") {
+          ev.push({ kind: to ? "game.paused" : "game.resumed", detail: {} });
+          break;
+        }
+        ev.push({ kind: `${k}.changed`, detail: { from, to } });
         break;
       case "research":
         if (k === "research.topic" && to === null) {
