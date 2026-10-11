@@ -106,6 +106,15 @@ not play (see the no-cheats rule in SKILL.md).
   `InstructConstructOutpost` on a food-herd outpost). `Instruct*`, `Start*` and `Create*` calls can destroy or
   replace that object. In actions, read everything before the instruction; after it, capture `reflect.path(x)`
   first and re-find with `fresh(path)` (nil when gone), or drop the read and verify with a read command.
+- `build_outpost` on a food-herd outpost (`FoodLargeOutpost_LargeHerd`, Faebait Gorge) crashed the game again after
+  the post-instruction reads were removed (same `HasAnyInternalFlags` stack, reading 0x18, measured). The dump shows
+  three nested `pcall`s above the failing call, so the crash came from `reflect.isValid` or a method call inside an
+  action `pcall`, on a destroyed object (inferred). A null UObject raises a catchable Lua error ("UObject instance
+  is nullptr", measured); a destroyed one crashes, and `reflect.isValid` cannot protect it because `IsValid` itself
+  runs `HasAnyInternalFlags` (inferred). Rules: validate each optional sub-object (`CommunitiesHolder`, `Site`,
+  `Type`, `Generator`) before reading or calling it; validate each object argument before an `Instruct*` call; never
+  hold a reference across an instruction, a level load or a just-finished exploration. Check a crash dump's pcall
+  depth to locate the Lua line: count `UE4SS + c7c9e1` frames (luaB_pcall in the current UE4SS build, inferred) in the `CallStack`.
 - A guessed world-context argument crashed the game (access violation in Wwise
   `AK::WriteBytesMem::SetCount`, measured right after `PXOutpostUtils.GetAllOutposts` was called with a level
   path as `WorldContextObject`). `call` now always fills `WorldContextObject` with the PlayerController; pass

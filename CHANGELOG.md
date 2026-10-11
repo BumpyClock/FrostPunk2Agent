@@ -94,6 +94,9 @@ The project has no tagged releases yet.
 
 ### Fixed
 
+- `build_outpost` validates the outpost, its type, the city and the Leader origin before `InstructConstructOutpost`
+  and refuses an already-built outpost; `frost_sites`, `overdrive`, `heat`, abilities and `connect_outpost` validate
+  optional sub-objects before calls (food-herd outpost crash; needs live verification).
 - `cells`, `pick_cells` and `place_district` treat `Outside` cells as buildable (measured with a Logistics district on an Outside deposit cell).
 - UE4SS crash classes are guarded: FText inside struct parameters, and SoftObject property reads.
 - `vote` refuses outside the Council scene, where it locked all game input.

@@ -33,8 +33,20 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
   panel is open; the CLI `utopia-assign` opens and closes it with U (measured: Goods Emporium Open -> Unlocked).
 - Total population as the HUD shows it. `population.population` sums unassigned community sizes only;
   `society.population` is the candidate but is not compared to the HUD.
-- Frostland beyond exploration: expeditions, outposts, colonies, trails (`InstructConstructOutpost`, `BuildTrail`).
-  `fp2 territories` and `fp2 explore` cover exploration only.
+- Frostland beyond exploration: expeditions, colonies, trails (`BuildTrail`). `build_outpost` works on a coal
+  outpost (`CoalPermamentOutpost`, Infinite Steppes: built instantly, Operational, measured).
+- Food-herd outposts are unbuilt via the bridge: `build_outpost territory=Faebait` on `FoodLargeOutpost_LargeHerd`
+  (site `FoodOutpostSite`, Faebait Gorge) crashed the game twice (access violation reading 0x18 in UE4SS
+  `UObject::HasAnyInternalFlags`, measured), both about 16 s after "Faebait Gorge explored". Both crash stacks show
+  three nested Lua `pcall`s above the failing call (measured from the dumps): the bridge's dispatch pcall, an action
+  `pcall(function() ... end)`, and the pcall inside `reflect.isValid`. That fits `reflect.isValid(x)` or `assetId(x)`
+  on a destroyed (non-null) object, not a null one: a nullptr raises a catchable Lua error ("UObject instance is
+  nullptr", measured in bridge.log). The direct `InstructConstructOutpost` call has only one pcall above it, so it is
+  not the crashing frame (inferred). The second crash may have run the pre-fix code if no `fp2 reload` followed the
+  edit (guessed). Guards now validate every sub-object in `frost_sites` and every argument of the instruction. Needs
+  live verification: save, `build_outpost territory=Faebait dryRun=true`, then without dryRun, then `frost_sites
+  territory=Faebait`. If it still crashes, build the herd outpost from the UI and record the outcome here. No
+  game-side check is used: `PXOutpostUtils.CanConstructOutpost` returns a requirement struct (FText class).
 - Heat: `heat_adjust` sets a district's adjustment level, but the relation between adjustment, allocation
   and the HUD heat bars is unmeasured.
 - Other ability and city actions beyond the toggle in `fp2 ability` (`PXAbilityUtils.ActivateActorAbility`).

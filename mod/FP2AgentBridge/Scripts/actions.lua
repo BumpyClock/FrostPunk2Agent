@@ -29,7 +29,10 @@ local function world() return ctx():GetWorld() end
 
 function A.leaderOrigin()
     local cfg = cdo("PXGameplayUtils"):GetActionOriginConfig()
-    return cfg.LeaderOrigin
+    if not reflect.isValid(cfg) then error("no ActionOriginConfig", 0) end
+    local origin = cfg.LeaderOrigin
+    if not reflect.isValid(origin) then error("no Leader ActionOrigin", 0) end
+    return origin
 end
 
 function A.cities()
@@ -1110,7 +1113,10 @@ local function abilityActors(city)
         if reflect.isValid(actor) then out[#out + 1] = { label = label, actor = actor } end
     end
     pcall(function() add("City", city:GetOwner()) end)
-    pcall(function() add("Generator", city.Generator:GetOwner()) end)
+    pcall(function()
+        local g = city.Generator
+        if reflect.isValid(g) then add("Generator", g:GetOwner()) end
+    end)
     for _, d in ipairs(objList(city:GetDistricts())) do
         pcall(function() add((assetId(d.DistrictType) or "District") .. "#" .. tostring(d.DistrictId), d:GetOwner()) end)
     end
@@ -1232,6 +1238,7 @@ function A.overdrive(args)
     local city = A.city(args)
     local gu = cdo("PXGeneratorUtils")
     local g = city.Generator
+    if not reflect.isValid(g) then error("city has no generator", 0) end
     local active = args.active ~= false
     if active and not gu:CanActivateOverdrive(g) then error("overdrive not available now", 0) end
     local gPath = reflect.path(g)
@@ -1247,7 +1254,12 @@ end
 
 local function heatHolder(city)
     local h
-    pcall(function() h = city.Generator:GetOwner().PXHeatAllocationHolderComponent end)
+    pcall(function()
+        local g = city.Generator
+        if not reflect.isValid(g) then return end
+        local owner = g:GetOwner()
+        if reflect.isValid(owner) then h = owner.PXHeatAllocationHolderComponent end
+    end)
     if not reflect.isValid(h) then h = FindFirstOf("PXHeatAllocationHolderComponent") end
     if not reflect.isValid(h) then error("no heat allocation holder", 0) end
     return h
@@ -1717,7 +1729,10 @@ end
 
 local function siteInfo(site, e)
     if not reflect.isValid(site) then return end
-    pcall(function() e.site = assetId(site.SiteType) end)
+    pcall(function()
+        local st = site.SiteType
+        if reflect.isValid(st) then e.site = assetId(st) end
+    end)
     pcall(function()
         local t = site.TerritoryComponent
         if reflect.isValid(t) then
@@ -1757,14 +1772,22 @@ function A.frostSites(args)
         for _, o in ipairs(FindAllOf("PXOutpostComponent") or {}) do
             if reflect.isValid(o) then
                 local e = { kind = "outpost", ref = reflect.path(o) }
-                pcall(function() e.type = assetId(o.Type) end)
-                pcall(function()
-                    local up = o.Type.UpgradedOutpostType
-                    if reflect.isValid(up) then e.upgradesTo = assetId(up) end
-                end)
+                -- Every sub-object is optional (a food-herd outpost crashed build_outpost, see MOD_GAPS):
+                -- validate before any read or call on it.
+                local ty, ch, site
+                pcall(function() ty = o.Type end)
+                if reflect.isValid(ty) then
+                    e.type = assetId(ty)
+                    pcall(function()
+                        local up = ty.UpgradedOutpostType
+                        if reflect.isValid(up) then e.upgradesTo = assetId(up) end
+                    end)
+                end
                 pcall(function() e.built = reflect.isValid(o.City) end)
-                pcall(function() e.population = o.CommunitiesHolder:GetTotalCommunitiesSize() end)
-                siteInfo(o.Site, e)
+                pcall(function() ch = o.CommunitiesHolder end)
+                if reflect.isValid(ch) then pcall(function() e.population = ch:GetTotalCommunitiesSize() end) end
+                pcall(function() site = o.Site end)
+                siteInfo(site, e)
                 add(e)
             end
         end
@@ -2135,14 +2158,28 @@ function A.buildOutpost(args)
     end
     if not reflect.isValid(target) then error("no matching visible, unbuilt outpost (see fp2 frost_sites)", 0) end
     local out = { ref = reflect.path(target) }
-    pcall(function() out.type = assetId(target.Type) end)
-    pcall(function() out.name = textOf(target.Type.IngameName) end)
-    pcall(function() out.upgradesTo = assetId(target.Type.UpgradedOutpostType) end)
+    local ty
+    pcall(function() ty = target.Type end)
+    if not reflect.isValid(ty) then error("outpost " .. tostring(out.ref) .. " has no valid Type; not constructing", 0) end
+    out.type = assetId(ty)
+    pcall(function() out.name = textOf(ty.IngameName) end)
+    pcall(function()
+        local up = ty.UpgradedOutpostType
+        if reflect.isValid(up) then out.upgradesTo = assetId(up) end
+    end)
     pcall(function() out.builtBefore = reflect.isValid(target.City) end)
+    if out.builtBefore then error("outpost " .. tostring(out.ref) .. " is already built", 0) end
+    -- No validity check from the game here: PXOutpostUtils.CanConstructOutpost returns a requirement struct
+    -- (FText inside: crash class), so dryRun only resolves the target.
     if args.dryRun then return out end
-    cdo("PXInstructionUtils"):InstructConstructOutpost(ctx(), city, target, A.leaderOrigin())
+    -- Resolve and validate every UFunction argument before the call; never pass an unchecked object.
+    local iu, wco, origin = cdo("PXInstructionUtils"), ctx(), A.leaderOrigin()
+    if not reflect.isValid(city) then error("city is not valid; not constructing", 0) end
+    if not reflect.isValid(target) then error("outpost became invalid before the call; not constructing", 0) end
+    iu:InstructConstructOutpost(wco, city, target, origin)
     -- Do not touch `target` after the instruction: a call on it right afterwards crashed the game
-    -- (null UObject in HasAnyInternalFlags, measured on a food-herd outpost). Read state via frost_sites.
+    -- (HasAnyInternalFlags, measured on a food-herd outpost). reflect.isValid cannot protect a destroyed object:
+    -- IsValid itself runs HasAnyInternalFlags (inferred). Re-find by path, or read state via frost_sites.
     out.next = "verify with: fp2 frost_sites territory=<name>"
     return out
 end
@@ -2169,7 +2206,9 @@ function A.connectOutpost(args)
     pcall(function() out.type = assetId(target.Type) end)
     pcall(function() out.connectedBefore = reflect.isValid(target.CurrentConnection) end)
     pcall(function()
-        local tt = cdo("PXTrailUtils"):GetActorsConnectedTrailType(ctx(), target:GetOwner(), city:GetOwner())
+        local a, b = target:GetOwner(), city:GetOwner()
+        if not (reflect.isValid(a) and reflect.isValid(b)) then return end
+        local tt = cdo("PXTrailUtils"):GetActorsConnectedTrailType(ctx(), a, b)
         if reflect.isValid(tt) then out.trailType = assetId(tt) end
     end)
     if args.dryRun then return out end
