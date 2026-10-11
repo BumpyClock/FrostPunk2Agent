@@ -195,12 +195,9 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
     if (prev === null) {
       opts.out({ at: new Date().toISOString(), kind: "watch.started", date: s.date?.date, week: s.date?.week, paused: asArray(s.pauseReasons).includes("UserPaused") });
     } else {
-      const events = diff(prev, next, s);
-      for (const e of events) {
-        // Ignore stock runway "growing" -> bucket noise when nothing is actually short.
-        if (e.kind === "stock.runway" && (e.detail as any).weeksLeftUnder === null) continue;
-        opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...e });
-      }
+      // Ignore stock runway "growing" -> bucket noise when nothing is actually short.
+      const events = diff(prev, next, s).filter((e) => !(e.kind === "stock.runway" && (e.detail as any).weeksLeftUnder === null));
+      for (const e of events) opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...e });
       const critical = events.filter((e) => opts.pauseOn.has(e.kind) || (opts.pauseOn.has("critical") && CRITICAL.has(e.kind)));
       if (critical.length && !asArray(s.pauseReasons).includes("UserPaused")) {
         await call("game.pause").catch(() => undefined);
