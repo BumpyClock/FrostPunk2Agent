@@ -127,6 +127,17 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
       case "icons":
         ev.push({ kind: "icons.changed", detail: { kind: k.slice(6), from: from ?? 0, to: to ?? 0 } });
         break;
+      case "research":
+        if (k === "research.topic" && to === null) {
+          ev.push({ kind: "research.finished", detail: { topic: from } });
+          break;
+        }
+        if (k === "research.topic" && from === null) {
+          ev.push({ kind: "research.started", detail: { topic: to } });
+          break;
+        }
+        ev.push({ kind: `${k}.changed`, detail: { from, to } });
+        break;
       default:
         ev.push({ kind: `${k}.changed`, detail: { from, to } });
     }
@@ -134,7 +145,7 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
   return ev;
 }
 
-const CRITICAL = new Set(["dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed"]);
+const CRITICAL = new Set(["dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
 export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; out: (line: unknown) => void }) {
   let prev: Map<string, string> | null = null;
@@ -149,18 +160,18 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
     }
     const next = facts(s);
     if (prev === null) {
-      opts.out({ kind: "watch.started", date: s.date?.date, week: s.date?.week, paused: asArray(s.pauseReasons).includes("UserPaused") });
+      opts.out({ at: new Date().toISOString(), kind: "watch.started", date: s.date?.date, week: s.date?.week, paused: asArray(s.pauseReasons).includes("UserPaused") });
     } else {
       const events = diff(prev, next, s);
       for (const e of events) {
         // Ignore stock runway "growing" -> bucket noise when nothing is actually short.
         if (e.kind === "stock.runway" && (e.detail as any).weeksLeftUnder === null) continue;
-        opts.out({ date: s.date?.date, week: s.date?.week, ...e });
+        opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...e });
       }
       const critical = events.filter((e) => opts.pauseOn.has(e.kind) || (opts.pauseOn.has("critical") && CRITICAL.has(e.kind)));
       if (critical.length && !asArray(s.pauseReasons).includes("UserPaused")) {
         await call("game.pause").catch(() => undefined);
-        opts.out({ date: s.date?.date, kind: "watch.autopaused", detail: critical.map((e) => e.kind) });
+        opts.out({ at: new Date().toISOString(), date: s.date?.date, kind: "watch.autopaused", detail: critical.map((e) => e.kind) });
       }
     }
     prev = next;

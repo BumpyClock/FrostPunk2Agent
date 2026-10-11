@@ -30,6 +30,8 @@ Local subcommands:
   watch [interval=2] [pauseOn=critical|kind,..]
                          stream one JSON line per meaningful change (dialogs, construction/research done,
                          deficits, stat bands, stock runway, quest progress, map icons, council phase)
+  watch-start [pauseOn=..] / watch-stop
+                         detached watcher appending to .runtime/watch.jsonl (tail it from a Monitor)
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
   speed <1|2|3>          set game speed (sends number key)
@@ -260,6 +262,43 @@ async function main(argv: string[]): Promise<number> {
       // One JSON line per meaningful change; run under a Monitor tool. pauseOn: "critical" or comma list of event kinds.
       const pauseOn = new Set(String(args.pauseOn ?? "").split(",").filter(Boolean));
       await watch({ intervalMs: Number(args.interval ?? 2) * 1000, pauseOn, once: Boolean(flags.once), out: (l) => console.log(JSON.stringify(l)) });
+      return 0;
+    }
+    case "watch-start": {
+      // Detached watcher that outlives this process and any Monitor tool: runs a copy of the exe
+      // (so `bun run build` can replace fp2.exe) and appends JSON lines to .runtime/watch.jsonl.
+      const { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } = await import("node:fs");
+      const rt = join(repoRoot(), ".runtime");
+      mkdirSync(rt, { recursive: true });
+      const pidFile = join(rt, "watch.pid");
+      if (existsSync(pidFile)) {
+        const old = readFileSync(pidFile, "utf8").trim();
+        const alive = Bun.spawnSync(["tasklist", "/FI", `PID eq ${old}`]).stdout.toString().includes(old);
+        if (alive) throw new BridgeError(`watcher already running (pid ${old}); fp2 watch-stop first`);
+      }
+      const exe = join(rt, "fp2-watch.exe");
+      copyFileSync(process.execPath, exe);
+      const log = join(rt, "watch.jsonl");
+      const wargs = [`interval=${args.interval ?? 2}`, `pauseOn=${args.pauseOn ?? "dialog.opened,need.deficit,stock.runway,research.finished,construction.finished"}`];
+      const ps = `Start-Process -FilePath '${exe}' -ArgumentList ${["watch", ...wargs].map((a) => `'${a}'`).join(",")} -WorkingDirectory '${repoRoot()}' -RedirectStandardOutput '${log}' -RedirectStandardError '${log}.err' -WindowStyle Hidden -PassThru | ForEach-Object Id`;
+      const res = Bun.spawnSync(["powershell", "-NoProfile", "-Command", ps]);
+      const pid = res.stdout.toString().trim();
+      if (!/^\d+$/.test(pid)) throw new BridgeError(`failed to start watcher: ${String(res.stderr ?? "")}`);
+      writeFileSync(pidFile, pid);
+      print({ started: true, pid: Number(pid), log, tail: `tail -n0 -F "${log.replaceAll("\\", "/")}"` });
+      return 0;
+    }
+    case "watch-stop": {
+      const { existsSync, readFileSync, rmSync } = await import("node:fs");
+      const pidFile = join(repoRoot(), ".runtime", "watch.pid");
+      if (!existsSync(pidFile)) {
+        print({ stopped: false, reason: "no watch.pid" });
+        return 0;
+      }
+      const pid = readFileSync(pidFile, "utf8").trim();
+      Bun.spawnSync(["taskkill", "/PID", pid, "/F"]);
+      rmSync(pidFile, { force: true });
+      print({ stopped: true, pid: Number(pid) });
       return 0;
     }
     case "council-open":
