@@ -115,7 +115,8 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
       case "runway": {
         const name = k.slice(7);
         const res = city(s, "resources");
-        ev.push({ kind: "stock.runway", detail: { resource: name, weeksLeftUnder: to, stock: res?.stock?.[name], perDay: res?.change?.[name] } });
+        const worse = to !== "growing" && (from === "growing" || from === undefined || (typeof from === "number" && typeof to === "number" && to < from) || from === null);
+        ev.push({ kind: worse ? "stock.runway" : "stock.recovered", detail: { resource: name, weeksLeftUnder: to, stock: res?.stock?.[name], perDay: res?.change?.[name] } });
         break;
       }
       case "trust":
