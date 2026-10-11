@@ -57,6 +57,7 @@ Each line has `at`, `date`, `week`, `kind`, `detail`.
 | `icons.changed` | Count of a map tracker kind changed (Bark icons ignored) | `extract name=icons`, `open_icon` |
 | `council.sessionAvailable.changed`, `council.phase.changed`, `council.agenda.changed` | Council session opened or changed | See Council |
 | `ui.cutscene.changed`, `ui.pauseReasons.changed` | A cutscene or pause reason appeared or cleared | Do not click or choose during a cutscene |
+| `deaths.increased` | Death toll rose; `detail` has from, to, `byCause` | Find the cause (cold, hunger, sickness) and fix its need |
 | `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
 | `watch.started`, `watch.autopaused`, `bridge.error` | Watcher status | `bridge.error`: `fp2 status` |
 
@@ -74,7 +75,7 @@ Most accept `dryRun=true`.
 | Triage | `fp2 brief`: alerts, need deficits, depleting stocks, modals, construction |
 | Raw extractors | `fp2 state` (all `inState` extractors), `fp2 extract name=<x>` (omit `name` to list), `names=[..]` |
 | Clock | `fp2 date` |
-| Free cells, deposits | `fp2 cells free=true [deposit=soil] [nearX=.. nearY=..]`, `fp2 extract name=deposits type=logistics` |
+| Free cells, deposits | `fp2 cells free=true [deposit=soil] [nearX=.. nearY=..]` (cells marked `outside` count as buildable; measured), `fp2 extract name=deposits type=logistics` |
 | Districts, buildings | `fp2 districts`, `fp2 district_types`, `fp2 building_types [district=Housing]` |
 | Research | `fp2 research`, `fp2 research_topics` |
 | Abilities, generator, heat | `fp2 abilities`, `fp2 generator`, `fp2 heat` |
@@ -97,6 +98,8 @@ Most accept `dryRun=true`.
 | Toggle an ability | `fp2 ability owner=Production id=Toggle_IndustrialPrefabsProduction active=true` |
 | Generator overdrive | `fp2 overdrive active=true\|false` |
 | Distribute leftover heat | `fp2 heat_distribute`; `fp2 heat_auto active=true\|false` toggles automatic allocation |
+| Adjust one district's heat | `fp2 heat_adjust district=Housing#1 adjustment=1` (labels come from `fp2 heat`) |
+| Switch a district off or on | `fp2 district_active district=Production#2 active=false` (off frees its workforce) |
 
 ### Time
 

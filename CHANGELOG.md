@@ -9,9 +9,9 @@ The project has no tagged releases yet.
 
 - UE4SS Lua mod `FP2AgentBridge` with a file bridge (`request.json`, `response.json`, `status.json`
   heartbeat), generic reflection commands, and curated extractors for time, resources, needs, statistics,
-  population, society (trust, community standing), construction, quests, map icons, districts and deposits.
+  population, society (trust, community standing, death toll and deaths by cause), construction, quests, map icons, districts and deposits.
 - Game actions through the game's own command layer: districts, frostbreaking, buildings, research,
-  abilities, generator overdrive, heat allocation (`heat`, `heat_distribute`, `heat_auto`), event
+  abilities, generator overdrive, heat allocation (`heat`, `heat_distribute`, `heat_auto`, `heat_adjust`), `district_active` (switch a district off or on), event
   decisions, `save` and `load`. Most mutations accept `dryRun=true`.
 - Council reads (`council`, `laws`), guarded `propose` and `vote` commands, and `fp2 pass-law`, which
   runs the whole flow (open the Council, propose, vote, dismiss the result, verify).
@@ -20,7 +20,7 @@ The project has no tagged releases yet.
   `snapshot`, screenshots, mouse and keys, `launch`, `new-game`, `council-open`, `saves`, `wait-ready`.
 - `fp2 watch`, `watch-start` and `watch-stop`: one JSON line per meaningful change (dialogs, construction
   and research, deficits, statistic bands, stock runway, quests, icons, Council phase), with optional
-  auto-pause and a detached watcher that appends to `.runtime/watch.jsonl`.
+  auto-pause (including `deaths.increased`) and a detached watcher that appends to `.runtime/watch.jsonl`.
 - Keyless `bridge.reload` (`fp2 reload`); `fp2 reload --full` for `main.lua` changes.
 - `keybinds` command listing Enhanced Input bindings.
 - Install and uninstall scripts for UE4SS and the mod junction (`scripts/`).
@@ -34,6 +34,7 @@ The project has no tagged releases yet.
 
 ### Fixed
 
+- `cells`, `pick_cells` and `place_district` treat `Outside` cells as buildable (measured with a Logistics district on an Outside deposit cell).
 - UE4SS crash classes are guarded: FText inside struct parameters, and SoftObject property reads.
 - `vote` refuses outside the Council scene, where it locked all game input.
 

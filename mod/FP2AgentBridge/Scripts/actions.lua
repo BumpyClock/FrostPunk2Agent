@@ -1029,6 +1029,7 @@ end
 local TERRITORY_STATE = { hidden = 1, revealed = 2, explored = 4, charted = 8 }
 
 local function territoryInfo(t, nation, center)
+    if not reflect.isValid(t) then return { invalid = true } end
     local e = { ref = reflect.path(t) }
     pcall(function() e.name = t.ExploredName:ToString() end)
     pcall(function() if not e.name or e.name == "" then e.name = t.UnexploredName:ToString() end end)
@@ -1067,16 +1068,12 @@ function A.territories(args)
     table.sort(list, function(a, b) return (a.d or 1e18) < (b.d or 1e18) end)
     local out = json.array()
     for i = 1, math.min(tonumber(args.limit) or 30, #list) do out[#out + 1] = list[i] end
+    -- Derived from the revealed list. GetAllCurrentlyExploringTerritories plus a
+    -- GetComponentByClass resolve crashed the game (access violation in HasAnyInternalFlags).
     local exploring = json.array()
-    pcall(function()
-        for _, t in ipairs(objList(tu:GetAllCurrentlyExploringTerritories(ctx(), nation))) do
-            -- May return exploration components; resolve to the territory component on the same actor.
-            if not (reflect.className(t) or ""):find("PXTerritoryComponent", 1, true) then
-                pcall(function() t = t:GetOwner():GetComponentByClass(StaticFindObject("/Script/Frostpunk2.PXTerritoryComponent")) end)
-            end
-            exploring[#exploring + 1] = territoryInfo(t, nation, center)
-        end
-    end)
+    for _, e in ipairs(list) do
+        if e.inProgress then exploring[#exploring + 1] = e end
+    end
     return { state = stateName, total = #list, territories = out, exploring = exploring }
 end
 
@@ -1108,7 +1105,7 @@ function A.explore(args)
 end
 
 function A.explorationSummary(args)
-    local r = A.territories({ state = "revealed", limit = 0, city = args and args.city })
+    local r = A.territories({ state = "revealed", limit = 0, city = args and args.city or nil })
     local out = json.array()
     for _, t in ipairs(r.exploring or {}) do
         out[#out + 1] = { name = t.name, progress = t.progress, explored = t.explored }

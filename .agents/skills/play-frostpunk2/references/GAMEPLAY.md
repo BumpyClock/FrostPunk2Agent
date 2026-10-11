@@ -25,6 +25,8 @@ Frostpunk 2 knowledge; verify before relying on it.
   from 210 to 240 of 240 required.)
 - Automatic allocation was off by default in that game. `fp2 heat_auto active=true` turns it on; its
   effect over time is unmeasured.
+- `fp2 heat_adjust district=<label> adjustment=N` raises or lowers one district's heat level relative to its
+  need; `fp2 district_active active=false` switches a district off to free its workforce. Effects are unmeasured.
 - If the generator is at its power limit, distribution does not help. Check `fp2 generator`
   (`power`, `powerLimit`, `capacityPct`, `overdriveSupported`, `canOverdrive`) and fuel stock. (general)
 

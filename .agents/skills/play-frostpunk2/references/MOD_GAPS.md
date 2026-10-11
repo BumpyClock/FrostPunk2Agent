@@ -10,8 +10,8 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
   `society.population` is the candidate but is not compared to the HUD.
 - Frostland: expeditions, outposts, colonies, trails (`InstructStartTerritoryExploration`,
   `InstructConstructOutpost`, `BuildTrail`).
-- Per-district heat allocation levels: `fp2 heat` reads them and `heat_distribute` and `heat_auto` act on
-  the whole holder; there is no command to set one district's level.
+- Heat: `heat_adjust` sets a district's adjustment level, but the relation between adjustment, allocation
+  and the HUD heat bars is unmeasured.
 - Other ability and city actions beyond the toggle in `fp2 ability` (`PXAbilityUtils.ActivateActorAbility`).
 - Logistics district placement needs a Logistics deposit inside the build area. Frostbreak toward it first.
 - Cost checks for area expanders and construction return FText structs, which the crash guard blocks.
