@@ -411,7 +411,7 @@ end
 local function textOf(v)
     if v == nil then return nil end
     local ok, s = pcall(function() return v:ToString() end)
-    if ok and s ~= "" then return s end
+    if ok and s ~= "" then return A.plainText and A.plainText(s) or s end
     return nil
 end
 
