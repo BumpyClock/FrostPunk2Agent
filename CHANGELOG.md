@@ -7,6 +7,8 @@ The project has no tagged releases yet.
 
 ### Added
 
+- Skill: "How to approach the game" section: the causal game loop, time scales, and five thinking patterns
+  (stabilize before growth, goal stack over events, decide from facts, respect lead times, name the binding constraint).
 - Layout: `district_types` proximity gives/takes, `districts` efficiency and proximity effects, `layout_preview`,
   and layout-scored `pick_cells type=X`.
 - `building_types` adds name, description, effects, statistics and economy; snapshot `unlocks` lists buildings and

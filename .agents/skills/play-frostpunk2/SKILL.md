@@ -16,6 +16,55 @@ All commands go through `./fp2.exe` at the repo root (source in `cli/`; `fp2 -h`
 Run it from PowerShell: Git Bash rewrites `/Script/...` arguments into Windows paths. Quote arrays:
 `'cells=[1,2,3]'`.
 
+## How to approach the game
+
+### The game loop
+
+- **Heat drives everything.** Generator power and heat allocation feed the needs (Heating, Warmth,
+  Shelter, Nourishment, Possession, Maintenance). A negative need raises its statistic (Cold, Hunger,
+  Squalor, ...), statistics raise Tension and erode Trust, and Trust or Tension collapse ends the game.
+  Temperature drops arrive without warning, so generator headroom (`power` vs `powerLimit`) is the city's
+  safety margin.
+- **Inputs are scarce and shared.** Workforce staffs every district and is also drawn by construction while it
+  runs. Prefabs and Cores gate districts, upgrades and colonies. Heatstamps pay for research, buildings and
+  hubs. Coal, food and materials are flows: read `change` and runway, not stock alone.
+- **Time scales differ by an order of magnitude.** Stocks drain in weeks. Construction takes 2 to 5 weeks.
+  Research takes 10 to 30. Council sessions come about 10 weeks apart. Laws, migration and many abilities take
+  weeks to show their effect.
+- **Society reacts to everything.** Each law, research variant and dialog choice shifts community standing.
+  New factions form from the city's direction and bring their own quests and Utopia Trees. Trust and Tension
+  decide survival as much as resources do.
+- **Expansion competes with the city.** Frostland exploration reveals territories and sites; outposts can
+  become settlements (Skyways connection); colonies need prefabs, a Core and logistics units. Every one of
+  those draws on the same scarce inputs the city needs to survive.
+
+### Thinking patterns
+
+These are the habits that separated good turns from bad ones in past runs. They do not say which choice to
+make; each run decides for itself.
+
+1. **Stabilize before you grow.** Before any growth commitment (expansion, colonies, big research
+   detours), check the base: generator headroom, food and fuel runway, free workforce, Squalor and Tension
+   trends, recent death waves, and whether the growth spends inputs survival also needs. If the base has
+   no slack, fix the base first. Record the verdict either way, and revisit it after a temperature drop or a
+   population jump. (A past run expanded while people froze and food fell; it reversed course only when
+   challenged.)
+2. **Plan from a goal stack, not from events.** Hold the scenario quest, one city-problem target, one
+   research path (`research_plan`) and one capacity goal. An event is a prompt to re-check the stack,
+   not an instruction. If an event changes nothing in the stack, note it and move on; waiting while stocks
+   build is a real move. (A past run spent ~170 wakeups reacting and neglected its quests.)
+3. **Decide from facts, never from ids or defaults.** Before acting, resolve every id to its in-game name,
+   description and effects (laws, research outcomes and variants, abilities, buildings, districts, dialog
+   choices). Compare the alternatives, including research variants and their community effects. If the bridge
+   cannot show what you need, add the read before deciding. (A past run passed a child-labour law believing
+   it was something else, and took default research variants without weighing them.)
+4. **Respect lead times before judging.** When you act, write down the effect you expect and when it should
+   show. Do not call a law, build or ability a failure before that window passes. (A past run declared the
+   migration law useless; it later brought +200 and then +1,191 people.)
+5. **Name the binding constraint and the trade.** For each decision, state which input limits you
+   (workforce, prefabs, Cores, heat headroom, food runway) and what the choice costs. Prefer reversible moves
+   when unsure (district on/off, ability toggles), then measure the result with `brief` or `snapshot`.
+
 ## Session start
 
 1. `fp2 status`. `alive:false` means the game is not running or the mod did not load.
@@ -44,18 +93,16 @@ the Monitor; they stay in the log.
 
 ### Planning cadence
 
-Events are a safety net, not the strategy.
+Mechanics for thinking pattern 2:
 
-- Keep a goal stack: the scenario quest (`snapshot.quests`), one city-problem target, one research goal
-  (`fp2 research_plan`), one capacity goal (workforce, prefabs, Cores, heat headroom). Re-read it when
-  research finishes, a build completes, a Council session opens or a Utopia point arrives. Between those,
-  letting stocks build up is a valid choice. An event is a reason to check the stack, not always to act.
-- For each decision, name the binding constraint and what the choice trades away. If the bridge cannot
-  show the number you need, add that read before deciding.
-- Count lead times: research weeks, construction `weeksLeft`, Council sessions about 10 weeks apart, and laws
-  whose effects show weeks later (observed: migration). Do not judge a law or build before its lead time.
+- Re-read the goal stack when research finishes, a build completes, a Council session opens, a territory is
+  explored or a Utopia point arrives. Sources: `snapshot.quests`, `fp2 research`, `fp2 research_plan`,
+  `fp2 utopia`, `fp2 frost_sites`, free workforce and stocks in `fp2 brief`.
+- Between those triggers, let time run. Do not answer routine events one by one.
+- When you commit to something with a delay (law, build, migration, exploration), log the expected effect and
+  the date to check it.
 - Before committing scarce inputs to growth, run the stability check in
-  [GAMEPLAY.md](references/GAMEPLAY.md) and record the verdict in the gameplay blog, whichever way it goes.
+  [GAMEPLAY.md](references/GAMEPLAY.md) and record the verdict in the gameplay blog.
 
 The watcher also overwrites one rolling save (`agent-rolling`) every 2 in-game weeks (`saveEvery=N`,
 `saveName=X`, `saveEvery=0` turns it off) and emits `watch.saved`. A crash or closed game then loses at most
