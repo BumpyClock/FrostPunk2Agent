@@ -183,7 +183,7 @@ function A.cells(args)
     for _, c in pairs(A.cellMap(city)) do
         local e = cellInfo(c, center, args.neighbors ~= false, args.refs)
         local keep = true
-        if args.free and (e.frozen or e.outside or e.district or e.construction or e.blocked) then keep = false end
+        if args.free and (e.frozen or e.district or e.construction or e.blocked) then keep = false end
         if args.frozen ~= nil and (e.frozen or false) ~= (args.frozen and true or false) then keep = false end
         if depFilter then
             keep = false
@@ -295,7 +295,7 @@ function A.placeDistrict(args)
     local problems = {}
     for _, c in ipairs(cells) do
         local e = cellInfo(c, nil, false)
-        if e.frozen or e.outside then problems[#problems + 1] = "cell " .. e.i .. " is frozen/outside" end
+        if e.frozen then problems[#problems + 1] = "cell " .. e.i .. " is frozen" end
         if e.district or e.construction then problems[#problems + 1] = "cell " .. e.i .. " is occupied" end
     end
     out.problems = problems
@@ -322,7 +322,8 @@ function A.pickCells(args)
     local function usable(e)
         if not e or e.district or e.construction or e.blocked or e.expanding then return false end
         if wantFrozen then return e.frozen and true or false end
-        return not e.frozen and not e.outside
+        -- Outside cells are buildable (measured: Logistics district on an Outside deposit cell).
+        return not e.frozen
     end
     local function touchesCity(e)
         for _, n in ipairs(e.nb or {}) do
