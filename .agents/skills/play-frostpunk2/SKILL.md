@@ -53,6 +53,7 @@ Each line has `at`, `date`, `week`, `kind`, `detail`.
 |---|---|---|
 | `dialog.opened` / `dialog.closed` | Modal or decision; `detail` has title, description, choices | `fp2 modals`, decide, `fp2 choose index=N` |
 | `notification` | Dialog without choices (population growth, info popup); no auto-pause by default | Read `detail`; usually no action |
+| `dialog.acknowledged` | `watch-start` dismissed a one-option dialog with no effects ("I see"); `detail` keeps its text | Read it; faction or story news |
 | `need.deficit` / `need.ok` | A need balance went below or back to 0 | Heating: see GAMEPLAY.md |
 | `stock.runway` / `stock.recovered` | Stock runway crossed 20, 10, 5 or 2 weeks (`recovered` never auto-pauses) | Fix the supply of that resource |
 | `stat.rising` / `stat.falling` | A statistic crossed a 10-point band; `detail` has current and target | Treat Cold, Hunger, Tension, Sickliness, Crime, Squalor |

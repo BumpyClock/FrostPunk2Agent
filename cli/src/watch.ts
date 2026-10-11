@@ -178,7 +178,13 @@ const CRITICAL = new Set(["exploration.finished", "dialog.opened", "need.deficit
 
 const TICKS_PER_WEEK = 1680;
 
-export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; saveEveryWeeks?: number; saveName?: string; out: (line: unknown) => void }) {
+// A dialog whose only option is an acknowledgement with no gameplay effect ("I see").
+function isAckOnly(m: any): boolean {
+  const choices = asArray(m?.choices);
+  return choices.length === 1 && !choices[0]?.effects && !choices[0]?.description;
+}
+
+export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; saveEveryWeeks?: number; saveName?: string; autoAck?: boolean; out: (line: unknown) => void }) {
   let prev: Map<string, string> | null = null;
   // Rolling save: one slot overwritten every N in-game weeks, so a crash or closed game loses at most N weeks.
   let lastSaveTicks: number | null = null;
@@ -196,7 +202,19 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
       opts.out({ at: new Date().toISOString(), kind: "watch.started", date: s.date?.date, week: s.date?.week, paused: asArray(s.pauseReasons).includes("UserPaused") });
     } else {
       // Ignore stock runway "growing" -> bucket noise when nothing is actually short.
-      const events = diff(prev, next, s).filter((e) => !(e.kind === "stock.runway" && (e.detail as any).weeksLeftUnder === null));
+      let events = diff(prev, next, s).filter((e) => !(e.kind === "stock.runway" && (e.detail as any).weeksLeftUnder === null));
+      if (opts.autoAck) {
+        const acked: unknown[] = [];
+        events = events.filter((e) => {
+          if (e.kind !== "dialog.opened" || !isAckOnly(e.detail)) return true;
+          acked.push(e.detail);
+          return false;
+        });
+        for (const d of acked) {
+          await call("choose", { index: 0 }).catch(() => undefined);
+          opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, kind: "dialog.acknowledged", detail: d });
+        }
+      }
       for (const e of events) opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...e });
       const critical = events.filter((e) => opts.pauseOn.has(e.kind) || (opts.pauseOn.has("critical") && CRITICAL.has(e.kind)));
       if (critical.length && !asArray(s.pauseReasons).includes("UserPaused")) {

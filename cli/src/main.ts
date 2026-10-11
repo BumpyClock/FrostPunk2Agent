@@ -33,7 +33,8 @@ Local subcommands:
                          deficits, stat bands, stock runway, quest progress, map icons, council phase)
   watch-start [pauseOn=..] [saveEvery=2] [saveName=agent-rolling] / watch-stop
                          detached watcher appending to .runtime/watch.jsonl (tail it from a Monitor);
-                         overwrites one rolling save every saveEvery in-game weeks (0 = off)
+                         overwrites one rolling save every saveEvery in-game weeks (0 = off);
+                         autoAck=true (default) dismisses one-option "I see" dialogs, emitting dialog.acknowledged
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
   speed <1|2|3>          set game speed via the bridge (game.speed)
@@ -282,7 +283,7 @@ async function main(argv: string[]): Promise<number> {
       // One JSON line per meaningful change; run under a Monitor tool. pauseOn: "critical" or comma list of event kinds.
       const pauseOn = new Set(String(args.pauseOn ?? "").split(",").filter(Boolean));
       const saveEvery = Number(args.saveEvery ?? 0);
-      await watch({ intervalMs: Number(args.interval ?? 2) * 1000, pauseOn, once: Boolean(flags.once), saveEveryWeeks: saveEvery > 0 ? saveEvery : undefined, saveName: args.saveName ? String(args.saveName) : undefined, out: (l) => console.log(JSON.stringify(l)) });
+      await watch({ intervalMs: Number(args.interval ?? 2) * 1000, pauseOn, once: Boolean(flags.once), saveEveryWeeks: saveEvery > 0 ? saveEvery : undefined, saveName: args.saveName ? String(args.saveName) : undefined, autoAck: String(args.autoAck ?? "false") === "true", out: (l) => console.log(JSON.stringify(l)) });
       return 0;
     }
     case "watch-start": {
@@ -300,7 +301,7 @@ async function main(argv: string[]): Promise<number> {
       const exe = join(rt, "fp2-watch.exe");
       copyFileSync(process.execPath, exe);
       const log = join(rt, "watch.jsonl");
-      const wargs = [`interval=${args.interval ?? 2}`, `pauseOn=${args.pauseOn ?? "dialog.opened,need.deficit,stock.runway,research.finished,construction.finished"}`, `saveEvery=${args.saveEvery ?? 2}`, `saveName=${args.saveName ?? "agent-rolling"}`];
+      const wargs = [`interval=${args.interval ?? 2}`, `pauseOn=${args.pauseOn ?? "dialog.opened,need.deficit,stock.runway,research.finished,construction.finished"}`, `saveEvery=${args.saveEvery ?? 2}`, `saveName=${args.saveName ?? "agent-rolling"}`, `autoAck=${args.autoAck ?? "true"}`];
       const ps = `Start-Process -FilePath '${exe}' -ArgumentList ${["watch", ...wargs].map((a) => `'${a}'`).join(",")} -WorkingDirectory '${repoRoot()}' -RedirectStandardOutput '${log}' -RedirectStandardError '${log}.err' -WindowStyle Hidden -PassThru | ForEach-Object Id`;
       const res = Bun.spawnSync(["powershell", "-NoProfile", "-Command", ps]);
       const pid = res.stdout.toString().trim();
