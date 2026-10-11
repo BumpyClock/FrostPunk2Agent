@@ -749,8 +749,8 @@ function A.laws(args)
                 local ok, v = pcall(function() return p[prop]:ToString() end)
                 if ok and v and v ~= "" and not v:find("BLANK_ON_PURPOSE", 1, true) then
                     -- Rich text: <img id="FoodPositive"></> -> [Food+], drop style tags.
-                    v = v:gsub('<img id="(%a-)Positive"></>', "[%1+]"):gsub('<img id="(%a-)Negative"></>', "[%1-]")
-                    v = v:gsub('<img id="(.-)"></>', "[%1]"):gsub("</>", ""):gsub("<%a+>", "")
+                    v = v:gsub('<img id="(%a-)Positive">', "[%1+]"):gsub('<img id="(%a-)Negative">', "[%1-]")
+                    v = v:gsub('<img id="(.-)">', "[%1]"):gsub("</>", ""):gsub("<%a+>", ""):gsub("  +", " ")
                     return v
                 end
             end

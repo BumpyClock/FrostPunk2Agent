@@ -120,10 +120,12 @@ Most accept `dryRun=true`.
 
 Read `fp2 council` (`phase`, `agendaPolicy`, `seats`, `minTicksToNextSession`, `activePolicies`) and
 `fp2 laws` (in-game `name`, `description`, `effect`, per-faction support and `seats` For/Against/Hesitant).
-Read `name` and `description` before voting: ids mislead (`Children_TraditionStart` is child labour,
-"Family Apprenticeship"). `fp2 laws all=true` lists every inactive law; the default lists only laws
-proposable now and is empty between sessions. Pick a policy with many seats For and none Against; the game
-predicts the same split.
+Read each candidate's `name`, `description` and `effect` before proposing it; asset ids do not say what a
+law does. Then decide for this run: weigh what the law costs people against what the city needs now
+(deficits, workforce, deaths, trust), and against the alternatives. No law is always right or always wrong;
+a harsh law can be the better choice when the alternative is collapse. Record the reasoning (see the
+gameplay blog below). `fp2 laws all=true` lists every inactive law; the default lists only laws proposable
+now and is empty between sessions. Seats For/Against/Hesitant predict the vote; the game uses the same split.
 
 Pass a law when `fp2 council` shows an open session (`phase` 1, Agenda; the watcher emits
 `council.sessionAvailable.changed`): `fp2 pass-law policy=<id>`. It runs `council-open` (key C, then skips
@@ -171,6 +173,17 @@ UI facts (measured):
 - The game stops rendering when unfocused. `screenshot`, `click` and `keys` focus it first. Do not tap Alt
   while the game is focused: held Alt shows the economy overlay.
 - A screenshot can come back as a flat dark frame after an action. The CLI retries and sets `blank`.
+
+## Decisions and the gameplay blog
+
+Each run makes its own choices; this skill does not prescribe laws, factions or a society. Decide from
+the game's own text and state, name the tradeoff, and own the outcome.
+
+Keep a short decision log in `gameplay-<YYYY-MM-DD>.html` (one self-contained page per real-world day,
+repo root). Add an entry at each major decision: a law, a large build, deaths, a crisis, a recovery. Each
+entry gives the in-game date, what you did, the tradeoff and its human cost, and what kind of city it
+builds. Note guesses and mistakes plainly. Insert new entries after `<!-- entries:start -->`. The log is
+secondary to playing and to improving the bridge; keep entries brief.
 
 ## Safety rules
 
