@@ -2,7 +2,7 @@
 // saves when a load crashes the game.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { BridgeError, call, readStatus } from "./bridge";
+import { BridgeError, call, loadQuietLeftMs, readStatus } from "./bridge";
 import { brief } from "./brief";
 import { isReady, setPaused, sleep, waitAlive, waitReady } from "./game";
 import { SAVE_DIR, markBadSave, recoveryCandidates, saveDisplayName } from "./saves";
@@ -50,12 +50,15 @@ async function killGame() {
   for (let i = 0; i < 30 && processRunning(GAME_EXE); i++) await sleep(1000);
 }
 
-type Attempt = { ok: true; time: unknown } | { ok: false; crashed: boolean; reason: string };
+/** `quiet`: the crash happened while no game-thread calls were made, so the save itself is suspect. */
+type Attempt = { ok: true; time: unknown } | { ok: false; crashed: boolean; quiet?: boolean; reason: string };
 
 // One load from the main menu. Measured sequence: Enter on the title screen, ForceLoadGame through the bridge
 // (retried: the save subsystem is not ready at once), wait until a city exists, Space to close the loading
-// screen, then the player pause. Reports a crash when the game process exits, a new crash report appears,
-// the crash reporter starts, or the heartbeat stops for LOAD_HEARTBEAT_STALE_MS.
+// screen, then the player pause. After the load is issued, no game-thread call is made until the post-load quiet
+// period ends (LOAD_QUIET_MS in bridge.ts): polling during a load crashed the game in Wwise (measured).
+// Reports a crash when the game process exits, a new crash report appears, the crash reporter starts, or the
+// heartbeat stops for LOAD_HEARTBEAT_STALE_MS.
 async function loadOnce(save: string, timeoutMs: number, steps: string[]): Promise<Attempt> {
   const before = crashDirs();
   let lastAlive = Date.now();
@@ -83,15 +86,21 @@ async function loadOnce(save: string, timeoutMs: number, steps: string[]): Promi
     if (Date.now() > loadDeadline) return { ok: false, crashed: false, reason: `load ${save} failed: ${err}` };
     await sleep(5000);
   }
-  steps.push(`loading ${save}`);
+  steps.push(`loading ${save}; quiet for ${Math.round(loadQuietLeftMs() / 1000)}s`);
 
+  // Quiet phase: heartbeat file and process checks only.
+  while (loadQuietLeftMs() > 0) {
+    const c = await crashed();
+    if (c) return { ok: false, crashed: true, quiet: true, reason: c };
+    await sleep(2000);
+  }
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const c = await crashed();
-    if (c) return { ok: false, crashed: true, reason: c };
+    if (c) return { ok: false, crashed: true, quiet: false, reason: `${c} (after the quiet period, while polling)` };
     if ((await isReady()).ready) break;
-    if (Date.now() > deadline) return { ok: false, crashed: false, reason: `${save} did not finish loading within ${timeoutMs / 1000}s` };
-    await sleep(1500);
+    if (Date.now() > deadline) return { ok: false, crashed: false, reason: `${save} did not finish loading within ${timeoutMs / 1000}s after the quiet period` };
+    await sleep(5000);
   }
   await sendKeys(["space"], true); // closes the loading screen (measured)
   await sleep(2000);
@@ -108,9 +117,10 @@ export function resolveSaveName(name: string): string {
 
 /**
  * Session start and crash recovery in one call. In a loaded game it only pauses. Otherwise it launches the
- * game if needed and loads `name` (or the newest recovery candidate). When a load crashes the game, the save
- * is recorded in .runtime/bad-saves.json, the game is killed, and the next candidate is tried, up to
- * `maxAttempts` loads. A failure that is not a crash (load refused, timeout) stops at once.
+ * game if needed and loads `name` (or the newest recovery candidate). When a load crashes the game, the game is
+ * killed and another load is tried, up to `maxAttempts` loads. A crash during the quiet phase (no game-thread
+ * calls) marks the save bad in .runtime/bad-saves.json and moves to the next candidate; a crash after it does
+ * not mark the save. A failure that is not a crash (load refused, timeout) stops at once.
  */
 export async function recover(name: string | undefined, timeoutMs: number, maxAttempts = RECOVER_MAX_ATTEMPTS) {
   const steps: string[] = [];
@@ -118,12 +128,11 @@ export async function recover(name: string | undefined, timeoutMs: number, maxAt
     const t = await setPaused(true);
     return { recovered: false, reason: "already in a loaded game", steps, time: t, brief: await brief() };
   }
-  const failed: { save: string; crashed: boolean; reason: string }[] = [];
+  const failed: { save: string; crashed: boolean; markedBad: boolean; reason: string }[] = [];
   const tried = new Set<string>();
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const save = attempt === 1 && name ? resolveSaveName(name) : recoveryCandidates(tried)[0];
     if (!save) break;
-    tried.add(save);
     if (!(await readStatus()).alive) {
       await launchGame(timeoutMs);
       steps.push(`attempt ${attempt}: launched`);
@@ -132,11 +141,15 @@ export async function recover(name: string | undefined, timeoutMs: number, maxAt
     steps.push(`attempt ${attempt}: ${save}`);
     const r = await loadOnce(save, timeoutMs, steps);
     if (r.ok) return { recovered: true, save, attempts: attempt, ...(failed.length ? { failed } : {}), steps, time: r.time, brief: await brief() };
-    failed.push({ save, crashed: r.crashed, reason: r.reason });
+    const markedBad = r.crashed && r.quiet === true;
+    failed.push({ save, crashed: r.crashed, markedBad, reason: r.reason });
     if (!r.crashed) break; // game state unknown: do not load another save over it
-    markBadSave(save, r.reason);
+    if (markedBad) {
+      markBadSave(save, r.reason);
+      tried.add(save);
+    }
     await killGame();
-    steps.push(`attempt ${attempt}: crashed, ${save} marked bad, game killed`);
+    steps.push(`attempt ${attempt}: crashed${markedBad ? `, ${save} marked bad` : " after the quiet period (save not marked)"}, game killed`);
   }
   if (!failed.length) throw new BridgeError("no recovery save found (agent-rolling*, agent-*, AutoSave*; bad saves skipped, see .runtime/bad-saves.json); pass name=<save>");
   throw new BridgeError(`recover failed after ${failed.length} load attempt(s): ${failed.map((f) => `${f.save}: ${f.reason}`).join(" | ")}`);

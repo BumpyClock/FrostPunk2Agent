@@ -53,7 +53,7 @@ These habits separated good turns from bad ones in past runs. They do not say wh
 
 1. `fp2 status`, then `fp2 recover` (launches if needed, loads `name=X` or the newest `agent-rolling-*`, `agent-*`
    or `AutoSave*`, ends paused; a save that crashes the game on load is marked bad and the next one is tried, up to
-   3 loads). First install: `./scripts/Install-Bridge.ps1` with the game closed. If `turn` warns about a
+   3 loads). After any load, bridge calls wait ~90 s (polling mid-load crashed the game); do not work around it. First install: `./scripts/Install-Bridge.ps1` with the game closed. If `turn` warns about a
    detached watcher, run `fp2 watch-stop`.
 2. `fp2 goals`. If empty, seed it: `long` = the scenario quest (`fp2 snapshot --fields quests`); `short` = one
    city-problem target, one capacity goal, and the research path from `fp2 research_plan topic=X`. Then `fp2 turn`.

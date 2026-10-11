@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // fp2: single CLI for playing Frostpunk 2 through the FP2AgentBridge mod.
 import { readFileSync } from "node:fs";
-import { BridgeError, bridgeDir, call, callEnvelope, readStatus } from "./bridge";
+import { BridgeError, bridgeDir, call, callEnvelope, loadQuietLeftMs, readStatus } from "./bridge";
 import { focusGame, sendKeys } from "./win32";
 import { brief } from "./brief";
 import { screenshot } from "./capture";
@@ -42,7 +42,8 @@ Play loop:
                          ready | reason:<substr> | no-reason:<substr>. click/hold/keys accept wait=<c>.
 
 Local subcommands:
-  status                 heartbeat (no game-thread round trip)
+  status                 heartbeat (no game-thread round trip); loadQuietSeconds > 0 means a load was issued and
+                         every client holds game-thread calls until it ends (they crashed the game mid-load)
   launch                 kill leftover CrashReportClient, start the game via Steam, wait for the bridge
   pass-law policy=<id>   bridge-only Council: open, propose, vote, dismiss, verify (needs an open session)
   council-open           open the Council (key C), skip its intro cutscene, return council state
@@ -277,7 +278,7 @@ async function main(argv: string[]): Promise<number> {
   }
   switch (cmd) {
     case "status":
-      print({ ...(await readStatus()), bridgeDir: bridgeDir() });
+      print({ ...(await readStatus()), bridgeDir: bridgeDir(), loadQuietSeconds: Math.round(loadQuietLeftMs() / 1000) });
       return 0;
     case "brief":
       print(await brief());

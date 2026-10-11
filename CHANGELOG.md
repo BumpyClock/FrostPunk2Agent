@@ -81,9 +81,12 @@ The project has no tagged releases yet.
 
 - `turn` and `watch-start` rotate saves over `<saveName>-a/-b/-c` (oldest overwritten) instead of one
   `agent-rolling` slot, which became unloadable once and left no fallback.
-- `recover` detects a crash during load (process gone, new crash report, crash reporter, stale heartbeat), marks the
-  save in `.runtime/bad-saves.json`, kills the game and tries the next save (`agent-rolling*`, `agent-*`,
-  `AutoSave*`), up to `attempts=3`, and reports each failed save. `saves` flags bad saves.
+- `recover` detects a crash during load (process gone, new crash report, crash reporter, stale heartbeat), kills the
+  game and loads again, up to `attempts=3`, and reports each failed save. A crash with no bridge calls in flight
+  marks the save in `.runtime/bad-saves.json` and moves to the next save (`agent-rolling*`, `agent-*`, `AutoSave*`).
+  `saves` flags bad saves.
+- After a successful `load`, all clients hold game-thread calls for 90 s (`.runtime/load-quiet-until`,
+  `FP2_LOAD_QUIET_SECONDS`); polling during a load crashed the game in Wwise. `status` shows `loadQuietSeconds`.
 - `pass-law` refuses without an open Council session unless `--force`.
 - Cutscene guard: `choose`, `vote`, `propose`, `ability` and `overdrive` refuse during a cutscene, and
   `click`, `rclick` and `hold` refuse unless `--force`.

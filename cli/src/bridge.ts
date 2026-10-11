@@ -96,9 +96,39 @@ async function withLock<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
+// Game-thread calls during a level load crashed the game natively in Wwise (measured: recover polling
+// wait-ready during a load crashed 4 times on 2 saves; the same load with no bridge calls for 90 s succeeded).
+// A successful `load` writes .runtime/load-quiet-until; every client (this process, turn, the detached watcher)
+// waits until then before its next game-thread call, watching only the heartbeat.
+export const LOAD_QUIET_MS = Number(process.env.FP2_LOAD_QUIET_SECONDS ?? 90) * 1000;
+const quietFile = () => join(repoRoot(), ".runtime", "load-quiet-until");
+
+export function markLoadQuiet(ms = LOAD_QUIET_MS) {
+  mkdirSync(join(repoRoot(), ".runtime"), { recursive: true });
+  writeFileSync(quietFile(), String(Date.now() + ms));
+}
+
+/** Milliseconds left in the post-load quiet period (0 when none). */
+export function loadQuietLeftMs(): number {
+  try {
+    return Math.max(0, Number(readFileSync(quietFile(), "utf8").trim()) - Date.now() || 0);
+  } catch {
+    return 0;
+  }
+}
+
+async function waitLoadQuiet() {
+  for (let left = loadQuietLeftMs(); left > 0; left = loadQuietLeftMs()) {
+    const st = await readStatus();
+    if (!st.alive) throw new BridgeError(`bridge not alive during the post-load quiet period: ${st.reason}`);
+    await sleep(Math.min(left, 2000));
+  }
+}
+
 export type Envelope = { id?: string; ok: boolean; result?: unknown; error?: string; elapsedMs?: number };
 
 export async function callEnvelope(command: string, args: Record<string, unknown> = {}, timeoutMs = 30_000): Promise<Envelope> {
+  await waitLoadQuiet();
   const st = await readStatus();
   if (!st.alive) throw new BridgeError(`bridge not alive: ${st.reason}`);
   const dir = bridgeDir();
@@ -116,6 +146,7 @@ export async function callEnvelope(command: string, args: Record<string, unknown
           const env = JSON.parse(readFileSync(resp, "utf8")) as Envelope;
           if (env.id === id || env.id == null) {
             rmSync(resp, { force: true });
+            if (command === "load" && env.ok) markLoadQuiet();
             return env;
           }
         } catch {}

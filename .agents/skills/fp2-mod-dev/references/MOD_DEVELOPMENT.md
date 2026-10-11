@@ -125,11 +125,17 @@ not play (see the no-cheats rule in SKILL.md).
 - After a crash: `fp2 recover [name=<save>]` launches the game, loads the save from the main menu, waits until
   ready, closes the loading screen and pauses. Loading uses `ForceLoadGame`; plain `LoadGame` returns true from the
   main menu and does nothing (measured).
-- A save can crash the game while loading (measured: the single `agent-rolling` slot crashed in Wwise on load,
-  twice). `turn` and the watcher therefore rotate `agent-rolling-a/-b/-c`. `recover` treats a dead process, a new
-  crash report, a running CrashReportClient or a heartbeat stale for 60 s during a load as a crash, records the save
-  in `.runtime/bad-saves.json` (keyed by name and file time; an overwritten slot is usable again), kills the game
-  and tries the next save, up to 3 loads.
+- Game-thread bridge calls during a level load crash the game natively in Wwise (measured: `recover` polling
+  `extract time` / `find_all` while loading crashed twice on `agent-rolling` and twice on `agent-before-connect`;
+  the same `agent-before-connect` load with no bridge calls for 90 s succeeded). A successful `load` writes
+  `.runtime/load-quiet-until` (now + 90 s, `FP2_LOAD_QUIET_SECONDS`); every client (`turn`, the watcher, any
+  command) waits until then before its next game-thread call and watches only the heartbeat file. `fp2 status`
+  shows `loadQuietSeconds`. Never call the bridge from another path during a load.
+- `turn` and the watcher rotate saves over `agent-rolling-a/-b/-c`, so one unloadable save leaves two older ones.
+  `recover` treats a dead process, a new crash report, a running CrashReportClient or a heartbeat stale for 60 s
+  as a crash, kills the game and loads again, up to 3 loads. Only a crash in the quiet phase marks the save bad in
+  `.runtime/bad-saves.json` (keyed by name and file time; an overwritten slot is usable again) and moves to the next
+  save (`agent-rolling*`, `agent-*`, `AutoSave*`).
 
 ## Verify
 
