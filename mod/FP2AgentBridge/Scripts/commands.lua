@@ -572,6 +572,7 @@ def("snapshot", {
 })
 def("heat", { help = "Heat allocation: auto flag, power allocated vs needed, unallocated batches, per-district allocations.", run = function(args) return actions.heat(args) end })
 def("heat_distribute", { help = "Distribute unallocated generator heat to districts (game's own action). Fixes Heating deficits when heat batches are left over.", mutation = true, run = function(args) return actions.heatDistribute(args) end })
+def("heat_adjust", { help = "Set one district's heat adjustment above/below its need. args: district (label like Housing#1), adjustment=1", mutation = true, run = function(args) return actions.heatAdjust(args) end })
 def("heat_auto", { help = "Toggle automatic heat allocation. args: active=true|false", mutation = true, run = function(args) return actions.heatAuto(args) end })
 def("district_active", {
     help = "Turn a district off/on (player choice). Off frees its workforce. args: district (label like Production#2), active=true|false",

@@ -940,11 +940,34 @@ function A.heat(args)
             pcall(function() e.needed = comp.AllocationsNeeded end)
             pcall(function() e.heat = comp.HeatAllocated end)
             pcall(function() e.maxLevel = hu:GetMaxPossibleAllocationLevel(ctx(), comp) end)
+            pcall(function() e.adjustment = comp.setup.Adjustment end)
+            e.ref = reflect.path(comp)
             list[#list + 1] = e
         end)
     end)
     out.allocations = list
     return out
+end
+
+-- Raise/lower one district's heat level relative to what it needs (game's adjustment setting).
+-- args: district (label like Housing#1), adjustment (int, e.g. 1)
+function A.heatAdjust(args)
+    local city = A.city(args)
+    local h = heatHolder(city)
+    local want = tostring(args.district or ""):lower()
+    local labels = {}
+    for _, d in ipairs(objList(city:GetDistricts())) do
+        pcall(function() labels[reflect.path(d:GetOwner())] = assetId(d.DistrictType) .. "#" .. tostring(d.DistrictId) end)
+    end
+    local target, label
+    h.AllocationComponents:ForEach(function(_, a)
+        local comp = a:get()
+        local l = labels[reflect.path(comp:GetOwner())] or ""
+        if l:lower() == want then target, label = comp, l; return true end
+    end)
+    if not target then error("no heat allocation for district " .. tostring(args.district), 0) end
+    cdo("PXHeatManagementUtils"):SetHeatAllocationAdjustmentLevel(ctx(), target, tonumber(args.adjustment) or 1)
+    return { district = label, allocation = target.Allocation, needed = target.AllocationsNeeded, heat = target.HeatAllocated }
 end
 
 function A.heatDistribute(args)
