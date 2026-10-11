@@ -279,9 +279,11 @@ function A.districtTypes(args)
         pcall(function() e.needsDeposit = u:IsDistrictRequiringDeposits(obj) end)
         e.cost = try(u, "GetDistrictConstructionCost", { nation, obj, true })
         if not args.brief then
-            pcall(function() e.name = textOf(obj.IngameName) end)
-            pcall(function() e.description = textOf(obj.DescriptionText) end)
-            pcall(function() e.effects = textOf(obj.CustomGameplayEffectsText) end)
+            -- textOf is defined later in this file; call through A.plainText instead.
+            local function t(v) local ok, sv = pcall(function() return v:ToString() end); if ok and sv ~= "" then return A.plainText(sv) end end
+            e.name = t(obj.IngameName)
+            e.description = t(obj.DescriptionText)
+            e.effects = t(obj.CustomGameplayEffectsText)
             pcall(function() e.proximity = A.districtProximity(obj) end)
         end
         out[#out + 1] = e

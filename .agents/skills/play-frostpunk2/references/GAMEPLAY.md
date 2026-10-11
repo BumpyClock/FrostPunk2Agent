@@ -21,6 +21,10 @@ Frostpunk 2 knowledge; verify before relying on it.
   migration laws and the Frostland. (observed)
 - `fp2 district_active active=false` frees a district's workforce; use it to staff a priority build, then
   switch the district back on. (observed)
+- Industrial (Production) districts make either Goods or Prefabs: district abilities
+  `Toggle_IndustrialGoodsProduction` / `Toggle_IndustrialPrefabsProduction` (`fp2 abilities describe=true`,
+  `fp2 ability owner=Production#N id=Toggle_IndustrialPrefabsProduction active=true`). Prefab supply is set by how
+  many Industrial districts make prefabs and at what efficiency (`fp2 districts` `efficiencyPct`). (observed)
 - Districts next to Housing add Squalor. Housing next to the generator ring gets +1 temperature. (observed)
 
 ## Heat
