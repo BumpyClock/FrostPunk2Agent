@@ -816,6 +816,11 @@ function A.placeBuilding(args)
     out.cost = okC and compactCost(c) or nil
     if args.dryRun then return out end
     local res = bu:CreateBuilding(ctx(), district, btype, A.leaderOrigin())
+    if not reflect.isValid(res) then
+        -- Measured: a refused placement (e.g. no free building slot) returned nothing and charged nothing.
+        error("game refused to place " .. assetId(btype) .. " in " .. tostring(out.district) ..
+            " (no free building slot, unmet requirement or missing resources); try another district", 0)
+    end
     out.result = reflect.ref(res)
     return out
 end
