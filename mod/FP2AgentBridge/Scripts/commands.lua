@@ -535,6 +535,41 @@ def("ability", {
 })
 def("generator", { help = "Generator status: power, fuel, capacity, mode(s), overdrive.", run = function(args) return actions.generator(args) end })
 def("overdrive", { help = "Generator overdrive on/off. args: active=true|false", mutation = true, run = function(args) return actions.overdrive(args) end })
+def("snapshot", {
+    help = "Everything the HUD shows in one call: time/pause/cutscene, resources, needs, statistics, population, generator, construction, research, council, quests, map icons, dialogs, districts.",
+    run = function(args)
+        local function try(f)
+            local ok, v = pcall(f)
+            if ok then return v end
+            return { error = tostring(v) }
+        end
+        local out = {}
+        out.date = try(function() return actions.date() end)
+        out.pauseReasons = actions.pauseReasons()
+        for _, r in ipairs(out.pauseReasons) do
+            if r:find("Cutscene", 1, true) then out.cutscene = r end
+        end
+        for _, name in ipairs({ "resources", "needs", "statistics", "population", "construction", "quests", "icons" }) do
+            out[name] = try(function() return extractors.run(name, args) end)
+        end
+        out.modals = try(function() return actions.modals() end)
+        out.research = try(function() return actions.researchStatus(args) end)
+        out.council = try(function()
+            local c = actions.council(args)
+            c.parliament = nil
+            return c
+        end)
+        out.generator = try(function() return actions.generator(args) end)
+        out.districts = try(function()
+            local list = json.array()
+            for _, d in ipairs(actions.districts(args)) do
+                list[#list + 1] = { type = d.type, id = d.id, buildings = d.buildings, underConstruction = d.underConstruction }
+            end
+            return list
+        end)
+        return out
+    end,
+})
 def("expanders", { help = "Area expander (frostbreaking) types for the city.", run = function(args) return actions.expanders(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",

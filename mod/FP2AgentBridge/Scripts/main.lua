@@ -7,10 +7,20 @@
 --   bridge.log     errors and lifecycle events
 -- One request is in flight at a time; clients serialize with client.lock.
 
+local VERSION = "0.1.0"
 local json = require("json")
 local commands = require("commands")
 
-local VERSION = "0.1.0"
+-- Hot-reload every module except this file without any keypress (UE4SS's Ctrl+R collides with
+-- the game's R = Research hotkey). Returns the module list that was reloaded.
+local MODULES = { "json", "reflect", "geo", "extractors", "fp2_extractors", "actions", "commands" }
+local function reloadModules()
+    for _, m in ipairs(MODULES) do package.loaded[m] = nil end
+    commands = require("commands")
+    commands.VERSION = VERSION
+    return MODULES
+end
+
 commands.VERSION = VERSION
 
 -- Default: <mod dir>\bridge, which the install junction maps into the repo so the CLI finds it
@@ -86,7 +96,12 @@ local function handle(raw)
     ExecuteInGameThread(function()
         local t0 = os.clock()
         state.lastGameThread = os.time()
-        local ok, result = pcall(commands.dispatch, req.command, req.args or {})
+        local ok, result
+        if req.command == "bridge.reload" then
+            ok, result = pcall(function() return { reloaded = reloadModules() } end)
+        else
+            ok, result = pcall(commands.dispatch, req.command, req.args or {})
+        end
         local elapsed = math.floor((os.clock() - t0) * 1000)
         if not ok then log("command " .. tostring(req.command) .. " failed: " .. tostring(result)) end
         respond(req.id, ok, ok and result or tostring(result), elapsed)

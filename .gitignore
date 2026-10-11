@@ -12,3 +12,7 @@ mod/FP2AgentBridge/bridge/*
 # Large/raw game dumps (regenerate with the bridge)
 research/city/
 research/*.json
+
+# Bun compile temp files
+cli/*.bun-build
+

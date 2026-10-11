@@ -6,6 +6,7 @@ import { focusGame, sendKeys } from "./win32";
 import { brief } from "./brief";
 import { screenshot } from "./capture";
 import { click, drag, move, scroll } from "./mouse";
+import { watch } from "./watch";
 import { join } from "node:path";
 import { repoRoot } from "./bridge";
 
@@ -25,6 +26,10 @@ Local subcommands:
   council-open           open the Council (key C), skip its intro cutscene, return council state
   new-game               from the main menu: Utopia Builder, Windswept Peaks, 3 communities, intro skipped, paused
   saves [limit=20]       save files on disk, newest first (load with: fp2 load name=<name>; save: fp2 save name=<new>)
+  snapshot               everything the HUD shows, one call (bridge command)
+  watch [interval=2] [pauseOn=critical|kind,..]
+                         stream one JSON line per meaningful change (dialogs, construction/research done,
+                         deficits, stat bands, stock runway, quest progress, map icons, council phase)
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
   speed <1|2|3>          set game speed (sends number key)
@@ -39,7 +44,7 @@ Local subcommands:
   hold x,y [ms=1500]     press-and-hold (FP2 confirm buttons need a hold)
   move x,y | drag x,y x2,y2 | scroll x,y <ticks>   (scroll: + up / - down)
   focus [--max]          bring the game window to the foreground (needed before screenshots); --max maximizes
-  reload                 hot-reload UE4SS Lua mods (Ctrl+R) and wait for the bridge to restart
+  reload [--full]        re-require Lua modules in place (no keys); --full = UE4SS Ctrl+R reload (main.lua changes)
 
 Bridge subcommands (run inside the game; 'fp2 help' lists them):
   state, extract name=X, world, find_all, classes, modules, search, describe, object, get,
@@ -166,13 +171,24 @@ async function councilOpen() {
   return { ...(await call<any>("council")), pauseReasons: (await time()).pauseReasons };
 }
 
-async function reload() {
+async function reload(full: boolean) {
+  if (!full) {
+    // Keyless: re-require all Lua modules except main.lua inside the running VM.
+    return call("bridge.reload");
+  }
+  // Full UE4SS reload (needed only for main.lua changes). Ctrl+R also hits the game's R = Research
+  // hotkey, so close the Idea Tree it opens.
   const before = (await readStatus()).started;
   await sendKeys(["ctrl+r"]);
   for (let i = 0; i < 30; i++) {
     await sleep(500);
     const st = await readStatus();
-    if (st.alive && st.started !== before) return { reloaded: true, started: st.started };
+    if (st.alive && st.started !== before) {
+      await sleep(1000);
+      const t = await time().catch(() => undefined);
+      if (t && (t.pauseReasons ?? []).some((r) => /IdeaTree/i.test(r))) await sendKeys(["escape"], true);
+      return { reloaded: true, full: true, started: st.started };
+    }
   }
   throw new BridgeError("no reload observed within 15s; check ue4ss/UE4SS.log");
 }
@@ -238,6 +254,12 @@ async function main(argv: string[]): Promise<number> {
       let region = args.region;
       if (typeof region === "string") region = REGIONS[region] ?? region.split(",").map(Number);
       print(await screenshot({ out: String(args.out ?? join(repoRoot(), ".runtime", "shots", `${name}.png`)), region, scale: args.scale }));
+      return 0;
+    }
+    case "watch": {
+      // One JSON line per meaningful change; run under a Monitor tool. pauseOn: "critical" or comma list of event kinds.
+      const pauseOn = new Set(String(args.pauseOn ?? "").split(",").filter(Boolean));
+      await watch({ intervalMs: Number(args.interval ?? 2) * 1000, pauseOn, once: Boolean(flags.once), out: (l) => console.log(JSON.stringify(l)) });
       return 0;
     }
     case "council-open":
@@ -342,7 +364,7 @@ async function main(argv: string[]): Promise<number> {
       print({ focused: true });
       return 0;
     case "reload":
-      print(await reload());
+      print(await reload(Boolean(flags.full)));
       return 0;
     default: {
       const env = await callEnvelope(cmd, args, timeoutMs);
