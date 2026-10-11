@@ -52,6 +52,7 @@ Each line has `at`, `date`, `week`, `kind`, `detail`.
 | Event kind | Meaning | Reaction |
 |---|---|---|
 | `dialog.opened` / `dialog.closed` | Modal or decision; `detail` has title, description, choices | `fp2 modals`, decide, `fp2 choose index=N` |
+| `notification` | Dialog without choices (population growth, info popup); no auto-pause by default | Read `detail`; usually no action |
 | `need.deficit` / `need.ok` | A need balance went below or back to 0 | Heating: see GAMEPLAY.md |
 | `stock.runway` / `stock.recovered` | Stock runway crossed 20, 10, 5 or 2 weeks (`recovered` never auto-pauses) | Fix the supply of that resource |
 | `stat.rising` / `stat.falling` | A statistic crossed a 10-point band; `detail` has current and target | Treat Cold, Hunger, Tension, Sickliness, Crime, Squalor |
@@ -120,7 +121,8 @@ Most accept `dryRun=true`.
 
 Read `fp2 council` (`phase`, `agendaPolicy`, `seats`, `minTicksToNextSession`, `activePolicies`) and
 `fp2 laws` (in-game `name`, `description`, `effect`, per-faction support and `seats` For/Against/Hesitant).
-Read each candidate's `name`, `description` and `effect` before proposing it; asset ids do not say what a
+Read each candidate's `name`, `description`, `effect` and `effects` (modifier data such as
+`Ratios: {Goods: 0.25}` or `EffectTemplate: Sickliness_Marginal_Increase`) before proposing it; asset ids do not say what a
 law does. Then decide for this run: weigh what the law costs people against what the city needs now
 (deficits, workforce, deaths, trust), and against the alternatives. No law is always right or always wrong;
 a harsh law can be the better choice when the alternative is collapse. Record the reasoning (see the

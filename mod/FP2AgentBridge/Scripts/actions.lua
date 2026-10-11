@@ -731,6 +731,84 @@ function A.council(args)
 end
 
 -- Inactive unlocked policies with each council faction's support (enum value: higher = more support).
+-- Law effects as data: Modifiers[].Effects[] dumped and simplified (object refs -> asset names).
+-- Example: Mass-Produced Goods -> { kind = "EconomyResourceRatio", Ratios = { Core_GoodsResource = 0.25 }, ... }
+local EFFECT_NOISE = { VisibilityMode = true, CustomRecievingFactorNameText = true, bIsMultipliable = true }
+
+local function uarray(v)
+    if type(v) == "table" then return v end
+    local out = {}
+    -- TArray ForEach passes (index, elem); TSet passes (elem).
+    pcall(function()
+        v:ForEach(function(a, b)
+            local e = b ~= nil and b or a
+            local ok, x = pcall(function() return e:get() end)
+            out[#out + 1] = ok and x or e
+        end)
+    end)
+    return out
+end
+
+local function simplify(v, depth)
+    if type(v) ~= "table" then
+        if v == "" then return nil end
+        if type(v) == "string" and v:match("^/%a+/") then
+            local n = (v:match("([^%.:/]+)$") or v):gsub("^DA_", ""):gsub("^AttributeType_", ""):gsub("_EffectTemplate$", "")
+            return n
+        end
+        return v
+    end
+    if v.ref and v.class then return simplify(v.ref, depth) end
+    if v["$null"] then return nil end
+    if v.name and v.value ~= nil and next(v, nil) and v.name:find("::", 1, true) then return (v.name:gsub("^.*::", "")) end
+    if depth <= 0 then return nil end
+    -- {key=..., value=...} pairs (maps) -> keyed object
+    if #v > 0 and type(v[1]) == "table" and v[1].key ~= nil and v[1].value ~= nil then
+        local o = json.object()
+        for _, kv in ipairs(v) do
+            local k = simplify(kv.key, depth - 1)
+            if type(k) == "string" then k = k:gsub("^Core_", ""):gsub("Resource$", "") end
+            if type(k) ~= "string" then k = tostring(k) end
+            o[k] = simplify(kv.value, depth - 1)
+        end
+        return o
+    end
+    if #v > 0 then
+        local a = json.array()
+        for _, x in ipairs(v) do local y = simplify(x, depth - 1); if y ~= nil then a[#a + 1] = y end end
+        return #a > 0 and a or nil
+    end
+    local o, any = json.object(), false
+    for k, x in pairs(v) do
+        if not EFFECT_NOISE[k] and k ~= "$struct" then
+            local y = simplify(x, depth - 1)
+            if y ~= nil and not (type(y) == "table" and next(y) == nil) then o[k] = y; any = true end
+        end
+    end
+    return any and o or nil
+end
+
+local function policyEffects(p)
+    local out = json.array()
+    for _, prop in ipairs({ "Modifiers", "ModifiersWithRequirements" }) do
+        local okM, mods = pcall(function() return uarray(p[prop]) end)
+        for _, m in ipairs(okM and mods or {}) do
+            if reflect.isValid(m) then
+                local okE, effects = pcall(function() return uarray(m.Effects) end)
+                for _, ef in ipairs(okE and effects or {}) do
+                    if reflect.isValid(ef) then
+                        local e = simplify(reflect.dump(ef, { depth = 3, gameOnly = true }), 4) or json.object()
+                        e.kind = (reflect.className(ef) or "?"):gsub("^PX", ""):gsub("ModifierEffect$", "")
+                        if prop == "ModifiersWithRequirements" then e.conditional = true end
+                        out[#out + 1] = e
+                    end
+                end
+            end
+        end
+    end
+    return out
+end
+
 function A.laws(args)
     local pol, pu = cdo("PXPolicyUtils"), cdo("PXParliamentUtils")
     local comp = playerPolicyComponent()
@@ -759,6 +837,8 @@ function A.laws(args)
                 e.description = text("Description")
                 e.effect = text("CustomGameplayEffect")
                 e.otherEffects = text("CustomOtherGameplayEffectsText")
+                local okF, fx = pcall(policyEffects, p)
+                if okF and #fx > 0 then e.effects = fx end
             end
             if parl then
                 local sup = json.object()

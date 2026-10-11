@@ -30,7 +30,11 @@ export function facts(s: Snap): Map<string, string> {
   put("ui.pauseReasons", [...reasons].sort());
   put("game.paused", asArray(s.pauseReasons).includes("UserPaused"));
   put("ui.cutscene", s.cutscene ?? null);
-  for (const m of Array.isArray(s.modals) ? s.modals : []) put(`modal.${m.title ?? m.class}`, { title: m.title, description: m.description, choices: m.choices });
+  // Dialogs with choices need a decision; ones without (population growth, info popups) are notifications.
+  for (const m of Array.isArray(s.modals) ? s.modals : []) {
+    const decision = asArray(m.choices).length > 0;
+    put(`${decision ? "modal" : "notice"}.${m.title ?? m.class}`, { title: m.title, class: m.class, description: m.description, choices: m.choices });
+  }
 
   for (const c of Array.isArray(s.construction) ? s.construction : []) put(`construction.${c.district ?? c.target}#${c.ref?.slice(-12)}`, c.state);
 
@@ -104,6 +108,9 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
     switch (group) {
       case "modal":
         ev.push({ kind: b === undefined ? "dialog.closed" : "dialog.opened", detail: b === undefined ? { title: k.slice(6) } : to });
+        break;
+      case "notice":
+        if (b !== undefined) ev.push({ kind: "notification", detail: to });
         break;
       case "construction":
         ev.push({ kind: b === undefined ? "construction.finished" : a === undefined ? "construction.started" : "construction.state", detail: { what: k.slice(13).split("#")[0], from, to } });

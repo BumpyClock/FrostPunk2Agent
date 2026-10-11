@@ -12,6 +12,10 @@ The project has no tagged releases yet.
 - `saves` shows each file's display name; `load` accepts a file name or display name and uses
   `ForceLoadGame` from the main menu.
 - `laws` returns each law's in-game name, description and effect text; `all=true` lists every inactive law.
+- `laws` returns `effects`: each law's modifier effects as data (for example Mass-Produced Goods →
+  `EconomyResourceRatio`, `Ratios: {Goods: 0.25}`).
+- Watcher emits `notification` for dialogs without choices (population growth, info popups) instead of
+  `dialog.opened`, so they no longer auto-pause the game.
 - `districts` returns label, workforce, active state and deactivation reasons.
 - UE4SS Lua mod `FP2AgentBridge` with a file bridge (`request.json`, `response.json`, `status.json`
   heartbeat), generic reflection commands, and curated extractors for time, resources, needs, statistics,
