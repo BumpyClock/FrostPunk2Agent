@@ -784,4 +784,105 @@ function A.vote(args)
     return { policy = assetId(p), result = reflect.plain(res, 2) }
 end
 
+---------------------------------------------------------------------------
+-- Abilities (district/city/generator actions such as overtime, martial law, ...)
+
+-- Actors that can own abilities: the city actor, its generator actor, and district actors.
+local function abilityActors(city)
+    local out = {}
+    local function add(label, actor)
+        if reflect.isValid(actor) then out[#out + 1] = { label = label, actor = actor } end
+    end
+    pcall(function() add("City", city:GetOwner()) end)
+    pcall(function() add("Generator", city.Generator:GetOwner()) end)
+    for _, d in ipairs(objList(city:GetDistricts())) do
+        pcall(function() add((assetId(d.DistrictType) or "District") .. "#" .. tostring(d.DistrictId), d:GetOwner()) end)
+    end
+    return out
+end
+
+function A.abilities(args)
+    local city = A.city(args)
+    local au = cdo("PXAbilityUtils")
+    local out = json.array()
+    for _, a in ipairs(abilityActors(city)) do
+        local list = json.array()
+        pcall(function()
+            for _, ab in ipairs(objList(au:GetActorVisibleAbilities(ctx(), a.actor))) do
+                local e = { id = assetId(ab) }
+                pcall(function() e.active = au:IsActorAbilityActive(ctx(), a.actor, ab) end)
+                pcall(function() e.everUsed = au:WasAbilityEverUsedInActor(a.actor, ab) end)
+                list[#list + 1] = e
+            end
+        end)
+        if #list > 0 or args.all then
+            out[#out + 1] = { owner = a.label, ref = reflect.path(a.actor), abilities = list }
+        end
+    end
+    return out
+end
+
+-- args: owner (label from `abilities`, e.g. "Generator" or "Housing#1"), id (ability id substring), active=true|false
+function A.setAbility(args)
+    A.assertNoCutscene("ability")
+    local city = A.city(args)
+    local au = cdo("PXAbilityUtils")
+    local want = tostring(args.id or ""):lower()
+    for _, a in ipairs(abilityActors(city)) do
+        if not args.owner or a.label:lower():find(tostring(args.owner):lower(), 1, true) then
+            for _, ab in ipairs(objList(au:GetActorVisibleAbilities(ctx(), a.actor))) do
+                if (assetId(ab) or ""):lower():find(want, 1, true) then
+                    local active = args.active ~= false
+                    cdo("PXInstructionUtils"):InstructSetActorAbilityActive(ctx(), a.actor, ab, active, A.leaderOrigin())
+                    local now
+                    pcall(function() now = au:IsActorAbilityActive(ctx(), a.actor, ab) end)
+                    return { owner = a.label, ability = assetId(ab), requested = active, activeNow = now }
+                end
+            end
+        end
+    end
+    error("no visible ability matching " .. want, 0)
+end
+
+---------------------------------------------------------------------------
+-- Generator
+
+function A.generator(args)
+    local city = A.city(args)
+    local gu = cdo("PXGeneratorUtils")
+    local g = city.Generator
+    if not reflect.isValid(g) then error("city has no generator", 0) end
+    local out = {}
+    pcall(function() out.power = g:GetPowerProduction() end)
+    pcall(function() out.potentialPower = g:GetPotentialPowerProduction() end)
+    pcall(function() out.fuel = g:GetFuelProduction() end)
+    pcall(function() out.mode = assetId(g:GetCurrentMode()) end)
+    pcall(function() out.capacity = gu:GetGeneratorCapacity(g) end)
+    pcall(function() out.capacityPct = gu:GetGeneratorCapacityPercentage(g) end)
+    pcall(function() out.powerLimit = gu:GetGeneratorPowerLimit(g) end)
+    pcall(function() out.overdriveSupported = gu:IsGeneratorOverdriveSupported(g) end)
+    pcall(function() out.overdriveActive = gu:IsGeneratorOverdriveActive(g) end)
+    pcall(function() out.canOverdrive = gu:CanActivateOverdrive(g) end)
+    pcall(function() out.changingMode = gu:IsGeneratorChangingMode(g) end)
+    pcall(function()
+        local modes = json.array()
+        for _, m in ipairs(objList(gu:GetVisibleGeneratorModes(ctx(), g))) do modes[#modes + 1] = assetId(m) end
+        out.visibleModes = modes
+    end)
+    pcall(function() out.fuelPerResource = costMap(gu:GetGeneratorCurrentPowerPerResources(g)) end)
+    return out
+end
+
+-- args: active=true|false
+function A.overdrive(args)
+    A.assertNoCutscene("overdrive")
+    local city = A.city(args)
+    local gu = cdo("PXGeneratorUtils")
+    local g = city.Generator
+    local active = args.active ~= false
+    if active and not gu:CanActivateOverdrive(g) then error("overdrive not available now", 0) end
+    gu:SetGeneratorOverdriveActive(ctx(), g, active, A.leaderOrigin())
+    return { overdriveActive = gu:IsGeneratorOverdriveActive(g) }
+end
+
 return A

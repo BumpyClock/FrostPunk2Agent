@@ -48,6 +48,13 @@ All mutations validate through the game and charge normal costs; most accept `dr
 | Research | `fp2 research`, `fp2 research_topics`, `fp2 research_start topic=<id> [community=<type>]` (community decides the outcome variant) |
 | Construction progress | `fp2 extract name=construction` (also in `brief`) |
 | Time | `fp2 date`, `fp2 game.pause`, `fp2 game.resume`, `fp2 game.speed level=0..2` |
+| Abilities | `fp2 abilities` → `fp2 ability owner=Production id=Toggle_IndustrialPrefabsProduction active=true` (Instruct path) |
+| Generator | `fp2 generator`, `fp2 overdrive active=true|false` |
+| Quests / map icons | `fp2 extract name=quests`, `fp2 extract name=icons` (both in `state`) |
+| Event dialogs | `fp2 modals` → `fp2 choose index=N` (resolves the decision through the game) |
+| Council | `fp2 council`, `fp2 laws`, `fp2 council-open`; vote with `fp2 vote policy=..` only inside the Council after proposing |
+| Hotkeys | `fp2 keybinds contains=..` (Council C, Research R, Frostland V, Districts B, Frostbreak X, Buildings N) |
+| New game | `fp2 new-game` (from the main menu; resolves intro dialogs, pauses) |
 
 Pass arrays in PowerShell as single-quoted `'cells=[1,2,3]'`.
 

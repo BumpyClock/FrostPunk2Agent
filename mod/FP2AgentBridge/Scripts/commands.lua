@@ -527,6 +527,14 @@ def("keybinds", {
         return out
     end,
 })
+def("abilities", { help = "Visible abilities per owner (City, Generator, districts) with active state. args: all", run = function(args) return actions.abilities(args) end })
+def("ability", {
+    help = "Toggle an ability via InstructSetActorAbilityActive. args: id (substring), owner (label substring), active=true|false",
+    mutation = true,
+    run = function(args) return actions.setAbility(args) end,
+})
+def("generator", { help = "Generator status: power, fuel, capacity, mode(s), overdrive.", run = function(args) return actions.generator(args) end })
+def("overdrive", { help = "Generator overdrive on/off. args: active=true|false", mutation = true, run = function(args) return actions.overdrive(args) end })
 def("expanders", { help = "Area expander (frostbreaking) types for the city.", run = function(args) return actions.expanders(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",
