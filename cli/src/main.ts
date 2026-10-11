@@ -309,6 +309,8 @@ async function main(argv: string[]): Promise<number> {
       // Bridge-only Council flow: open (skip cutscene) -> propose -> vote -> dismiss result -> verify.
       const policy = String(args.policy ?? "");
       if (!policy) throw new BridgeError("policy required (see fp2 laws)");
+      // Leaving the Council clears the player pause; restore it if we started paused.
+      const wasPaused = userPaused(await time());
       await councilOpen();
       const proposed = await call<any>("propose", { policy });
       await sleep(4000); // proposal transition (black frames)
@@ -323,7 +325,8 @@ async function main(argv: string[]): Promise<number> {
         await sleep(2000);
       }
       const after = await call<any>("council");
-      print({ policy: proposed.policy, vote: vote.result, active: (after.activePolicies ?? []).includes(proposed.policy), phase: after.phase, inParliament: after.inParliament });
+      if (wasPaused) await setPaused(true);
+      print({ policy: proposed.policy, vote: vote.result, active: (after.activePolicies ?? []).includes(proposed.policy), phase: after.phase, inParliament: after.inParliament, paused: wasPaused });
       return 0;
     }
     case "click":
