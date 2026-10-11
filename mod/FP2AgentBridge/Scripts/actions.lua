@@ -585,6 +585,19 @@ function A.districts(args)
             e.buildings = b
         end)
         pcall(function() e.underConstruction = cdo("PXConstructionUtils"):IsUnderConstruction(d) end)
+        local owner = d:GetOwner()
+        if reflect.isValid(owner) then
+            e.label = (e.type or "?") .. "#" .. tostring(e.id)
+            pcall(function() e.workforce = cdo("PXWorkforceUtils"):GetActorTotalWorkforce(owner) end)
+            pcall(function()
+                local reasons = json.array()
+                for _, r in ipairs(objList(cdo("PXActivityUtils"):GetDeactivationReasons(owner))) do
+                    if reflect.isValid(r) then reasons[#reasons + 1] = (assetId(r) or "?"):gsub("^DeactivationReason_", "") end
+                end
+                e.active = #reasons == 0
+                if #reasons > 0 then e.inactiveReasons = reasons end
+            end)
+        end
         out[#out + 1] = e
     end
     return out
