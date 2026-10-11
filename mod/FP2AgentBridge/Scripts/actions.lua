@@ -1273,7 +1273,7 @@ local function territoryInfo(t, nation, center)
             pcall(function() e.explored = ex:IsExplored() end)
             pcall(function() e.charted = ex:IsCharted() end)
             pcall(function() e.inProgress = ex:IsExplorationInProgress() end)
-            pcall(function() e.progress = math.floor(ex:GetExplorationPercentage() * 100 + 0.5) / 100 end)
+            pcall(function() e.progress = math.floor(ex:GetExplorationPercentage() * 10 + 0.5) / 1000 end) -- game returns percent; report 0..1
             pcall(function() e.objective = ex:IsMarkedAsObjective() end)
         end
     end)
