@@ -7,6 +7,12 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `watch-start` keeps a rolling save (`agent-rolling`, every 2 in-game weeks by default; `saveEvery`, `saveName`).
+- `save` writes immediately (`SaveGameImmediate`) and takes `override=true` to reuse a slot.
+- `saves` shows each file's display name; `load` accepts a file name or display name and uses
+  `ForceLoadGame` from the main menu.
+- `laws` returns each law's in-game name, description and effect text; `all=true` lists every inactive law.
+- `districts` returns label, workforce, active state and deactivation reasons.
 - UE4SS Lua mod `FP2AgentBridge` with a file bridge (`request.json`, `response.json`, `status.json`
   heartbeat), generic reflection commands, and curated extractors for time, resources, needs, statistics,
   population, society (trust, community standing, death toll and deaths by cause), construction, quests, map icons, districts and deposits.

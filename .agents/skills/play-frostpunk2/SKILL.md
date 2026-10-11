@@ -37,6 +37,10 @@ Run a detached watcher and react to its events instead of polling.
 4. Verify the effect with `fp2 brief` or `fp2 snapshot`, then continue.
 5. `fp2 watch-stop` ends the watcher.
 
+The watcher also overwrites one rolling save (`agent-rolling`) every 2 in-game weeks (`saveEvery=N`,
+`saveName=X`, `saveEvery=0` turns it off) and emits `watch.saved`. A crash or closed game then loses at most
+2 weeks. Without it, all progress since the last manual save was lost once (measured).
+
 The watcher auto-pauses the game on the kinds in `pauseOn` unless the player already paused. Defaults for
 `watch-start`: `dialog.opened,need.deficit,stock.runway,research.finished,construction.finished`.
 Override with `pauseOn=critical` (a preset: those plus `stat.rising`, `ui.cutscene.changed`,
@@ -83,7 +87,7 @@ Most accept `dryRun=true`.
 | Abilities, generator, heat | `fp2 abilities`, `fp2 generator`, `fp2 heat` |
 | Council | `fp2 council`, `fp2 laws` |
 | Dialogs | `fp2 modals` |
-| Saves | `fp2 saves [limit=20]` (disk listing, newest first) |
+| Saves | `fp2 saves [limit=20]` (disk listing, newest first; `file` and `display` name) |
 | Hotkeys | `fp2 keybinds contains=..`. Measured: Council C, Research R, Frostland V, Districts B |
 
 ### Actions
@@ -115,8 +119,11 @@ Most accept `dryRun=true`.
 ### Council
 
 Read `fp2 council` (`phase`, `agendaPolicy`, `seats`, `minTicksToNextSession`, `activePolicies`) and
-`fp2 laws` (per-faction support and `seats` For/Against/Hesitant per policy). Pick a policy with many
-seats For and none Against; the game predicts the same split.
+`fp2 laws` (in-game `name`, `description`, `effect`, per-faction support and `seats` For/Against/Hesitant).
+Read `name` and `description` before voting: ids mislead (`Children_TraditionStart` is child labour,
+"Family Apprenticeship"). `fp2 laws all=true` lists every inactive law; the default lists only laws
+proposable now and is empty between sessions. Pick a policy with many seats For and none Against; the game
+predicts the same split.
 
 Pass a law when `fp2 council` shows an open session (`phase` 1, Agenda; the watcher emits
 `council.sessionAvailable.changed`): `fp2 pass-law policy=<id>`. It runs `council-open` (key C, then skips
@@ -134,7 +141,7 @@ Measurements are in [MOD_GAPS.md](references/MOD_GAPS.md). Research needs a Rese
 |---|---|
 | Start or recover the game | `fp2 launch` (closes a stuck crash reporter, starts via Steam, waits for the bridge) |
 | New game from the main menu | `fp2 new-game` (Utopia Builder, Windswept Peaks, first 3 communities, intro skipped, paused) |
-| Save | `fp2 save name=X`, then `fp2 advance ticks=10` to flush |
+| Save | `fp2 save name=X` writes immediately; `override=true` reuses the slot with that name |
 | Load | `fp2 load name=X` (main menu or in game), `fp2 wait-ready`, `fp2 pause`, `fp2 keys space` (closes the loading screen) |
 
 ### UI fallback
@@ -177,7 +184,8 @@ UI facts (measured):
   them. Never pass `unsafe=true` to bypass these. See [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md).
 - No cheats: no `TryChange*Stockpile`, no `PXCheat*`, no `set` on game state. New actions must go through
   the game's validated paths (`Instruct*`, `Try*`/`Can*` with an ActionOrigin).
-- Never overwrite or delete the user's saves. `save` always writes a new numbered file.
+- Never overwrite or delete the user's saves. `save` writes a new numbered file unless `override=true`
+  reuses a slot with the same display name; only override agent-named slots.
 - `fp2 reload` re-requires all Lua modules except `main.lua`, with no keys. `fp2 reload --full` sends
   Ctrl+R for `main.lua` changes; in game R opens Research, so the CLI closes the Idea Tree afterward.
 - Stop a foreground `fp2 watch` before `bun run build`. `watch-start` runs a copy and does not block builds,

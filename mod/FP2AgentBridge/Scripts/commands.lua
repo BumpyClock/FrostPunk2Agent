@@ -476,7 +476,7 @@ def("place_building", {
     run = function(args) return actions.placeBuilding(args) end,
 })
 def("council", { help = "Council state: active, phase, agenda policy, seats per faction, active policies, time to next session.", run = function(args) return actions.council(args) end })
-def("laws", { help = "Unlocked inactive policies with per-faction support. args: contains, limit", run = function(args) return actions.laws(args) end })
+def("laws", { help = "Inactive laws with name, description, effect text and per-faction support. Default lists laws proposable now (empty between sessions). args: contains, limit, all=true (every inactive law), brief=true (name only)", run = function(args) return actions.laws(args) end })
 def("propose", {
     help = "Request a council session to vote on a policy (propose a law). args: policy (id substring), skipRecess, dryRun",
     mutation = true,
@@ -604,13 +604,18 @@ def("saves", {
     end,
 })
 def("save", {
-    help = "Manual save. args: name. The game writes a NEW file each time (FrostPunk2SaveGame, ...1, ...2; measured) and flushes on the next game tick, so follow with 'fp2 advance ticks=10'.",
+    help = "Manual save. args: name, override=true (reuse the slot with this display name), type=0 (EPXSaveType), queued=true (old path: flushes on the next game tick). Default writes immediately via SaveGameImmediate.",
     mutation = true,
     run = function(args)
         if type(args.name) ~= "string" or args.name == "" then error("name required", 0) end
         local sub = FindFirstOf("PXSaveSubsystem")
-        local ok = sub:SaveGame(args.name, false, 0)
-        return { queued = ok, name = args.name, note = "flushes when the game ticks (fp2 advance ticks=10); check fp2 saves" }
+        local override = args.override == true
+        local saveType = tonumber(args.type) or 0
+        if args.queued then
+            local ok = sub:SaveGame(args.name, override, saveType)
+            return { queued = ok, name = args.name, override = override, note = "flushes when the game ticks (fp2 advance ticks=10); check fp2 saves" }
+        end
+        return { saved = sub:SaveGameImmediate(args.name, override, saveType), name = args.name, override = override }
     end,
 })
 def("load", {

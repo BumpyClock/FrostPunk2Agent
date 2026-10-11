@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 // fp2: single CLI for playing Frostpunk 2 through the FP2AgentBridge mod.
-import { readFileSync } from "node:fs";
+import { closeSync, openSync, readFileSync, readSync } from "node:fs";
 import { BridgeError, bridgeDir, call, callEnvelope, readStatus } from "./bridge";
 import { focusGame, sendKeys } from "./win32";
 import { brief } from "./brief";
@@ -31,8 +31,9 @@ Local subcommands:
   watch [interval=2] [pauseOn=critical|kind,..]
                          stream one JSON line per meaningful change (dialogs, construction/research done,
                          deficits, stat bands, stock runway, quest progress, map icons, council phase)
-  watch-start [pauseOn=..] / watch-stop
-                         detached watcher appending to .runtime/watch.jsonl (tail it from a Monitor)
+  watch-start [pauseOn=..] [saveEvery=2] [saveName=agent-rolling] / watch-stop
+                         detached watcher appending to .runtime/watch.jsonl (tail it from a Monitor);
+                         overwrites one rolling save every saveEvery in-game weeks (0 = off)
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
   speed <1|2|3>          set game speed via the bridge (game.speed)
@@ -54,6 +55,24 @@ Bridge subcommands (run inside the game; 'fp2 help' lists them):
   components, call, set, ping, help
 
 Values parse as JSON when valid, else strings. Dotted keys nest: a.b=1 -> {"a":{"b":1}}.`;
+
+const SAVE_DIR = join(process.env.LOCALAPPDATA ?? "", "11bitstudios", "Frostpunk2", "Steam", "Saved", "SaveGames");
+
+// .sav header: int32 magic, then an FString (int32 length incl. NUL, bytes) holding the display name.
+function saveDisplayName(path: string): string | undefined {
+  try {
+
+    const fd = openSync(path, "r");
+    const buf = Buffer.alloc(512);
+    readSync(fd, buf, 0, 512, 0);
+    closeSync(fd);
+    const len = buf.readInt32LE(4);
+    if (len <= 1 || len > 500) return undefined;
+    return buf.toString("utf8", 8, 8 + len - 1);
+  } catch {
+    return undefined;
+  }
+}
 
 function parseValue(text: string): unknown {
   try {
@@ -262,7 +281,8 @@ async function main(argv: string[]): Promise<number> {
     case "watch": {
       // One JSON line per meaningful change; run under a Monitor tool. pauseOn: "critical" or comma list of event kinds.
       const pauseOn = new Set(String(args.pauseOn ?? "").split(",").filter(Boolean));
-      await watch({ intervalMs: Number(args.interval ?? 2) * 1000, pauseOn, once: Boolean(flags.once), out: (l) => console.log(JSON.stringify(l)) });
+      const saveEvery = Number(args.saveEvery ?? 0);
+      await watch({ intervalMs: Number(args.interval ?? 2) * 1000, pauseOn, once: Boolean(flags.once), saveEveryWeeks: saveEvery > 0 ? saveEvery : undefined, saveName: args.saveName ? String(args.saveName) : undefined, out: (l) => console.log(JSON.stringify(l)) });
       return 0;
     }
     case "watch-start": {
@@ -280,7 +300,7 @@ async function main(argv: string[]): Promise<number> {
       const exe = join(rt, "fp2-watch.exe");
       copyFileSync(process.execPath, exe);
       const log = join(rt, "watch.jsonl");
-      const wargs = [`interval=${args.interval ?? 2}`, `pauseOn=${args.pauseOn ?? "dialog.opened,need.deficit,stock.runway,research.finished,construction.finished"}`];
+      const wargs = [`interval=${args.interval ?? 2}`, `pauseOn=${args.pauseOn ?? "dialog.opened,need.deficit,stock.runway,research.finished,construction.finished"}`, `saveEvery=${args.saveEvery ?? 2}`, `saveName=${args.saveName ?? "agent-rolling"}`];
       const ps = `Start-Process -FilePath '${exe}' -ArgumentList ${["watch", ...wargs].map((a) => `'${a}'`).join(",")} -WorkingDirectory '${repoRoot()}' -RedirectStandardOutput '${log}' -RedirectStandardError '${log}.err' -WindowStyle Hidden -PassThru | ForEach-Object Id`;
       const res = Bun.spawnSync(["powershell", "-NoProfile", "-Command", ps]);
       const pid = res.stdout.toString().trim();
@@ -351,14 +371,22 @@ async function main(argv: string[]): Promise<number> {
       print(await scroll(String(rest[0]).split(",").map(Number), Number(rest[1] ?? args.ticks ?? 1)));
       return 0;
     case "saves": {
-      // Disk listing (works without the game); newest first.
-      const dir = join(process.env.LOCALAPPDATA ?? "", "11bitstudios", "Frostpunk2", "Steam", "Saved", "SaveGames");
+      // Disk listing (works without the game); newest first. `display` is the name `load` takes.
       const { readdirSync, statSync } = await import("node:fs");
-      const list = readdirSync(dir)
+      const list = readdirSync(SAVE_DIR)
         .filter((f) => f.endsWith(".sav"))
-        .map((f) => ({ name: f.slice(0, -4), modified: statSync(join(dir, f)).mtime.toISOString(), bytes: statSync(join(dir, f)).size }))
+        .map((f) => ({ file: f.slice(0, -4), display: saveDisplayName(join(SAVE_DIR, f)), modified: statSync(join(SAVE_DIR, f)).mtime.toISOString(), bytes: statSync(join(SAVE_DIR, f)).size }))
         .sort((a, b) => b.modified.localeCompare(a.modified));
-      print({ dir, saves: list.slice(0, Number(args.limit ?? 20)) });
+      print({ dir: SAVE_DIR, saves: list.slice(0, Number(args.limit ?? 20)) });
+      return 0;
+    }
+    case "load": {
+      // Accepts a display name or a file name (FrostPunk2SaveGame9); the game loads by display name.
+      const { existsSync } = await import("node:fs");
+      const name = String(args.name ?? "");
+      const file = join(SAVE_DIR, `${name}.sav`);
+      const display = existsSync(file) ? saveDisplayName(file) ?? name : name;
+      print(await call("load", { ...args, name: display }));
       return 0;
     }
     case "launch": {

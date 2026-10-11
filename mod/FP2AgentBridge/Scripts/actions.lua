@@ -738,11 +738,28 @@ function A.laws(args)
     local types = parliamentCommunityTypes(parl)
     local filter = args.contains and tostring(args.contains):lower() or nil
     local out = json.array()
-    for _, p in ipairs(objList(pol:GetAllInactivePolicies(comp, true))) do
+    -- true = only laws proposable now (empty between sessions, measured); all=true lists every inactive law.
+    for _, p in ipairs(objList(pol:GetAllInactivePolicies(comp, args.all ~= true))) do
         local id = assetId(p) or "?"
         if not filter or id:lower():find(filter, 1, true) then
             local e = { id = id }
             pcall(function() e.law = assetId(pol:GetLaw(comp, p)) end)
+            -- Player-facing text so a vote is made on what the law does, not on its asset id.
+            local function text(prop)
+                local ok, v = pcall(function() return p[prop]:ToString() end)
+                if ok and v and v ~= "" and not v:find("BLANK_ON_PURPOSE", 1, true) then
+                    -- Rich text: <img id="FoodPositive"></> -> [Food+], drop style tags.
+                    v = v:gsub('<img id="(%a-)Positive"></>', "[%1+]"):gsub('<img id="(%a-)Negative"></>', "[%1-]")
+                    v = v:gsub('<img id="(.-)"></>', "[%1]"):gsub("</>", ""):gsub("<%a+>", "")
+                    return v
+                end
+            end
+            e.name = text("IngameName")
+            if not args.brief then
+                e.description = text("Description")
+                e.effect = text("CustomGameplayEffect")
+                e.otherEffects = text("CustomOtherGameplayEffectsText")
+            end
             if parl then
                 local sup = json.object()
                 for _, t in ipairs(types) do

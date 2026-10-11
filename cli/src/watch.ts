@@ -169,8 +169,12 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
 
 const CRITICAL = new Set(["exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
-export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; out: (line: unknown) => void }) {
+const TICKS_PER_WEEK = 1680;
+
+export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; saveEveryWeeks?: number; saveName?: string; out: (line: unknown) => void }) {
   let prev: Map<string, string> | null = null;
+  // Rolling save: one slot overwritten every N in-game weeks, so a crash or closed game loses at most N weeks.
+  let lastSaveTicks: number | null = null;
   for (;;) {
     let s: Snap;
     try {
@@ -197,6 +201,21 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
       }
     }
     prev = next;
+    const ticks = Number(s.date?.ticks);
+    if (opts.saveEveryWeeks && Number.isFinite(ticks)) {
+      if (lastSaveTicks === null || ticks < lastSaveTicks) lastSaveTicks = ticks;
+      else if (ticks - lastSaveTicks >= opts.saveEveryWeeks * TICKS_PER_WEEK) {
+        const name = opts.saveName ?? "agent-rolling";
+        try {
+          const r = await call("save", { name, override: true });
+          opts.out({ at: new Date().toISOString(), date: s.date?.date, kind: "watch.saved", detail: { name, result: r } });
+          lastSaveTicks = ticks;
+        } catch (e) {
+          opts.out({ at: new Date().toISOString(), date: s.date?.date, kind: "watch.saveFailed", detail: String(e) });
+          lastSaveTicks = ticks;
+        }
+      }
+    }
     if (opts.once) return;
     await sleep(opts.intervalMs);
   }
