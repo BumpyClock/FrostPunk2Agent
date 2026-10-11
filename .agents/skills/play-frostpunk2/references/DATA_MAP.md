@@ -51,6 +51,7 @@ that section only.
 | `research` | `supported`, `active`, `anyInProgress`, `topic`, `outcome`, `speed` |
 | `council` | `active`, `inParliament`, `phase`, `minTicksToNextSession`, `ticksToForcedVote`, `agendaPolicy`, `seats`, `activePolicies` (the `parliament` ref is removed) |
 | `generator` | `power`, `fuel`, `capacity`, `mode`, overdrive flags, `visibleModes` |
+| `exploration` | `exploring` (`name`, `progress` 0 to 1, `explored`) and `revealed` (count of explorable territories) |
 | `districts` | `type`, `id`, `buildings`, `underConstruction` per district |
 
 The snapshot has no `time` or `session` sections; use `date` and `pauseReasons`, or `extract name=time`.

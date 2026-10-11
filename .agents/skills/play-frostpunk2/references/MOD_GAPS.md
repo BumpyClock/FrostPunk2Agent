@@ -8,8 +8,8 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - Utopia Tree node unlocks: no reflected command path (only UI widget handlers).
 - Total population as the HUD shows it. `population.population` sums unassigned community sizes only;
   `society.population` is the candidate but is not compared to the HUD.
-- Frostland: expeditions, outposts, colonies, trails (`InstructStartTerritoryExploration`,
-  `InstructConstructOutpost`, `BuildTrail`).
+- Frostland beyond exploration: expeditions, outposts, colonies, trails (`InstructConstructOutpost`, `BuildTrail`).
+  `fp2 territories` and `fp2 explore` cover exploration only.
 - Heat: `heat_adjust` sets a district's adjustment level, but the relation between adjustment, allocation
   and the HUD heat bars is unmeasured.
 - Other ability and city actions beyond the toggle in `fp2 ability` (`PXAbilityUtils.ActivateActorAbility`).

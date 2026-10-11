@@ -40,7 +40,7 @@ Run a detached watcher and react to its events instead of polling.
 The watcher auto-pauses the game on the kinds in `pauseOn` unless the player already paused. Defaults for
 `watch-start`: `dialog.opened,need.deficit,stock.runway,research.finished,construction.finished`.
 Override with `pauseOn=critical` (a preset: those plus `stat.rising`, `ui.cutscene.changed`,
-`council.sessionAvailable.changed`) or a comma list of kinds. `fp2 watch` (foreground, no auto-pause by
+`council.sessionAvailable.changed`, `exploration.finished`) or a comma list of kinds. `fp2 watch` (foreground, no auto-pause by
 default) takes the same arguments; run it only under a Monitor.
 
 Each line has `at`, `date`, `week`, `kind`, `detail`.
@@ -53,6 +53,7 @@ Each line has `at`, `date`, `week`, `kind`, `detail`.
 | `stat.rising` / `stat.falling` | A statistic crossed a 10-point band; `detail` has current and target | Treat Cold, Hunger, Tension, Sickliness, Crime, Squalor |
 | `trust.up/down`, `standing.up/down` | Total trust or community standing crossed a 10-point band | Check `fp2 council` and `fp2 laws` |
 | `construction.started/state/finished`, `research.started/finished` | Work began, changed or ended | Queue the next build or topic |
+| `exploration.started/progress/finished`, `exploration.revealed.changed` | Frostland exploration began, advanced in quarter steps, finished, or the count of revealed territories changed | `fp2 territories`, then `fp2 explore` |
 | `quest.progress` | Quest objective progress changed | Check `snapshot.quests` |
 | `icons.changed` | Count of a map tracker kind changed (Bark icons ignored) | `extract name=icons`, `open_icon` |
 | `council.sessionAvailable.changed`, `council.phase.changed`, `council.agenda.changed` | Council session opened or changed | See Council |
@@ -71,13 +72,14 @@ Most accept `dryRun=true`.
 | Need | Command |
 |---|---|
 | Mod alive | `fp2 status` (heartbeat only) |
-| Whole HUD in one call | `fp2 snapshot`: date, pauseReasons, cutscene, resources, needs, statistics, population, society, construction, quests, icons, modals, research, council, generator, districts |
+| Whole HUD in one call | `fp2 snapshot`: date, pauseReasons, cutscene, resources, needs, statistics, population, society, construction, quests, icons, modals, research, council, generator, exploration, districts |
 | Triage | `fp2 brief`: alerts, need deficits, depleting stocks, modals, construction |
 | Raw extractors | `fp2 state` (all `inState` extractors), `fp2 extract name=<x>` (omit `name` to list), `names=[..]` |
 | Clock | `fp2 date` |
 | Free cells, deposits | `fp2 cells free=true [deposit=soil] [nearX=.. nearY=..]` (cells marked `outside` count as buildable; measured), `fp2 extract name=deposits type=logistics` |
 | Districts, buildings | `fp2 districts`, `fp2 district_types`, `fp2 building_types [district=Housing]` |
 | Research | `fp2 research`, `fp2 research_topics` |
+| Frostland territories | `fp2 territories [state=revealed|explored|charted|hidden] [limit=30]`: nearest first, plus those being explored |
 | Abilities, generator, heat | `fp2 abilities`, `fp2 generator`, `fp2 heat` |
 | Council | `fp2 council`, `fp2 laws` |
 | Dialogs | `fp2 modals` |
@@ -92,6 +94,7 @@ Most accept `dryRun=true`.
 | Build a district | `fp2 place_district type=Housing 'cells=[..6..]' [dryRun=true]` |
 | Frostbreak | `fp2 pick_cells count=8 frozen=true [nearX=.. nearY=..]`, then `fp2 expand 'cells=[..8..]' [type=..]`; `fp2 expanders` lists types |
 | Build a building | `fp2 place_building type=H_ResearchInstitute [district=Housing]` |
+| Explore a territory | `fp2 explore territory=<name or ref> [dryRun=true]` (revealed territories only; `dryRun` shows preparation weeks) |
 | Start research | `fp2 research_start topic=<id> [community=<type>]` (the community picks the outcome variant) |
 | Answer a dialog | `fp2 choose index=N` |
 | Open a map icon's event | `fp2 open_icon ref=<icon ref from extract name=icons>` |

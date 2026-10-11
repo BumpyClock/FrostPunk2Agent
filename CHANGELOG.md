@@ -11,7 +11,7 @@ The project has no tagged releases yet.
   heartbeat), generic reflection commands, and curated extractors for time, resources, needs, statistics,
   population, society (trust, community standing, death toll and deaths by cause), construction, quests, map icons, districts and deposits.
 - Game actions through the game's own command layer: districts, frostbreaking, buildings, research,
-  abilities, generator overdrive, heat allocation (`heat`, `heat_distribute`, `heat_auto`, `heat_adjust`), `district_active` (switch a district off or on), event
+  abilities, generator overdrive, heat allocation (`heat`, `heat_distribute`, `heat_auto`, `heat_adjust`), `district_active` (switch a district off or on), Frostland exploration (`territories`, `explore`), event
   decisions, `save` and `load`. Most mutations accept `dryRun=true`.
 - Council reads (`council`, `laws`), guarded `propose` and `vote` commands, and `fp2 pass-law`, which
   runs the whole flow (open the Council, propose, vote, dismiss the result, verify).
@@ -19,7 +19,7 @@ The project has no tagged releases yet.
 - `fp2` Bun/TypeScript CLI (compiles to `fp2.exe`): `brief`, `advance`, pause and speed control,
   `snapshot`, screenshots, mouse and keys, `launch`, `new-game`, `council-open`, `saves`, `wait-ready`.
 - `fp2 watch`, `watch-start` and `watch-stop`: one JSON line per meaningful change (dialogs, construction
-  and research, deficits, statistic bands, stock runway, quests, icons, Council phase), with optional
+  and research, deficits, statistic bands, stock runway, quests, icons, Council phase, deaths, Frostland exploration), with optional
   auto-pause (including `deaths.increased`) and a detached watcher that appends to `.runtime/watch.jsonl`.
 - Keyless `bridge.reload` (`fp2 reload`); `fp2 reload --full` for `main.lua` changes.
 - `keybinds` command listing Enhanced Input bindings.
