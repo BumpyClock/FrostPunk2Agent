@@ -579,6 +579,8 @@ def("district_active", {
     mutation = true,
     run = function(args) return actions.setDistrictActive(args) end,
 })
+def("territories", { help = "Frostland territories by state (default revealed = explorable), nearest first, plus those being explored. args: state, limit", run = function(args) return actions.territories(args) end })
+def("explore", { help = "Start exploring a revealed territory (InstructStartTerritoryExploration). args: territory (ref or name substring), dryRun", mutation = true, run = function(args) return actions.explore(args) end })
 def("expanders", { help = "Area expander (frostbreaking) types for the city.", run = function(args) return actions.expanders(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",

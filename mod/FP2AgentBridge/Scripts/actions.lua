@@ -1023,4 +1023,82 @@ function A.setDistrictActive(args)
     return { district = label, requested = active, deactivationReasons = reasons }
 end
 
+---------------------------------------------------------------------------
+-- Frostland territories and exploration
+
+local TERRITORY_STATE = { hidden = 1, revealed = 2, explored = 4, charted = 8 }
+
+local function territoryInfo(t, nation, center)
+    local e = { ref = reflect.path(t) }
+    pcall(function() e.name = t.ExploredName:ToString() end)
+    pcall(function() if not e.name or e.name == "" then e.name = t.UnexploredName:ToString() end end)
+    pcall(function() e.type = assetId(t.TerritoryType) end)
+    pcall(function()
+        local p = t:GetMiddlePosition()
+        e.x, e.y = math.floor(p.X), math.floor(p.Y)
+        if center then e.d = math.floor(math.sqrt((p.X - center.X) ^ 2 + (p.Y - center.Y) ^ 2)) end
+    end)
+    pcall(function()
+        local ex = t:GetExplorationComponent(nation)
+        if reflect.isValid(ex) then
+            pcall(function() e.explored = ex:IsExplored() end)
+            pcall(function() e.charted = ex:IsCharted() end)
+            pcall(function() e.inProgress = ex:IsExplorationInProgress() end)
+            pcall(function() e.progress = math.floor(ex:GetExplorationPercentage() * 100 + 0.5) / 100 end)
+            pcall(function() e.objective = ex:IsMarkedAsObjective() end)
+        end
+    end)
+    pcall(function() e.difficulty = assetId(cdo("PXTerritoryUtils"):GetTerritoryDifficulty(ctx(), t)) end)
+    pcall(function() e.sites = #objList(t:GetSites()) end)
+    return e
+end
+
+-- args: state=revealed|explored|charted|hidden (default revealed = explorable frontier), limit=30
+function A.territories(args)
+    local city = A.city(args)
+    local nation = city.Nation
+    local center = geo.location(city)
+    local tu = cdo("PXTerritoryUtils")
+    local stateName = tostring(args.state or "revealed"):lower()
+    local state = TERRITORY_STATE[stateName]
+    if not state then error("state must be hidden|revealed|explored|charted", 0) end
+    local list = {}
+    for _, t in ipairs(objList(tu:GetTerritoriesByState(ctx(), state))) do list[#list + 1] = territoryInfo(t, nation, center) end
+    table.sort(list, function(a, b) return (a.d or 1e18) < (b.d or 1e18) end)
+    local out = json.array()
+    for i = 1, math.min(tonumber(args.limit) or 30, #list) do out[#out + 1] = list[i] end
+    local exploring = json.array()
+    pcall(function()
+        for _, t in ipairs(objList(tu:GetAllCurrentlyExploringTerritories(ctx(), nation))) do exploring[#exploring + 1] = territoryInfo(t, nation, center) end
+    end)
+    return { state = stateName, total = #list, territories = out, exploring = exploring }
+end
+
+-- args: territory (ref, or name substring), dryRun
+function A.explore(args)
+    A.assertNoCutscene("explore")
+    local city = A.city(args)
+    local nation = city.Nation
+    local tu = cdo("PXTerritoryUtils")
+    local target
+    if args.territory and tostring(args.territory):sub(1, 1) == "/" then
+        target = reflect.find(args.territory)
+    else
+        local want = tostring(args.territory or ""):lower()
+        for _, t in ipairs(objList(tu:GetTerritoriesByState(ctx(), TERRITORY_STATE.revealed))) do
+            local info = territoryInfo(t, nation, nil)
+            if want ~= "" and (info.name or ""):lower():find(want, 1, true) then target = t; break end
+        end
+    end
+    if not reflect.isValid(target) then error("territory not found: " .. tostring(args.territory), 0) end
+    local ex = target:GetExplorationComponent(nation)
+    if not reflect.isValid(ex) then error("territory has no exploration component for this nation", 0) end
+    local out = territoryInfo(target, nation, geo.location(city))
+    pcall(function() out.preparationWeeks = tu:GetExplorationPreparationTime(ctx(), target, city).ScaledTicks / 1680 end)
+    if args.dryRun then return out end
+    cdo("PXInstructionUtils"):InstructStartTerritoryExploration(ctx(), ex, city, city)
+    pcall(function() out.inProgressNow = ex:IsExplorationInProgress() end)
+    return out
+end
+
 return A
