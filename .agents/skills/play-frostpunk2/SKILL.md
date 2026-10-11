@@ -100,6 +100,7 @@ Most accept `dryRun=true`.
 |---|---|
 | Pick a placement | `fp2 pick_cells count=6 [deposit=soil]` returns connected cells next to the city |
 | Build a district | `fp2 place_district type=Housing 'cells=[..6..]' [dryRun=true]` |
+| Frostland sites | `fp2 frost_sites [kind=outpost|colony] [state=Hidden] [territory=X]`: outposts (with `upgradesTo` settlement chain, `built`, `population`) and colony sites, each with territory and site state; `counts` summarises by state. Settlements are upgraded outposts (need Skyways connection + Settlement Heating); colonies cost 400 prefabs, 1 Core, 20 logistics units |
 | Frostbreak | `fp2 frostbreak_path deposit=Logistics` (or `target=<cell>`) plans the shortest frozen route plus room for a district, in 8-cell batches; `go=true` starts batch 1. Manual: `fp2 pick_cells count=8 frozen=true`, then `fp2 expand 'cells=[..8..]'`. Far deposits: `fp2 cells deposit=Logistics limit=2000` |
 | Build a building | `fp2 place_building type=H_ResearchInstitute [district=Housing]` |
 | Explore a territory | `fp2 explore territory=<name or ref> [dryRun=true]` (revealed territories only; `dryRun` shows preparation weeks) |

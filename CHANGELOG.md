@@ -7,6 +7,8 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `frost_sites`: Frostland outposts (settlement upgrade chain) and colony sites with territory and state.
+- `call` fills `WorldContextObject` with the PlayerController (`"@ctx"` placeholder) after a guessed context crashed the game.
 - Tech tree planning: `research_topics all=true` describes locked topics (outcomes, requirement trees,
   prerequisite topics, research weeks); `research_plan topic=X` returns the ordered path to a topic.
 - `utopia` reads each faction's Utopia Tree (points, nodes, state, descriptions, links);

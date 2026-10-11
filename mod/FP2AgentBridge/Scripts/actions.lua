@@ -1582,4 +1582,75 @@ function A.researchPlan(args)
     return { topic = target.id, steps = order, remaining = todo, researchWeeksAtSpeed1 = weeks }
 end
 
+---------------------------------------------------------------------------
+-- Frostland sites: outposts (settlement chain) and colony sites, with territory and state.
+
+local function siteInfo(site, e)
+    if not reflect.isValid(site) then return end
+    pcall(function() e.site = assetId(site.SiteType) end)
+    pcall(function()
+        local t = site.TerritoryComponent
+        if reflect.isValid(t) then
+            local n = textOf(t.ExploredName)
+            if not n then n = textOf(t.UnexploredName) end
+            e.territory = n
+        end
+    end)
+    pcall(function()
+        local names = reflect.enumNames("EPXSiteState")
+        site.States:ForEach(function(_, v)
+            local st = v:get()
+            if reflect.isValid(st) and not e.state then
+                local raw = st.State
+                e.state = tostring(names[raw] or raw):gsub("^EPXSiteState::", "")
+            end
+        end)
+    end)
+end
+
+-- args: kind=outpost|colony, state (substring, e.g. Hidden), territory (substring), limit=60
+function A.frostSites(args)
+    local out, counts = json.array(), json.object()
+    local wantState = args.state and tostring(args.state):lower() or nil
+    local wantTerr = args.territory and tostring(args.territory):lower() or nil
+    local function keep(e)
+        if wantState and not (e.state or ""):lower():find(wantState, 1, true) then return false end
+        if wantTerr and not (e.territory or ""):lower():find(wantTerr, 1, true) then return false end
+        return true
+    end
+    local function add(e)
+        local key = e.kind .. ":" .. (e.state or "?")
+        counts[key] = (counts[key] or 0) + 1
+        if keep(e) and #out < (tonumber(args.limit) or 60) then out[#out + 1] = e end
+    end
+    if args.kind ~= "colony" then
+        for _, o in ipairs(FindAllOf("PXOutpostComponent") or {}) do
+            if reflect.isValid(o) then
+                local e = { kind = "outpost", ref = reflect.path(o) }
+                pcall(function() e.type = assetId(o.Type) end)
+                pcall(function()
+                    local up = o.Type.UpgradedOutpostType
+                    if reflect.isValid(up) then e.upgradesTo = assetId(up) end
+                end)
+                pcall(function() e.built = reflect.isValid(o.City) end)
+                pcall(function() e.population = o.CommunitiesHolder:GetTotalCommunitiesSize() end)
+                siteInfo(o.Site, e)
+                add(e)
+            end
+        end
+    end
+    if args.kind ~= "outpost" then
+        for _, sp in ipairs(FindAllOf("PXCityAreaSpawnerComponent") or {}) do
+            if reflect.isValid(sp) then
+                local e = { kind = "colony", ref = reflect.path(sp) }
+                pcall(function() e.area = assetId(sp.CityAreaType) end)
+                pcall(function() e.cityType = assetId(sp.CityType) end)
+                siteInfo(sp.SiteComponent, e)
+                add(e)
+            end
+        end
+    end
+    return { counts = counts, sites = out }
+end
+
 return A
