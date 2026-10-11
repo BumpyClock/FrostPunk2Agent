@@ -58,6 +58,15 @@ export async function readStatus(): Promise<Status> {
   return { alive: false, reason: "no readable status.json; game not running with the mod, or mod failed to load" };
 }
 
+function pidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e: any) {
+    return e?.code === "EPERM";
+  }
+}
+
 async function withLock<T>(fn: () => Promise<T>): Promise<T> {
   const dir = bridgeDir();
   mkdirSync(dir, { recursive: true });
@@ -71,7 +80,10 @@ async function withLock<T>(fn: () => Promise<T>): Promise<T> {
       break;
     } catch {
       try {
-        if (Date.now() - statSync(lock).mtimeMs > STALE_LOCK_SECONDS * 1000) rmSync(lock, { force: true });
+        // A force-killed client (e.g. watch-stop) leaves its lock behind: clear it when the owner is gone.
+        const owner = Number(readFileSync(lock, "utf8").trim());
+        if (owner && !pidAlive(owner)) rmSync(lock, { force: true });
+        else if (Date.now() - statSync(lock).mtimeMs > STALE_LOCK_SECONDS * 1000) rmSync(lock, { force: true });
       } catch {}
       if (Date.now() > deadline) throw new BridgeError(`another client holds ${lock}`);
       await sleep(50);
