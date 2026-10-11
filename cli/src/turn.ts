@@ -24,8 +24,8 @@ export const STOP_DEFAULT = [
   "council.sessionAvailable.changed",
   "exploration.finished",
   "temperature.changed",
-  "building.unlocked",
-  "ability.available",
+  // building.unlocked / ability.available arrive with research.finished or construction.finished,
+  // which already stop; they are still returned as events.
   "district.deactivated",
   "homeless.changed",
 ];
@@ -35,12 +35,18 @@ const NOISE = new Set(["icons.changed", "game.paused", "game.resumed", "ui.pause
 
 const STOP_RUNWAY_WEEKS = 10;
 
+const levelNum = (v: unknown) => Number(String(v ?? "").match(/(\d+)$/)?.[1] ?? 0);
+
 function isStop(e: WatchEvent, stopOn: Set<string>): boolean {
   if (!stopOn.has(e.kind)) return false;
   const d: any = e.detail ?? {};
   if (e.kind === "stock.runway") return typeof d.weeksLeftUnder === "number" && d.weeksLeftUnder <= STOP_RUNWAY_WEEKS;
   if (e.kind === "council.sessionAvailable.changed") return d.to === true;
   if (e.kind === "homeless.changed") return d.to === true;
+  // The agent's own toggles (PlayerChoice) are not news; a game-caused stop (NoDeposit, ...) is.
+  if (e.kind === "district.deactivated") return !(Array.isArray(d.reasons) && d.reasons.every((r: string) => r === "PlayerChoice"));
+  // Only a drop to a colder level threatens the city (TemperatureLevel number rises as it gets colder).
+  if (e.kind === "temperature.changed") return levelNum(d.to) > levelNum(d.from);
   return true;
 }
 
