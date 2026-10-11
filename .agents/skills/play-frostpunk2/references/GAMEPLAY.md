@@ -59,6 +59,13 @@ Frostpunk 2 knowledge; verify before relying on it.
   Symbiosis Lvl1 kept 750). It also exposes City Support abilities (`fp2 abilities describe=true`): Food
   Production, Housing (+1 temperature level), Heavy Industry. Food Production raised food by about 8/day with no
   power change (observed).
+- Cold snaps (temperature level drops) raise every district's heat `needed`. Idle districts still count
+  toward the Heating requirement, so lowering their allocation (`heat_adjust`) does not cut demand (measured).
+  Levers that worked: generator City Support "Housing" (+1 temperature in Housing districts; Heating -150 -> -60,
+  measured) and a Heating Hub district (raises temperature of neighbours within 2 cells; 5 weeks to build).
+- Overdrive closes a heat gap fast but wears the generator quickly (wear +0.14 per 6 game-hours, measured; 1.0 =
+  malfunction with casualties). Wear decays to 0 within a day once off. `fp2 overdrive-cycle` alternates it under
+  a ceiling; half-time overdrive did not move Cold's target in one test, so weigh it against wear risk.
 - If the generator is at its power limit, distribution does not help. Check `fp2 generator`
   (`power`, `powerLimit`, `capacityPct`, `overdriveSupported`, `canOverdrive`) and fuel stock. (general)
 

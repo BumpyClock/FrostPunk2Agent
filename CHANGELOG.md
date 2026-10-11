@@ -7,6 +7,8 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `generator` reports `wear`, `wearIncreasing`, `broken`; `overdrive-cycle` duty-cycles overdrive under a wear ceiling.
+- `brief` counts only dialogs with choices as decisions.
 - `fp2 turn [weeks=4] [stopOn=..] [speed=3] [saveEvery=2]`: the play primitive. Resumes time, stops at the first
   stop event or after `weeks` in-game weeks, pauses, and returns `{turn, events, dropped, goals, brief}`. Events also
   go to `.runtime/watch.jsonl`. Rolling save every `saveEvery` weeks.

@@ -1177,6 +1177,19 @@ function A.generator(args)
         out.visibleModes = modes
     end)
     pcall(function() out.fuelPerResource = costMap(gu:GetGeneratorCurrentPowerPerResources(g)) end)
+    -- Wear 0..1 (1 = malfunction with casualties). Overdrive raised it ~0.14 per 6 game-hours and it
+    -- decayed to 0 within a day once off (measured).
+    pcall(function()
+        local owner = g:GetOwner()
+        for _, w in ipairs(FindAllOf("PXWearComponent") or {}) do
+            if reflect.isValid(w) and reflect.path(w:GetOwner()) == reflect.path(owner) then
+                out.wear = math.floor(w.wear * 1000 + 0.5) / 1000
+                out.wearIncreasing = w.bIsIncreasing
+                out.broken = w.bIsBroken
+                break
+            end
+        end
+    end)
     return out
 end
 

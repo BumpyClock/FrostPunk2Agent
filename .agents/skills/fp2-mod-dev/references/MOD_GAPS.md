@@ -8,6 +8,9 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - Proximity magnitudes: `layout_preview` matches giver/taker types but not effect sizes. Sizes live in
   `/Game/Scenarios/Shared/Configs/CellProximity/Rules/DA_CellProximityRule_*` and
   `PXCellProximityHolderComponent.SupportedCellProximities` (not read yet).
+- Ability cost and refusal reason: `fp2 ability` reports `activeNow:false` with no reason when the game refuses
+  (measured: Insulate District with 9 prefabs). Cost data is not read; find it on the ability asset or a
+  `Can*` check that does not return FText.
 - District expansion: `fp2 district_expansion district=X` reads levels, cells, cost and the upgrade type.
   Starting one with chosen cells has no bridge path yet: `PXInstructionUtils.ExpandDistrict` needs an internal
   Name id (actor and component FNames had no effect, measured), and the UI calls it natively, so

@@ -113,3 +113,49 @@ export async function waitFor(cond: string, timeoutMs: number) {
     await sleep(500);
   }
 }
+
+/**
+ * Duty-cycled generator overdrive for a cold snap: overdrive on until wear reaches `maxWear`, off until it
+ * falls to `minWear`, for `weeks` of game time. Overdrive raised wear ~0.14 per 6 game-hours and wear decayed
+ * to 0 within a day once off (measured). Stops early when a non-player pause (modal, cutscene) appears.
+ * Always leaves overdrive off and the game paused.
+ */
+export async function overdriveCycle(opts: { weeks: number; maxWear: number; minWear: number }) {
+  const start = await time();
+  const target = (start.gameTimeTicks ?? 0) + opts.weeks * TICKS_PER_WEEK;
+  if (userPaused(start)) await setPaused(false);
+  let switches = 0;
+  let peak = 0;
+  let stoppedBy: string | null = null;
+  try {
+    for (;;) {
+      const t = await time();
+      if ((t.gameTimeTicks ?? 0) >= target) break;
+      const others = (t.pauseReasons ?? []).filter((r) => r !== "UserPaused" && r !== "SavingGame");
+      if (others.length) {
+        stoppedBy = others.join(", ");
+        break;
+      }
+      const g = await call<any>("generator");
+      peak = Math.max(peak, Number(g.wear ?? 0));
+      if (g.broken) {
+        stoppedBy = "generator broken";
+        break;
+      }
+      if (!g.overdriveActive && Number(g.wear ?? 0) <= opts.minWear) {
+        await call("overdrive", { active: true });
+        switches++;
+      } else if (g.overdriveActive && Number(g.wear ?? 0) >= opts.maxWear) {
+        await call("overdrive", { active: false });
+        switches++;
+      }
+      await sleep(400);
+    }
+  } finally {
+    await call("overdrive", { active: false }).catch(() => undefined);
+    const t = await time();
+    if (!userPaused(t)) await setPaused(true).catch(() => undefined);
+  }
+  const end = await time();
+  return { advancedWeeks: Math.round((((end.gameTimeTicks ?? 0) - (start.gameTimeTicks ?? 0)) / TICKS_PER_WEEK) * 100) / 100, switches, peakWear: peak, stoppedBy };
+}

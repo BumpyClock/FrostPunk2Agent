@@ -9,7 +9,7 @@ import { click, drag, move, scroll } from "./mouse";
 import { watch } from "./watch";
 import { join } from "node:path";
 import { repoRoot } from "./bridge";
-import { cutsceneReason, setPaused, setSpeed, sleep, time, userPaused, waitAlive, waitFor, waitReady } from "./game";
+import { cutsceneReason, overdriveCycle, setPaused, setSpeed, sleep, time, userPaused, waitAlive, waitFor, waitReady } from "./game";
 import { addGoal, goalView, loadGoals, removeGoal, updateGoal } from "./goals";
 import { STOP_DEFAULT, turn } from "./turn";
 
@@ -55,6 +55,7 @@ Local subcommands:
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
   speed <1|2|3>          set game speed via the bridge (game.speed)
+  overdrive-cycle [weeks=1] [maxWear=0.5] [minWear=0.05]  duty-cycle generator overdrive under a wear ceiling (cold snaps)
   advance [ticks=N]      resume, wait until game time advances N ticks (default 24000), pause, print brief;
                          stops early when a modal/event pauses the game
   wait-ready             block until a city is loaded and gameplay began (after load/new game)
@@ -367,6 +368,10 @@ async function main(argv: string[]): Promise<number> {
       print(await time());
       return 0;
     }
+    case "overdrive-cycle":
+      // Cold snap helper: duty-cycle generator overdrive under a wear ceiling.
+      print(await overdriveCycle({ weeks: Number(args.weeks ?? 1), maxWear: Number(args.maxWear ?? 0.5), minWear: Number(args.minWear ?? 0.05) }));
+      return 0;
     case "advance":
       print(await advance(Number(args.ticks ?? 24000), flags.timeout ? timeoutMs : 600_000));
       return 0;
