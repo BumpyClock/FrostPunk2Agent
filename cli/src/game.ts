@@ -123,6 +123,9 @@ export async function waitFor(cond: string, timeoutMs: number) {
 export async function overdriveCycle(opts: { weeks: number; maxWear: number; minWear: number }) {
   const start = await time();
   const target = (start.gameTimeTicks ?? 0) + opts.weeks * TICKS_PER_WEEK;
+  // Measured: at speed 3 with 400 ms polling, wear overshot a 0.7 ceiling to 1.5. Run at normal speed.
+  const prevSpeed = start.speed;
+  await setSpeed(1);
   if (userPaused(start)) await setPaused(false);
   let switches = 0;
   let peak = 0;
@@ -131,30 +134,45 @@ export async function overdriveCycle(opts: { weeks: number; maxWear: number; min
     for (;;) {
       const t = await time();
       if ((t.gameTimeTicks ?? 0) >= target) break;
-      const others = (t.pauseReasons ?? []).filter((r) => r !== "UserPaused" && r !== "SavingGame");
+      if (userPaused(t)) {
+        stoppedBy = "UserPaused";
+        break;
+      }
+      const others = (t.pauseReasons ?? []).filter((r) => r !== "SavingGame");
       if (others.length) {
         stoppedBy = others.join(", ");
         break;
       }
       const g = await call<any>("generator");
-      peak = Math.max(peak, Number(g.wear ?? 0));
+      const wear = Number(g.wear ?? 0);
+      peak = Math.max(peak, wear);
       if (g.broken) {
         stoppedBy = "generator broken";
         break;
       }
-      if (!g.overdriveActive && Number(g.wear ?? 0) <= opts.minWear) {
+      if (g.overdriveActive && wear >= opts.maxWear + 0.15) {
+        stoppedBy = `wear ${wear} overshot the ceiling`;
+        break;
+      }
+      if (!g.overdriveActive && wear <= opts.minWear) {
         await call("overdrive", { active: true });
         switches++;
-      } else if (g.overdriveActive && Number(g.wear ?? 0) >= opts.maxWear) {
-        await call("overdrive", { active: false });
+      } else if (g.overdriveActive && wear >= opts.maxWear) {
+        const r = await call<any>("overdrive", { active: false });
         switches++;
+        if (r?.overdriveActive) {
+          stoppedBy = "overdrive did not switch off";
+          break;
+        }
       }
-      await sleep(400);
+      await sleep(250);
     }
   } finally {
     await call("overdrive", { active: false }).catch(() => undefined);
     const t = await time();
     if (!userPaused(t)) await setPaused(true).catch(() => undefined);
+    if (/Fastest/.test(String(prevSpeed))) await setSpeed(3).catch(() => undefined);
+    else if (/Fast/.test(String(prevSpeed))) await setSpeed(2).catch(() => undefined);
   }
   const end = await time();
   return { advancedWeeks: Math.round((((end.gameTimeTicks ?? 0) - (start.gameTimeTicks ?? 0)) / TICKS_PER_WEEK) * 100) / 100, switches, peakWear: peak, stoppedBy };

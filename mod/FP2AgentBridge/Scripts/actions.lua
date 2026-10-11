@@ -1116,6 +1116,19 @@ function A.abilities(args)
                     for _, f in ipairs({ "Description", "GameplayDescription", "CustomGameplayEffect" }) do
                         if not e.description then pcall(function() e.description = textOf(ab[f]) end) end
                     end
+                    -- Activation cost: a refused activation (activeNow=false) was a cost the city could not pay (measured).
+                    pcall(function()
+                        local cost = json.object()
+                        ab.StockpileCost:ForEach(function(k, v)
+                            local key = (assetId(k:get()) or "?"):gsub("^Core_", ""):gsub("Resource$", "")
+                            local val = v:get()
+                            if type(val) == "number" and val > 0 then cost[key] = val end
+                        end)
+                        pcall(function() if ab.Workforce and ab.Workforce ~= 0 then cost.Workforce = ab.Workforce end end)
+                        if next(cost) ~= nil then e.cost = cost end
+                    end)
+                    pcall(function() if ab.Cooldown.ScaledTicks > 0 then e.cooldownWeeks = ab.Cooldown.ScaledTicks / 1680 end end)
+                    pcall(function() if ab.Duration.ScaledTicks > 0 then e.durationWeeks = ab.Duration.ScaledTicks / 1680 end end)
                 end
                 pcall(function() e.active = au:IsActorAbilityActive(ctx(), a.actor, ab) end)
                 pcall(function() e.everUsed = au:WasAbilityEverUsedInActor(a.actor, ab) end)
