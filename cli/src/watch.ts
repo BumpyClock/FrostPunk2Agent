@@ -33,7 +33,7 @@ export function facts(s: Snap): Map<string, string> {
   // Dialogs with choices need a decision; ones without (population growth, info popups) are notifications.
   for (const m of Array.isArray(s.modals) ? s.modals : []) {
     const decision = asArray(m.choices).length > 0;
-    put(`${decision ? "modal" : "notice"}.${m.title ?? m.class}`, { title: m.title, class: m.class, description: m.description, choices: m.choices });
+    put(`${decision ? "modal" : "notice"}.${m.title ?? m.class}`, { title: m.title, class: m.class, ref: m.ref, description: m.description, choices: m.choices });
   }
 
   for (const c of Array.isArray(s.construction) ? s.construction : []) put(`construction.${c.name ?? c.building ?? c.district ?? c.target}#${c.ref?.slice(-12)}`, c.state);
@@ -184,7 +184,7 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
   return ev;
 }
 
-const CRITICAL = new Set(["exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
+const CRITICAL = new Set(["dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
 const TICKS_PER_WEEK = 1680;
 
@@ -220,9 +220,16 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
           acked.push(e.detail);
           return false;
         });
-        for (const d of acked) {
-          await call("choose", { index: 0 }).catch(() => undefined);
-          opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, kind: "dialog.acknowledged", detail: d });
+        for (const d of acked as any[]) {
+          // Target this modal by ref (several can be open at once); report failure instead of hiding it.
+          const err = await call("choose", { index: 0, ref: d.ref }).then(() => undefined, (e) => String(e));
+          if (err) {
+            const failed = { kind: "dialog.ackFailed", detail: { ...d, error: err } };
+            opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...failed });
+            events.push(failed as any);
+          } else {
+            opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, kind: "dialog.acknowledged", detail: d });
+          }
         }
       }
       for (const e of events) opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...e });
