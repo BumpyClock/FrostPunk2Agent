@@ -4,9 +4,9 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { BridgeError, call, loadQuietLeftMs, readStatus } from "./bridge";
 import { brief } from "./brief";
-import { isReady, setPaused, sleep, waitAlive, waitReady } from "./game";
+import { isReady, setPaused, sleep, time, waitAlive, waitReady } from "./game";
 import { SAVE_DIR, markBadSave, recoveryCandidates, saveDisplayName } from "./saves";
-import { sendKeys } from "./win32";
+import { gameFocused, sendKeys } from "./win32";
 
 const GAME_EXE = "Frostpunk2-Win64-Shipping.exe";
 const CRASH_DIR = join(process.env.LOCALAPPDATA ?? "", "11bitstudios", "Frostpunk2", "Steam", "Saved", "Crashes");
@@ -102,11 +102,41 @@ async function loadOnce(save: string, timeoutMs: number, steps: string[]): Promi
     if (Date.now() > deadline) return { ok: false, crashed: false, reason: `${save} did not finish loading within ${timeoutMs / 1000}s after the quiet period` };
     await sleep(5000);
   }
-  await sendKeys(["space"], true); // closes the loading screen (measured)
-  await sleep(2000);
-  const time = await setPaused(true);
+  const dismissed = await dismissLoadingScreen(steps);
+  if (!dismissed) return { ok: false, crashed: false, reason: `${save} loaded but the loading screen did not close after ${DISMISS_KEYS.length} key presses (game time does not advance); press a key in the game window` };
+  const t = await setPaused(true);
   steps.push("ready, paused");
-  return { ok: true, time };
+  return { ok: true, time: t };
+}
+
+/** Keys tried in order on the "Press any key to continue" loading screen. */
+const DISMISS_KEYS = ["space", "enter", "space"];
+
+/** True when game time advances after the player pause is removed (leaves the game running; the caller pauses). */
+async function clockAdvances(): Promise<boolean> {
+  await setPaused(false).catch(() => undefined);
+  const a = (await time().catch(() => ({ gameTimeTicks: undefined as number | undefined }))).gameTimeTicks;
+  await sleep(1200);
+  const b = (await time().catch(() => ({ gameTimeTicks: undefined as number | undefined }))).gameTimeTicks;
+  return typeof a === "number" && typeof b === "number" && b > a;
+}
+
+// The key press is lost when the game window is not the foreground window (measured: the loading screen stayed up
+// and game time never advanced). Focus is verified before each press (sendKeys focuses and retries); success is
+// proved by the game clock advancing, not by the key being sent.
+async function dismissLoadingScreen(steps: string[]): Promise<boolean> {
+  for (let i = 0; i < DISMISS_KEYS.length; i++) {
+    await sendKeys([DISMISS_KEYS[i]], true);
+    if (!gameFocused()) steps.push(`dismiss ${i + 1}: game window not focused after the key press`);
+    await sleep(1500);
+    if (await clockAdvances()) {
+      steps.push(`loading screen closed (key ${DISMISS_KEYS[i]}, press ${i + 1}); game time advances`);
+      return true;
+    }
+    steps.push(`dismiss ${i + 1}: game time not advancing after ${DISMISS_KEYS[i]}`);
+  }
+  await setPaused(true).catch(() => undefined);
+  return false;
 }
 
 /** Accept a display name or a file name (FrostPunk2SaveGame9); the game loads by display name. */

@@ -46,14 +46,22 @@ export async function focusGame(maximize = false): Promise<any> {
   if (!hwnd) throw new Error("Frostpunk 2 window not found (is the game running?)");
   if (maximize) user32.ShowWindow(hwnd, 3 /* SW_MAXIMIZE */);
   else if (user32.IsIconic(hwnd)) user32.ShowWindow(hwnd, SW_RESTORE);
-  if (user32.GetForegroundWindow() === hwnd) return hwnd;
   // An ALT tap allows a background process to take the foreground. (In-game, held ALT
   // shows the economy overlay, so never tap it while the game already has focus.)
-  user32.keybd_event(VK_MENU, 0, 0, null);
-  user32.SetForegroundWindow(hwnd);
-  user32.keybd_event(VK_MENU, 0, KEYUP, null);
-  await sleep(250);
+  // SetForegroundWindow can be refused, so verify and retry (a key sent to an unfocused window is lost).
+  for (let i = 0; i < 3 && user32.GetForegroundWindow() !== hwnd; i++) {
+    user32.keybd_event(VK_MENU, 0, 0, null);
+    user32.SetForegroundWindow(hwnd);
+    user32.keybd_event(VK_MENU, 0, KEYUP, null);
+    await sleep(250);
+  }
   return hwnd;
+}
+
+/** True when the game window is the foreground window. */
+export function gameFocused(): boolean {
+  const hwnd = findGameWindow();
+  return Boolean(hwnd) && user32.GetForegroundWindow() === hwnd;
 }
 
 const VK: Record<string, number> = {

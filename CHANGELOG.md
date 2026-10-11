@@ -7,6 +7,8 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `deposit.depleting` turn event (stops at 10 weeks or less) for deposits worked by Extraction-type districts, from the
+  amount trend between snapshots. New extractor `districtDeposits`, included in `snapshot`.
 - `build_outpost` and `connect_outpost` (Frostland outposts; connection needs a trail).
 - `deconstruct district=X [dryRun]`: refund preview and deconstruction at the normal duration.
 - `generator` reports `wear`, `wearIncreasing`, `broken`; `overdrive-cycle` duty-cycles overdrive under a wear ceiling.
@@ -79,6 +81,11 @@ The project has no tagged releases yet.
 
 ### Changed
 
+- `turn` heartbeat: the loop estimates the game clock rate and, in the final stretch, polls `extract time` and pauses
+  at `weeks` itself. Before, the fixed 1.5 s poll let speed 3 (about 3.4 weeks per real second, measured) run
+  5.75 weeks on `weeks=2`. Overshoot is now about one bridge round trip.
+- `recover` focuses the game window (verified, retried) before the dismiss key and proves the loading screen closed
+  by game time advancing; up to 3 presses (space, enter, space).
 - `turn` and `watch-start` rotate saves over `<saveName>-a/-b/-c` (oldest overwritten) instead of one
   `agent-rolling` slot, which became unloadable once and left no fallback.
 - `recover` detects a crash during load (process gone, new crash report, crash reporter, stale heartbeat), kills the

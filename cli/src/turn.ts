@@ -107,20 +107,13 @@ export async function turn(opts: TurnOptions) {
   let pauseGraceUsed = false;
   const deadline = Date.now() + opts.timeoutMs;
 
-  try {
-    await runLoop();
-  } catch (e) {
-    // Never leave the game running on a CLI failure: a bug here once cost two unattended in-game weeks.
-    await setPaused(true).catch(() => undefined);
-    emit({ kind: "turn.failed", detail: String(e) });
-    throw e;
-  }
-
   async function runLoop() {
   while (!stoppedBy) {
-    await sleep(opts.intervalMs);
+    heartbeatPaused = await pace();
     try {
+      const t0 = Date.now();
       s = await call("snapshot", {}, 60_000);
+      if (!heartbeatPaused) noteSample(Number(s.date?.ticks ?? sample.ticks), t0, Date.now());
     } catch (e) {
       stoppedBy = { reason: `bridge.error: ${String(e)}`, kinds: ["bridge.error"] };
       break;
@@ -158,7 +151,7 @@ export async function turn(opts: TurnOptions) {
     // (measured: resuming showed "Venturers' Rallies Build Support" within 350 ms; waiting while paused never
     // did). So on a bare UserPaused, resume once and let the dialog appear as a stop event. A real player pause
     // ends the turn the second time.
-    const bareUserPause = !stops.length && reasons.length > 0 && reasons.every((r) => r === "UserPaused");
+    const bareUserPause = !heartbeatPaused && !stops.length && reasons.length > 0 && reasons.every((r) => r === "UserPaused");
     if (bareUserPause && !pauseGraceUsed) {
       pauseGraceUsed = true;
       warnings.push("game self-paused (story event); resumed once to let its dialog appear");
@@ -167,8 +160,9 @@ export async function turn(opts: TurnOptions) {
       continue;
     }
     if (stops.length) stoppedBy = { reason: "event", kinds: [...new Set(stops)] };
+    else if (heartbeatPaused && reasons.every((r) => r === "UserPaused")) stoppedBy = { reason: "heartbeat", kinds: [] };
     else if (reasons.length) stoppedBy = { reason: reasons.join(", "), kinds: [] }; // modal, cutscene, or the human paused
-    else if (ticks - fromTicks >= opts.weeks * TICKS_PER_WEEK) stoppedBy = { reason: "heartbeat", kinds: [] };
+    else if (ticks >= target) stoppedBy = { reason: "heartbeat", kinds: [] };
     else if (Date.now() > deadline) stoppedBy = { reason: "timeout", kinds: [] };
 
     if (opts.saveEveryWeeks > 0 && ticks - lastSaveTicks >= opts.saveEveryWeeks * TICKS_PER_WEEK) {
@@ -178,6 +172,63 @@ export async function turn(opts: TurnOptions) {
       lastSaveTicks = ticks;
     }
   }
+  }
+
+  // Pacing. Measured: speed 3 runs about 3.4 in-game weeks per real second, so a fixed 1.5 s poll let a
+  // weeks=2 turn run 5.75 weeks before the first heartbeat check. The loop now estimates the clock rate and,
+  // near the target, polls the cheap time extractor and pauses the game itself when the target is reached.
+  const target = fromTicks + opts.weeks * TICKS_PER_WEEK;
+  let rate = 0; // ticks per ms while running
+  let latMs = 150; // round trip of a light bridge call
+  let sample = { ticks: fromTicks, at: Date.now() };
+  let heartbeatPaused = false;
+  const noteSample = (ticks: number, t0: number, t1: number) => {
+    const at = (t0 + t1) / 2;
+    const dt = at - sample.at;
+    const r = dt > 150 && ticks > sample.ticks ? (ticks - sample.ticks) / dt : 0;
+    if (r > 0 && (rate === 0 || r > rate * 0.5)) rate = r; // a save or UI pause can only lower a sample: ignore big drops
+    sample = { ticks, at };
+  };
+
+  /** Sleep until the next poll. In the final stretch poll time and pause at the target; true if it paused. */
+  async function pace(): Promise<boolean> {
+    if (rate <= 0) {
+      await sleep(Math.min(opts.intervalMs, 400)); // first poll is early: it measures the clock rate
+      return false;
+    }
+    const etaMs = () => (target - sample.ticks) / rate - (Date.now() - sample.at);
+    if (etaMs() > opts.intervalMs + 300) {
+      await sleep(opts.intervalMs);
+      return false;
+    }
+    for (let i = 0; i < 200; i++) {
+      await sleep(Math.max(20, Math.min(300, etaMs() - 2 * latMs)));
+      const t0 = Date.now();
+      const t = await call<any>("extract", { name: "time" }).catch(() => null);
+      const t1 = Date.now();
+      if (!t) return false;
+      latMs = Math.max(30, t1 - t0);
+      const ticks = Number(t.gameTimeTicks);
+      if (!Number.isFinite(ticks)) return false;
+      const reasons = asArray(t.pauseReasons).filter((r: string) => r !== "SavingGame");
+      noteSample(ticks, t0, t1);
+      if (reasons.length) return false; // modal, cutscene or a human pause: the snapshot below reports it
+      // Pause a little early: the pause call itself takes about one round trip, during which the clock still runs.
+      if (ticks + rate * latMs >= target) {
+        await call("game.pause").catch(() => undefined);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  try {
+    await runLoop();
+  } catch (e) {
+    // Never leave the game running on a CLI failure: a bug here once cost two unattended in-game weeks.
+    await setPaused(true).catch(() => undefined);
+    emit({ kind: "turn.failed", detail: String(e) });
+    throw e;
   }
 
   // End paused by the player so the game stays still while the agent thinks, even after a modal closes.

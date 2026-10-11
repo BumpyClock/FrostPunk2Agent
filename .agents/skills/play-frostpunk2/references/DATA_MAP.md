@@ -54,6 +54,7 @@ that section only.
 | `exploration` | `exploring` (`name`, `progress` 0 to 1, `explored`) and `revealed` (count of explorable territories) |
 | `districts` | `type`, `id`, `buildings`, `underConstruction` per district |
 
+The snapshot carries `districtDeposits` (extractor `districtDeposits`: `district` label, deposit `ref`, `type`, `amount` for each deposit a deposit-requiring district works, via `PXDepositUtils.GetDepositsUsedByDistrict`; inferred, not yet compared with the HUD) for `deposit.depleting`.
 The snapshot has no `time` or `session` sections; use `date` and `pauseReasons`, or `extract name=time`.
 
 ## Turn events
@@ -62,7 +63,7 @@ The snapshot has no `time` or `session` sections; use `date` and `pauseReasons`,
 appended to `.runtime/watch.jsonl`. Stop kinds by default: `dialog.opened`, `dialog.ackFailed`, `deaths.increased`,
 `need.deficit`, `stock.runway` (10 weeks or less), `research.finished`, `construction.finished`,
 `council.sessionAvailable.changed` (session opens), `exploration.finished`, `temperature.changed`,
-`building.unlocked`, `ability.available`, `district.deactivated`, `homeless.changed`. Noise kinds (`icons.changed`,
+`building.unlocked`, `ability.available`, `district.deactivated`, `deposit.depleting` (10 weeks or less), `homeless.changed`. Noise kinds (`icons.changed`,
 `game.paused`, `game.resumed`, `ui.pauseReasons.changed`, `stock.recovered`, `dialog.closed`, `stat.falling`,
 `exploration.progress`, `construction.state`) are only counted in `dropped`.
 
@@ -85,6 +86,7 @@ appended to `.runtime/watch.jsonl`. Stop kinds by default: `dialog.opened`, `dia
 | `deaths.increased` | Death toll rose; `detail` has from, to, `byCause` | Find the cause (cold, hunger, sickness) and fix its need |
 | `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
 | `district.deactivated` / `district.activated` | A district went off or on; `detail.reasons` (`NoDeposit`: deposit exhausted, `PlayerChoice`) | `NoDeposit`: expand onto a new deposit or build elsewhere before stocks run out |
+| `deposit.depleting` | A deposit worked by a district (Extraction, ...) will run out soon: remaining weeks fell under 20, 10 or 5. `detail` has `district`, `type`, `amount`, `weeksLeft`, `weeksLeftUnder`. Weeks left = amount / amount lost per week between snapshots (samples persist in `.runtime/deposit-samples.json`; needs about half a week of data). Stops the turn at 10 or less | Expand onto a new deposit now: at 0 the district goes `NoDeposit`, its materials drop to 0 and every dependent Industry district goes `UnmetDemand` |
 | `building.unlocked`, `ability.available` | A building type or ability became available; `detail` has name, description, effects | Weigh it against the goal stack |
 | `bridge.error` | A bridge call failed | `fp2 status`, then `fp2 recover` |
 
