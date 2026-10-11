@@ -8,7 +8,10 @@
 - `reflect.lua` — UE value → JSON conversion; every read is pcall-guarded.
 - `extractors.lua` — extractor registry (`register`, declarative `fromClass`).
 - `fp2_extractors.lua` — Frostpunk 2 extractors. Add new ones here.
-- The game loads the mod through a junction, so edits are live after `./fp2.exe reload`.
+- The game loads the mod through a junction. `./fp2.exe reload` re-loads every module except `main.lua`
+  in place via `loadfile` (no keypress; UE4SS `require` caches outside `package.loaded`). Changes to
+  `main.lua` need `./fp2.exe reload --full` (UE4SS Ctrl+R; the CLI closes the Idea Tree that R opens).
+- Stop any running `fp2 watch` before `cd cli; bun run build` — the running exe locks `fp2.exe`.
   UE4SS log: `<game>\Frostpunk2\Binaries\Win64\ue4ss\UE4SS.log` (Lua errors land there and in `bridge/bridge.log`).
 
 ## Discovery commands

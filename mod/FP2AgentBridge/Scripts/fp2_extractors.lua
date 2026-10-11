@@ -173,6 +173,7 @@ return function(X)
                 pcall(function()
                     local temp = FindFirstOf("PXTemperatureComponent")
                     e.temperatureLevel = assetId(temp.CurrentTemperatureLevel)
+                    pcall(function() e.temperatureC = temp.CurrentTemperatureLevel.Degrees end)
                 end)
                 pcall(function()
                     local g = city.Generator
@@ -365,6 +366,33 @@ return function(X)
                 end
             end
             return out
+        end,
+    })
+    X.register({
+        name = "society",
+        help = "Total trust, population, and per-community size/standing (HUD faction bar).",
+        inState = true,
+        run = function()
+            local wco = FindFirstOf("PlayerController")
+            local tu = StaticFindObject("/Script/Frostpunk2.Default__PXTrustUtils")
+            local cu = StaticFindObject("/Script/Frostpunk2.Default__PXCommunityUtils")
+            return forEachCity(function(city, e)
+                local nation = city.Nation
+                pcall(function() e.totalTrust = tu:GetTotalTrust(wco, nation) end)
+                pcall(function() e.population = cu:GetScaledCityPopulationSize(city) end)
+                pcall(function() e.communitiesSize = cu:GetCityCommunitiesSize(city) end)
+                local comms = json.array()
+                pcall(function()
+                    for _, c in ipairs(list(cu:GetCommunitiesSortedBySize(city))) do
+                        local ce = { community = assetId(c.Type) or reflect.shortName(c) }
+                        pcall(function() ce.size = c.Size end)
+                        pcall(function() ce.standing = math.floor(tu:GetCommunityStanding(wco, nation, c) * 10 + 0.5) / 10 end)
+                        pcall(function() ce.fervor = c.Fervor end)
+                        comms[#comms + 1] = ce
+                    end
+                end)
+                e.communities = comms
+            end)
         end,
     })
 end

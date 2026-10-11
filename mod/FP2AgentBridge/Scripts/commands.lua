@@ -549,7 +549,7 @@ def("snapshot", {
         for _, r in ipairs(out.pauseReasons) do
             if r:find("Cutscene", 1, true) then out.cutscene = r end
         end
-        for _, name in ipairs({ "resources", "needs", "statistics", "population", "construction", "quests", "icons" }) do
+        for _, name in ipairs({ "resources", "needs", "statistics", "population", "society", "construction", "quests", "icons" }) do
             out[name] = try(function() return extractors.run(name, args) end)
         end
         out.modals = try(function() return actions.modals() end)

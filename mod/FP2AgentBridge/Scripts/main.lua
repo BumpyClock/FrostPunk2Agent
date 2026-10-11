@@ -13,10 +13,17 @@ local commands = require("commands")
 
 -- Hot-reload every module except this file without any keypress (UE4SS's Ctrl+R collides with
 -- the game's R = Research hotkey). Returns the module list that was reloaded.
-local MODULES = { "json", "reflect", "geo", "extractors", "fp2_extractors", "actions", "commands" }
+-- UE4SS's require caches outside package.loaded, so load each file directly (dependency order)
+-- and seed package.loaded before the next module requires it.
+local MODULES = { "json", "reflect", "geo", "fp2_extractors", "extractors", "actions", "commands" }
 local function reloadModules()
-    for _, m in ipairs(MODULES) do package.loaded[m] = nil end
-    commands = require("commands")
+    local dir = (debug.getinfo(1, "S").source or ""):match("^@(.+)[\\/][^\\/]+$") or "."
+    for _, m in ipairs(MODULES) do
+        local chunk, err = loadfile(dir .. "\\" .. m .. ".lua")
+        if not chunk then error("reload " .. m .. ": " .. tostring(err), 0) end
+        package.loaded[m] = chunk(m)
+    end
+    commands = package.loaded["commands"]
     commands.VERSION = VERSION
     return MODULES
 end

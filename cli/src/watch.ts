@@ -56,6 +56,10 @@ export function facts(s: Snap): Map<string, string> {
 
   const pop = city(s, "population");
   put("homeless", (pop?.homeless ?? 0) > 0);
+
+  const soc = city(s, "society");
+  if (soc?.totalTrust !== undefined) put("trust.total", band(soc.totalTrust));
+  for (const c of soc?.communities ?? []) put(`standing.${c.community}`, band(c.standing ?? 0));
   put("temperature", pop?.temperatureLevel ?? null);
 
   for (const q of Array.isArray(s.quests) ? s.quests : []) {
@@ -113,6 +117,10 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         ev.push({ kind: "stock.runway", detail: { resource: name, weeksLeftUnder: to, stock: res?.stock?.[name], perDay: res?.change?.[name] } });
         break;
       }
+      case "trust":
+      case "standing":
+        ev.push({ kind: `${group}.${(to ?? 0) > (from ?? 0) ? "up" : "down"}`, detail: { what: k, band: to } });
+        break;
       case "quest":
         ev.push({ kind: "quest.progress", detail: { objective: k.slice(6), from, to } });
         break;

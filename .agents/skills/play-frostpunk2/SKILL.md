@@ -19,6 +19,8 @@ Everything goes through `./fp2.exe` (repo root; source `cli/`, rebuild with
 | Need | Command |
 |---|---|
 | Is the mod alive? | `fp2 status` |
+| Everything on screen, one call | `fp2 snapshot` (HUD, needs, stats, society, construction, research, council, quests, icons, dialogs, districts) |
+| React to changes | `fp2 watch interval=2 pauseOn=critical` under a Monitor tool: one JSON line per meaningful change |
 | What should I fix? | `fp2 brief` (alerts + deficits + depleting stocks) |
 | Exact numbers | `fp2 state`, `fp2 extract name=resources|needs|statistics|population|time|deposits|districts` |
 | Pause / resume / speed | `fp2 pause`, `fp2 resume`, `fp2 speed 1..3` (verified via `UserPaused` reason) |
