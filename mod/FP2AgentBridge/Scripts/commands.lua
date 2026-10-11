@@ -560,6 +560,7 @@ def("snapshot", {
             return c
         end)
         out.generator = try(function() return actions.generator(args) end)
+        out.exploration = try(function() return actions.explorationSummary(args) end)
         out.districts = try(function()
             local list = json.array()
             for _, d in ipairs(actions.districts(args)) do

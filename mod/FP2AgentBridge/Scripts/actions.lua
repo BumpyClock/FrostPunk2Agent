@@ -1069,7 +1069,13 @@ function A.territories(args)
     for i = 1, math.min(tonumber(args.limit) or 30, #list) do out[#out + 1] = list[i] end
     local exploring = json.array()
     pcall(function()
-        for _, t in ipairs(objList(tu:GetAllCurrentlyExploringTerritories(ctx(), nation))) do exploring[#exploring + 1] = territoryInfo(t, nation, center) end
+        for _, t in ipairs(objList(tu:GetAllCurrentlyExploringTerritories(ctx(), nation))) do
+            -- May return exploration components; resolve to the territory component on the same actor.
+            if not (reflect.className(t) or ""):find("PXTerritoryComponent", 1, true) then
+                pcall(function() t = t:GetOwner():GetComponentByClass(StaticFindObject("/Script/Frostpunk2.PXTerritoryComponent")) end)
+            end
+            exploring[#exploring + 1] = territoryInfo(t, nation, center)
+        end
     end)
     return { state = stateName, total = #list, territories = out, exploring = exploring }
 end
@@ -1099,6 +1105,15 @@ function A.explore(args)
     cdo("PXInstructionUtils"):InstructStartTerritoryExploration(ctx(), ex, city, city)
     pcall(function() out.inProgressNow = ex:IsExplorationInProgress() end)
     return out
+end
+
+function A.explorationSummary(args)
+    local r = A.territories({ state = "revealed", limit = 0, city = args and args.city })
+    local out = json.array()
+    for _, t in ipairs(r.exploring or {}) do
+        out[#out + 1] = { name = t.name, progress = t.progress, explored = t.explored }
+    end
+    return { exploring = out, revealed = r.total }
 end
 
 return A

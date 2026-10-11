@@ -69,6 +69,10 @@ export function facts(s: Snap): Map<string, string> {
     for (const o of q.objectives ?? []) put(`quest.${q.name}.${o.name ?? o.debug}`, `${o.progress}/${o.max}`);
   }
 
+  const ex = s.exploration ?? {};
+  put("exploration.revealed", ex.revealed ?? null);
+  for (const t of asArray(ex.exploring)) put(`exploration.${t.name}`, Math.floor((t.progress ?? 0) * 4) / 4);
+
   const kinds: Record<string, number> = {};
   // Bark speech bubbles come and go constantly; they carry no actionable state.
   for (const i of Array.isArray(s.icons) ? s.icons : []) if (!/Bark/.test(i.kind)) kinds[i.kind] = (kinds[i.kind] ?? 0) + 1;
@@ -124,6 +128,10 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
       case "deaths":
         ev.push({ kind: "deaths.increased", detail: { from, to, byCause: city(s, "society")?.deathsByCause } });
         break;
+      case "exploration":
+        if (k === "exploration.revealed") ev.push({ kind: "exploration.revealed.changed", detail: { from, to } });
+        else ev.push({ kind: b === undefined ? "exploration.finished" : a === undefined ? "exploration.started" : "exploration.progress", detail: { territory: k.slice(12), progress: to } });
+        break;
       case "trust":
       case "standing":
         ev.push({ kind: `${group}.${(to ?? 0) > (from ?? 0) ? "up" : "down"}`, detail: { what: k, band: to } });
@@ -159,7 +167,7 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
   return ev;
 }
 
-const CRITICAL = new Set(["dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
+const CRITICAL = new Set(["exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
 export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; out: (line: unknown) => void }) {
   let prev: Map<string, string> | null = null;
