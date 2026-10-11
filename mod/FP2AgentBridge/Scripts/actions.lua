@@ -2072,4 +2072,65 @@ function A.deconstruct(args)
     return out
 end
 
+-- Build an outpost on a visible Frostland site (PXInstructionUtils.InstructConstructOutpost, object-based).
+-- args: ref (outpost component ref from frost_sites) or type/territory substrings, dryRun
+function A.buildOutpost(args)
+    A.assertNoCutscene("build_outpost")
+    local city = A.city(args)
+    local target
+    if args.ref then
+        target = reflect.find(tostring(args.ref))
+    else
+        local wantType = args.type and tostring(args.type):lower() or nil
+        local wantTerr = args.territory and tostring(args.territory):lower() or nil
+        for _, e in ipairs(A.frostSites({ kind = "outpost", limit = 200 }).sites) do
+            local okT = not wantType or (e.type or ""):lower():find(wantType, 1, true)
+            local okR = not wantTerr or (e.territory or ""):lower():find(wantTerr, 1, true)
+            if okT and okR and not e.built and e.state ~= "Hidden" then target = reflect.find(e.ref); break end
+        end
+    end
+    if not reflect.isValid(target) then error("no matching visible, unbuilt outpost (see fp2 frost_sites)", 0) end
+    local out = { ref = reflect.path(target) }
+    pcall(function() out.type = assetId(target.Type) end)
+    pcall(function() out.name = textOf(target.Type.IngameName) end)
+    pcall(function() out.upgradesTo = assetId(target.Type.UpgradedOutpostType) end)
+    pcall(function() out.builtBefore = reflect.isValid(target.City) end)
+    if args.dryRun then return out end
+    cdo("PXInstructionUtils"):InstructConstructOutpost(ctx(), city, target, A.leaderOrigin())
+    pcall(function() out.builtNow = reflect.isValid(target.City) end)
+    pcall(function() out.underConstruction = cdo("PXConstructionUtils"):IsUnderConstruction(target) end)
+    return out
+end
+
+-- Connect a built outpost to the city (InstructConnectOutpostToCity). Reads CurrentConnection before
+-- and after; the game may require a trail first. args: ref or type/territory, dryRun
+function A.connectOutpost(args)
+    A.assertNoCutscene("connect_outpost")
+    local city = A.city(args)
+    local target
+    if args.ref then
+        target = reflect.find(tostring(args.ref))
+    else
+        local wantType = args.type and tostring(args.type):lower() or nil
+        local wantTerr = args.territory and tostring(args.territory):lower() or nil
+        for _, e in ipairs(A.frostSites({ kind = "outpost", limit = 200 }).sites) do
+            local okT = not wantType or (e.type or ""):lower():find(wantType, 1, true)
+            local okR = not wantTerr or (e.territory or ""):lower():find(wantTerr, 1, true)
+            if okT and okR and e.built then target = reflect.find(e.ref); break end
+        end
+    end
+    if not reflect.isValid(target) then error("no matching built outpost (see fp2 frost_sites)", 0) end
+    local out = { ref = reflect.path(target) }
+    pcall(function() out.type = assetId(target.Type) end)
+    pcall(function() out.connectedBefore = reflect.isValid(target.CurrentConnection) end)
+    pcall(function()
+        local tt = cdo("PXTrailUtils"):GetActorsConnectedTrailType(ctx(), target:GetOwner(), city:GetOwner())
+        if reflect.isValid(tt) then out.trailType = assetId(tt) end
+    end)
+    if args.dryRun then return out end
+    cdo("PXInstructionUtils"):InstructConnectOutpostToCity(ctx(), target, city)
+    pcall(function() out.connectedNow = reflect.isValid(target.CurrentConnection) end)
+    return out
+end
+
 return A

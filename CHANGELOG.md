@@ -7,6 +7,7 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `build_outpost` and `connect_outpost` (Frostland outposts; connection needs a trail).
 - `deconstruct district=X [dryRun]`: refund preview and deconstruction at the normal duration.
 - `generator` reports `wear`, `wearIncreasing`, `broken`; `overdrive-cycle` duty-cycles overdrive under a wear ceiling.
 - `brief` counts only dialogs with choices as decisions.

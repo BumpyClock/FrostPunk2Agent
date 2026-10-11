@@ -618,6 +618,8 @@ def("expand_district", { help = "Expand and upgrade a district onto adjacent cel
 def("instruction_hooks", { help = "Hook PXInstructionUtils functions to record the arguments the game UI passes (learn id formats). args: names=[...]", run = function(args) return actions.hookInstructions(args) end })
 def("instruction_log", { help = "Arguments recorded by instruction_hooks (last 50). args: clear=true", run = function(args) return actions.instructionLog(args) end })
 def("deconstruct", { help = "Deconstruct a district for its refund (normal duration, Leader origin). args: district (label), dryRun", mutation = true, run = function(args) return actions.deconstruct(args) end })
+def("build_outpost", { help = "Build an outpost on a visible Frostland site (InstructConstructOutpost). args: ref (from frost_sites) or type/territory substrings, dryRun", mutation = true, run = function(args) return actions.buildOutpost(args) end })
+def("connect_outpost", { help = "Connect a built outpost to the city (InstructConnectOutpostToCity); reports connectedBefore/Now and any existing trail type. args: ref or type/territory, dryRun", mutation = true, run = function(args) return actions.connectOutpost(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",
     mutation = true,

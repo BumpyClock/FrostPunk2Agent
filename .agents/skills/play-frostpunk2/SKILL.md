@@ -103,6 +103,7 @@ validate through the game and charge normal costs; most accept `dryRun=true`.
 | Buildings | `fp2 building_types [district=Housing]`, `fp2 place_building type=H_ResearchInstitute [district=Housing#0]` |
 | Frostbreak | `fp2 frostbreak_path deposit=Logistics [go=true]`, or `fp2 pick_cells count=8 frozen=true` + `fp2 expand 'cells=[..8..]'` |
 | Research | `fp2 research` (`speed` 0 without a Research Institute, observed), `fp2 research_topics [all=true] [solves=Squalor]`, `fp2 research_plan topic=X`, `fp2 research_start topic=<id> community=<type>` |
+| Outposts | `fp2 build_outpost type=Coal territory=Steppes [dryRun=true]` (measured: built instantly, no stockpile cost, state Operational), `fp2 connect_outpost type=X` (needs a trail first; see MOD_GAPS) |
 | Utopia, Frostland | `fp2 utopia`, `fp2 utopia-assign node=X`, `fp2 territories`, `fp2 explore territory=X [dryRun=true]`, `fp2 frost_sites [kind=outpost\|colony]` |
 | Heat, abilities | `fp2 generator` (`wear` 0..1; 1 = malfunction with casualties), `fp2 overdrive-cycle [weeks=1] [maxWear=0.5]` (duty-cycled overdrive under a wear ceiling), `fp2 heat`, `fp2 heat_distribute`, `fp2 heat_auto active=true`, `fp2 heat_adjust district=Housing#1 adjustment=1`, `fp2 overdrive active=true`, `fp2 abilities describe=true`, `fp2 ability owner=Production#N id=<id> active=true` |
 | Dialogs, map icons | `fp2 modals`, `fp2 choose index=N`, `fp2 extract name=icons`, `fp2 open_icon ref=<icon ref>` |

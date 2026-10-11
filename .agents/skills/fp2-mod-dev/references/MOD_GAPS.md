@@ -8,6 +8,11 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - Proximity magnitudes: `layout_preview` matches giver/taker types but not effect sizes. Sizes live in
   `/Game/Scenarios/Shared/Configs/CellProximity/Rules/DA_CellProximityRule_*` and
   `PXCellProximityHolderComponent.SupportedCellProximities` (not read yet).
+- Trails: `connect_outpost` (InstructConnectOutpostToCity) does nothing without a trail (measured). Available trail
+  types: `PXTrailUtils.GetAvailableTrailTypes(@ctx, nation)` returned `ConnectionLvl1` before Skyways. Building one
+  needs `PXInstructionUtils.BuildTrail(World, ownerCityId:FName, trailType, ActionOrigin, trailCells:Array,
+  chunksCount)`; the `trailCells` format is unknown. Candidates: `PXTrailUtils.GetNearestTrailpointVector`,
+  `GetTrailCost` (out-param struct), or the UI (Frostland view V, select the outpost, connect).
 - Deconstructions are not listed in `construction`/`brief` (measured); read progress with
   `PXDeconstructionUtils.GetDeconstructionProgress(actor)`.
 - Ability cost and refusal reason: `fp2 ability` reports `activeNow:false` with no reason when the game refuses
