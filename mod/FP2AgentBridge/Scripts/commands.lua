@@ -367,7 +367,7 @@ local function looksReadOnly(fn)
 end
 
 def("call", {
-    help = "Call a UFunction on an object. args: ref, fn, args=[...] (\"@ref\" strings become objects; structs as tables). Non-getter names (not Get*/Is*/Can*/Has*/...) need mutate=true.",
+    help = "Call a UFunction on an object. args: ref, fn, args=[...] (\"@ref\" strings become objects; structs as tables). WorldContextObject params are always filled with the PlayerController (pass \"@ctx\" as a placeholder). Non-getter names (not Get*/Is*/Can*/Has*/...) need mutate=true.",
     mutation = true,
     run = function(args)
         local obj = requireObject(args)
@@ -382,7 +382,9 @@ def("call", {
         -- "@<ref>" string args resolve to UObjects (e.g. "@first:PXCityComponent").
         local params = {}
         for i, a in ipairs(args.args or {}) do
-            if type(a) == "string" and a:sub(1, 1) == "@" then
+            if a == "@ctx" then
+                params[i] = FindFirstOf("PlayerController")
+            elseif type(a) == "string" and a:sub(1, 1) == "@" then
                 local o, err = reflect.find(a:sub(2))
                 if not o then error("arg " .. i .. ": " .. err, 0) end
                 params[i] = o
@@ -390,7 +392,23 @@ def("call", {
                 params[i] = a
             end
         end
-        local results = table.pack(f(obj, table.unpack(params, 1, #(args.args or {}))))
+        -- World-context params always get the PlayerController. A guessed context (a level path) crashed
+        -- the game in Wwise (measured: PXOutpostUtils.GetAllOutposts). "@ctx" or any value is replaced.
+        local n = #(args.args or {})
+        local idx = 0
+        pcall(function()
+            f:ForEachProperty(function(prop)
+                local name = reflect.propName(prop)
+                if name ~= "ReturnValue" then
+                    idx = idx + 1
+                    if (name == "WorldContextObject" or name == "WorldContext") and args.unsafe ~= true then
+                        params[idx] = FindFirstOf("PlayerController")
+                        if idx > n then n = idx end
+                    end
+                end
+            end)
+        end)
+        local results = table.pack(f(obj, table.unpack(params, 1, n)))
         local out = json.array()
         for i = 1, results.n do out[i] = plain(results[i]) end
         return { results = out }

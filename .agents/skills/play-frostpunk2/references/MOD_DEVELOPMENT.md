@@ -101,6 +101,12 @@ not play (see the no-cheats rule in SKILL.md).
   `PXTerritoryUtils.GetAllCurrentlyExploringTerritories` plus `GetOwner():GetComponentByClass(...)`. Check
   `reflect.isValid(x)` before every call on an object that a game function returned, and prefer paths that
   already work (here: filter the revealed territory list on `inProgress`).
+- A guessed world-context argument crashed the game (access violation in Wwise
+  `AK::WriteBytesMem::SetCount`, measured right after `PXOutpostUtils.GetAllOutposts` was called with a level
+  path as `WorldContextObject`). `call` now always fills `WorldContextObject` with the PlayerController; pass
+  `"@ctx"` as a placeholder.
+- Subagents doing read-only research share the live game: give them a save point first, and keep them to
+  `object`, `get`, `describe`, `find_all` and curated commands where possible.
 - Save before testing a new read on a live game. `fp2 save` then `fp2 advance ticks=10` flushes it.
 - Game crash reports are in `%LOCALAPPDATA%\11bitstudios\Frostpunk2\Steam\Saved\Crashes\*\CrashContext.runtime-xml`
   (`<ErrorMessage>`, `<CallStack>`).
