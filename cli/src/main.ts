@@ -35,7 +35,7 @@ Local subcommands:
                          detached watcher appending to .runtime/watch.jsonl (tail it from a Monitor)
   brief                  triaged digest: deficits, depleting stocks, rising stats, pause/modal state
   pause | resume         pause/unpause game time (verified via the mod)
-  speed <1|2|3>          set game speed (sends number key)
+  speed <1|2|3>          set game speed via the bridge (game.speed)
   advance [ticks=N]      resume, wait until game time advances N ticks (default 24000), pause, print brief;
                          stops early when a modal/event pauses the game
   wait-ready             block until a city is loaded and gameplay began (after load/new game)
