@@ -241,6 +241,31 @@ return function(X)
         end,
     })
     X.register({
+        name = "districtDeposits",
+        help = "Deposits worked by deposit-requiring districts (Extraction, ...): district label, deposit ref, type, amount. Used by the turn watcher for deposit.depleting (trend between snapshots).",
+        run = function()
+            local out = json.array()
+            local du = StaticFindObject("/Script/Frostpunk2.Default__PXDistrictUtils")
+            local depu = StaticFindObject("/Script/Frostpunk2.Default__PXDepositUtils")
+            local c = cities()[1]
+            if not c or not reflect.isValid(du) or not reflect.isValid(depu) then return out end
+            for _, d in ipairs(c:GetDistricts() or {}) do
+                if type(d) == "userdata" and not reflect.isValid(d) then pcall(function() d = d:get() end) end
+                pcall(function()
+                    if not reflect.isValid(d) or not du:IsDistrictRequiringDeposits(d.DistrictType) then return end
+                    local label = (assetId(d.DistrictType) or "?") .. "#" .. tostring(d.DistrictId)
+                    for _, dep in ipairs(depu:GetDepositsUsedByDistrict(d) or {}) do
+                        if type(dep) == "userdata" and not reflect.isValid(dep) then pcall(function() dep = dep:get() end) end
+                        if reflect.isValid(dep) then
+                            out[#out + 1] = { district = label, ref = reflect.path(dep), type = assetId(dep.depositType) or "?", amount = dep.Amount }
+                        end
+                    end
+                end)
+            end
+            return out
+        end,
+    })
+    X.register({
         name = "construction",
         help = "Active constructions: what, state, progress 0..1, weeks left.",
         inState = true,

@@ -71,6 +71,7 @@ goals: {open, due, file}, brief, warnings?}`. Each turn:
 - Treat each event as a question: does it threaten a goal, finish one, or open an option? If not, let it pass.
   Quiet turn: run the next one. Event kinds and reactions: [DATA_MAP.md](references/DATA_MAP.md#turn-events).
 - Act only when a goal or a stop event calls for it. Apply thinking patterns 1, 3 and 5 first.
+- A warning of a future threat (whiteout, storm, unrest) becomes a goal with a `due` week and an `expect`, re-checked at every heartbeat until it resolves. An open threat goal without a due date was missed once and a whiteout killed 40 (measured).
 - When an action has a delay (law, build, research), add `fp2 goals add horizon=check due=<week> expect=".."`.
 - When `goals.due` is non-empty, judge each `expect` against the brief, then `fp2 goals done id=N note=".."` or
   `fp2 goals edit id=N due=.. expect=..` with the reason.

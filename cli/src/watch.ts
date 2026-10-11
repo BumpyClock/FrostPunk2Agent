@@ -1,6 +1,8 @@
 // `fp2 watch`: poll the bridge snapshot and print one JSON line per meaningful change.
 // Designed to run under an agent's Monitor tool: quiet while nothing important happens.
-import { call } from "./bridge";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { call, repoRoot } from "./bridge";
 import { nextRollingSlot } from "./saves";
 
 type Snap = any;
@@ -16,6 +18,71 @@ const band = (v: number) => Math.floor(v / 10) * 10;
 // Stockpile runway thresholds in weeks.
 const RUNWAY = [20, 10, 5, 2];
 const runwayBucket = (weeks: number) => RUNWAY.find((t) => weeks < t) ?? Infinity;
+
+// Deposit depletion: the game exposes only the remaining amount, so weeks left come from the amount trend between
+// snapshots (a baseline sample is kept in .runtime/deposit-samples.json so a new `turn` process has history).
+export const DEPOSIT_WEEKS = [20, 10, 5];
+const DEPOSIT_MIN_WINDOW_TICKS = 840; // need half a week of data for a rate
+const DEPOSIT_REBASE_TICKS = 5040; // move the baseline forward after 3 weeks, keeping its last estimate
+const TICKS_WEEK = 1680;
+type DepositSample = { ticks: number; amount: number; weeksLeft: number | null };
+const depositInfo = new Map<string, { district: string; type: string; amount: number; weeksLeft: number | null }>();
+let depositSamples: Map<string, DepositSample> | null = null;
+const depositFile = () => join(repoRoot(), ".runtime", "deposit-samples.json");
+
+function loadDepositSamples(): Map<string, DepositSample> {
+  if (depositSamples) return depositSamples;
+  depositSamples = new Map();
+  try {
+    if (existsSync(depositFile())) for (const [k, v] of Object.entries<DepositSample>(JSON.parse(readFileSync(depositFile(), "utf8")))) depositSamples.set(k, v);
+  } catch {}
+  return depositSamples;
+}
+
+function saveDepositSamples(m: Map<string, DepositSample>) {
+  try {
+    mkdirSync(join(repoRoot(), ".runtime"), { recursive: true });
+    writeFileSync(depositFile(), JSON.stringify(Object.fromEntries(m)));
+  } catch {}
+}
+
+/** Bucket of a deposit's remaining weeks: the smallest threshold above it, or "ok". */
+const depositBucket = (weeks: number | null): number | "ok" => (weeks === null ? "ok" : (DEPOSIT_WEEKS.slice().reverse().find((t) => weeks < t) ?? "ok"));
+
+/** Update trend samples from a snapshot's districtDeposits; returns key -> bucket for deposits a district works. */
+function depositBuckets(s: Snap): Map<string, number | "ok"> {
+  const out = new Map<string, number | "ok">();
+  const ticks = Number(s.date?.ticks);
+  const list = asArray(s.districtDeposits).filter((d) => d?.ref && typeof d.amount === "number");
+  depositInfo.clear();
+  if (!Number.isFinite(ticks) || !list.length) return out;
+  const samples = loadDepositSamples();
+  const seen = new Set<string>();
+  for (const d of list) {
+    const key = `${d.district}|${String(d.ref).slice(-40)}`;
+    seen.add(key);
+    const base = samples.get(key);
+    let weeksLeft: number | null = null;
+    if (!base || ticks < base.ticks || d.amount > base.amount) {
+      samples.set(key, { ticks, amount: d.amount, weeksLeft: null });
+    } else {
+      const dt = ticks - base.ticks;
+      weeksLeft = base.weeksLeft;
+      if (dt >= DEPOSIT_MIN_WINDOW_TICKS) {
+        const perTick = (base.amount - d.amount) / dt;
+        weeksLeft = perTick > 0 ? d.amount / (perTick * TICKS_WEEK) : null;
+        if (dt >= DEPOSIT_REBASE_TICKS) samples.set(key, { ticks, amount: d.amount, weeksLeft });
+        else samples.set(key, { ...base, weeksLeft });
+      }
+      if (d.amount <= 0) weeksLeft = 0;
+    }
+    depositInfo.set(key, { district: d.district, type: d.type, amount: d.amount, weeksLeft: weeksLeft === null ? null : r1(weeksLeft) });
+    out.set(key, depositBucket(weeksLeft));
+  }
+  for (const k of [...samples.keys()]) if (!seen.has(k)) samples.delete(k);
+  saveDepositSamples(samples);
+  return out;
+}
 
 function city(s: Snap, key: string) {
   const v = s?.[key];
@@ -69,6 +136,8 @@ export function facts(s: Snap): Map<string, string> {
     const stock = res.stock?.[k] ?? 0;
     put(`runway.${k}`, delta < 0 ? runwayBucket(stock / -delta / 7) : "growing");
   }
+
+  for (const [k, b] of depositBuckets(s)) put(`deposit.${k}`, b);
 
   const pop = city(s, "population");
   put("homeless", (pop?.homeless ?? 0) > 0);
@@ -156,6 +225,12 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         ev.push({ kind: worse ? "stock.runway" : "stock.recovered", detail: { resource: name, weeksLeftUnder: to, stock: res?.stock?.[name], perDay: res?.change?.[name] } });
         break;
       }
+      case "deposit": {
+        // Only a move to a shorter bucket is news (a deposit that vanished from the list is not).
+        const rank = (v: unknown) => (typeof v === "number" ? v : Infinity);
+        if (b !== undefined && rank(to) < rank(from ?? "ok")) ev.push({ kind: "deposit.depleting", detail: { ...depositInfo.get(k.slice(8)), weeksLeftUnder: to } });
+        break;
+      }
       case "deaths":
         ev.push({ kind: "deaths.increased", detail: { from, to, byCause: city(s, "society")?.deathsByCause } });
         break;
@@ -198,7 +273,7 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
   return ev;
 }
 
-const CRITICAL = new Set(["district.deactivated", "dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
+const CRITICAL = new Set(["district.deactivated", "deposit.depleting", "dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
 const TICKS_PER_WEEK = 1680;
 

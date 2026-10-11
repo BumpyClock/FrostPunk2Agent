@@ -28,6 +28,7 @@ export const STOP_DEFAULT = [
   // building.unlocked / ability.available arrive with research.finished or construction.finished,
   // which already stop; they are still returned as events.
   "district.deactivated",
+  "deposit.depleting",
   "homeless.changed",
 ];
 
@@ -35,6 +36,7 @@ export const STOP_DEFAULT = [
 const NOISE = new Set(["icons.changed", "game.paused", "game.resumed", "ui.pauseReasons.changed", "stock.recovered", "dialog.closed", "stat.falling", "exploration.progress", "construction.state", "research.active.changed"]);
 
 const STOP_RUNWAY_WEEKS = 10;
+const STOP_DEPOSIT_WEEKS = 10;
 
 const levelNum = (v: unknown) => Number(String(v ?? "").match(/(\d+)$/)?.[1] ?? 0);
 
@@ -42,6 +44,7 @@ function isStop(e: WatchEvent, stopOn: Set<string>): boolean {
   if (!stopOn.has(e.kind)) return false;
   const d: any = e.detail ?? {};
   if (e.kind === "stock.runway") return typeof d.weeksLeftUnder === "number" && d.weeksLeftUnder <= STOP_RUNWAY_WEEKS;
+  if (e.kind === "deposit.depleting") return typeof d.weeksLeftUnder === "number" && d.weeksLeftUnder <= STOP_DEPOSIT_WEEKS;
   if (e.kind === "council.sessionAvailable.changed") return d.to === true;
   if (e.kind === "homeless.changed") return d.to === true;
   // The agent's own toggles (PlayerChoice) are not news; a game-caused stop (NoDeposit, ...) is.
