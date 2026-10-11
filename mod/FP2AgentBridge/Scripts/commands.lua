@@ -570,6 +570,9 @@ def("snapshot", {
         return out
     end,
 })
+def("heat", { help = "Heat allocation: auto flag, power allocated vs needed, unallocated batches, per-district allocations.", run = function(args) return actions.heat(args) end })
+def("heat_distribute", { help = "Distribute unallocated generator heat to districts (game's own action). Fixes Heating deficits when heat batches are left over.", mutation = true, run = function(args) return actions.heatDistribute(args) end })
+def("heat_auto", { help = "Toggle automatic heat allocation. args: active=true|false", mutation = true, run = function(args) return actions.heatAuto(args) end })
 def("expanders", { help = "Area expander (frostbreaking) types for the city.", run = function(args) return actions.expanders(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",

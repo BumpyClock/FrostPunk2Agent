@@ -305,6 +305,27 @@ async function main(argv: string[]): Promise<number> {
     case "council-open":
       print(await councilOpen());
       return 0;
+    case "pass-law": {
+      // Bridge-only Council flow: open (skip cutscene) -> propose -> vote -> dismiss result -> verify.
+      const policy = String(args.policy ?? "");
+      if (!policy) throw new BridgeError("policy required (see fp2 laws)");
+      await councilOpen();
+      const proposed = await call<any>("propose", { policy });
+      await sleep(4000); // proposal transition (black frames)
+      await skipCutscenes();
+      const vote = await call<any>("vote", { policy });
+      await sleep(6000); // vote animation -> result screen
+      await sendKeys(["escape"], true); // IA_ExitResultScreen
+      await sleep(3000);
+      const c = await call<any>("council");
+      if (c.inParliament) {
+        await sendKeys(["escape"], true); // IA_ExitHOD
+        await sleep(2000);
+      }
+      const after = await call<any>("council");
+      print({ policy: proposed.policy, vote: vote.result, active: (after.activePolicies ?? []).includes(proposed.policy), phase: after.phase, inParliament: after.inParliament });
+      return 0;
+    }
     case "click":
     case "rclick":
     case "hold": {

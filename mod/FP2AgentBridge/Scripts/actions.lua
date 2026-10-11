@@ -770,10 +770,13 @@ end
 -- Request a council session that votes on `policy` (the in-game "propose law" flow).
 function A.propose(args)
     A.assertNoCutscene("propose")
-    -- Measured: RequestSession from the bridge set the agenda but desynced the Council UI
-    -- (Propose button dead, input stuck). Disabled until the UI flow is mapped.
-    if not args.unsafe then
-        error("propose disabled: bridge RequestSession desyncs the Council UI. Use the UI (key C -> Propose a law).", 0)
+    -- Measured 2026-10-11: RequestSession inside the Council (after council-open, no cutscene)
+    -- followed by InstructVote passed a law with the UI following along. An earlier attempt
+    -- outside those conditions left the UI unresponsive, so require them.
+    local inParl = false
+    pcall(function() inParl = cdo("PXParliamentUtils"):IsInParliament(ctx()) end)
+    if not inParl and not args.unsafe then
+        error("propose refused: Council scene not open (fp2 council-open first)", 0)
     end
     local p = findPolicy(args.policy)
     local out = { policy = assetId(p) }
@@ -897,6 +900,64 @@ function A.overdrive(args)
     if active and not gu:CanActivateOverdrive(g) then error("overdrive not available now", 0) end
     gu:SetGeneratorOverdriveActive(ctx(), g, active, A.leaderOrigin())
     return { overdriveActive = gu:IsGeneratorOverdriveActive(g) }
+end
+
+---------------------------------------------------------------------------
+-- Heat allocation (generator heat is allocated per district; unallocated heat is wasted)
+
+local function heatHolder(city)
+    local h
+    pcall(function() h = city.Generator:GetOwner().PXHeatAllocationHolderComponent end)
+    if not reflect.isValid(h) then h = FindFirstOf("PXHeatAllocationHolderComponent") end
+    if not reflect.isValid(h) then error("no heat allocation holder", 0) end
+    return h
+end
+
+function A.heat(args)
+    local city = A.city(args)
+    local h = heatHolder(city)
+    local hu = cdo("PXHeatManagementUtils")
+    local out = {}
+    pcall(function() out.autoAllocate = h.AutoAllocate end)
+    pcall(function() out.heatAllocated = h.HeatAllocated end)
+    pcall(function() out.powerAllocated = h.PowerAllocated end)
+    pcall(function() out.unallocatedHeatBatches = h.HeatBatchesLeftover end)
+    pcall(function() out.totalPowerNeeded = hu:GetTotalPowerNeeded(h, true) end)
+    pcall(function() out.totalPowerAllocated = hu:GetTotalPowerAllocated(h, true) end)
+    -- Label allocations by their district (same owning actor).
+    local labels = {}
+    for _, d in ipairs(objList(city:GetDistricts())) do
+        pcall(function() labels[reflect.path(d:GetOwner())] = assetId(d.DistrictType) .. "#" .. tostring(d.DistrictId) end)
+    end
+    local list = json.array()
+    pcall(function()
+        h.AllocationComponents:ForEach(function(_, a)
+            local comp = a:get()
+            local e = {}
+            pcall(function() e.district = labels[reflect.path(comp:GetOwner())] or reflect.className(comp:GetOwner()) end)
+            pcall(function() e.allocation = comp.Allocation end)
+            pcall(function() e.needed = comp.AllocationsNeeded end)
+            pcall(function() e.heat = comp.HeatAllocated end)
+            pcall(function() e.maxLevel = hu:GetMaxPossibleAllocationLevel(ctx(), comp) end)
+            list[#list + 1] = e
+        end)
+    end)
+    out.allocations = list
+    return out
+end
+
+function A.heatDistribute(args)
+    local city = A.city(args)
+    local h = heatHolder(city)
+    cdo("PXHeatManagementUtils"):DistributeAvailableHeat(ctx(), h)
+    return A.heat(args)
+end
+
+function A.heatAuto(args)
+    local city = A.city(args)
+    local h = heatHolder(city)
+    cdo("PXHeatManagementUtils"):SetHeatAutoAllocation(ctx(), h, args.active ~= false)
+    return A.heat(args)
 end
 
 return A
