@@ -7,6 +7,10 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `district_expansion` (levels, cells, cost, upgrade type) and `expand_district` (experimental; see MOD_GAPS),
+  `instruction_hooks` / `instruction_log` for learning instruction arguments.
+- `call` converts strings to FName for Name params; `advance` waits through SavingGame pauses; watcher auto-ack
+  targets the modal by ref and reports `dialog.ackFailed`.
 - Skill: "How to approach the game" section: the causal game loop, time scales, and five thinking patterns
   (stabilize before growth, goal stack over events, decide from facts, respect lead times, name the binding constraint).
 - Layout: `district_types` proximity gives/takes, `districts` efficiency and proximity effects, `layout_preview`,

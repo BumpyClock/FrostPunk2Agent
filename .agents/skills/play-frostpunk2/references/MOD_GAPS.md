@@ -8,6 +8,13 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - Proximity magnitudes: `layout_preview` matches giver/taker types but not effect sizes. Sizes live in
   `/Game/Scenarios/Shared/Configs/CellProximity/Rules/DA_CellProximityRule_*` and
   `PXCellProximityHolderComponent.SupportedCellProximities` (not read yet).
+- District expansion: `fp2 district_expansion district=X` reads levels, cells, cost and the upgrade type.
+  Starting one with chosen cells has no bridge path yet: `PXInstructionUtils.ExpandDistrict` needs an internal
+  Name id (actor and component FNames had no effect, measured), and the UI calls it natively, so
+  `instruction_hooks` saw nothing. `PXDistrictExpansionUtils.TryAutoExpandDistrict(@ctx, district)` works and
+  charges the real cost, but the game picks the cells (it skipped the wood deposit once, measured). For chosen
+  cells use the UI: `fp2 camera ref=<district ref>`, click the district, click the expand icon (four arrows)
+  under the panel, click 3 cells inside the white area, click the checkmark.
 - District upgrades (Housing_2_Upgraded, Housing_3_Advanced): not placeable directly
   (`ConstructionByPlayerBlocked`); likely reached through buildings and `PXBuildingUtils.UpgradeBuilding`. Unconfirmed.
 - Efficiency levels: `districts` reads the current level and percent; changing it (`IncreaseEfficiency`) is not wrapped.

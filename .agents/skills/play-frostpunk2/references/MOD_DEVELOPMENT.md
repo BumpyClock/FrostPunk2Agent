@@ -110,6 +110,10 @@ not play (see the no-cheats rule in SKILL.md).
 - `reflect.plain` on arbitrary asset containers is not SoftObject-guarded: plain-converting building-type
   properties crashed the game in `push_softobjectproperty` (measured). For asset data, walk maps with
   `ForEach` and keep only object keys and number or text values, or use `reflect.dump` (guarded).
+- Passing a Lua string to an FName parameter crashes UE4SS (`push_nameproperty`, measured). `call` now converts
+  strings to `FName` for Name params; in actions use `FName("...")` or an FName read from the game.
+- Hooks (`RegisterHook`) on `PXInstructionUtils` functions only see calls that go through script; the UI calls
+  them natively (measured: no records during a UI district expansion).
 - Save before testing a new read on a live game. `fp2 save` then `fp2 advance ticks=10` flushes it.
 - Game crash reports are in `%LOCALAPPDATA%\11bitstudios\Frostpunk2\Steam\Saved\Crashes\*\CrashContext.runtime-xml`
   (`<ErrorMessage>`, `<CallStack>`).

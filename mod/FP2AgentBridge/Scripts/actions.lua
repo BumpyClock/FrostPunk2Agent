@@ -1891,4 +1891,126 @@ function A.layoutPreview(args)
     return { type = assetId(dt), neighbours = labels, receives = received, gives = given, score = score, proximity = selfProx }
 end
 
+-- Expand (and upgrade) a district onto adjacent cells: e.g. Extraction -> Extraction_2_Upgraded,
+-- +3 cells, which also reaches new deposits. Cost and level come from the district type's
+-- DistrictExpansionType (read: `district_expansion`). args: district (label), cells=[indices], dryRun
+local function districtByLabel(city, label)
+    local want = tostring(label or ""):lower()
+    for _, d in ipairs(objList(city:GetDistricts())) do
+        local l = ((assetId(d.DistrictType) or "") .. "#" .. tostring(d.DistrictId)):lower()
+        if l == want then return d, l end
+    end
+    error("no district " .. tostring(label) .. " (see fp2 districts)", 0)
+end
+
+function A.districtExpansion(args)
+    local city = A.city(args)
+    local d = districtByLabel(city, args.district)
+    local owner = d:GetOwner()
+    local exp
+    for _, c in ipairs(FindAllOf("PXDistrictExpansionComponent") or {}) do
+        if reflect.isValid(c) and reflect.path(c:GetOwner()) == reflect.path(owner) then exp = c; break end
+    end
+    if not reflect.isValid(exp) then error("district has no expansion component", 0) end
+    local out = { district = args.district, currentLevel = exp.CurrentLevel, levels = json.array() }
+    pcall(function() out.underExpansion = reflect.isValid(exp.Operation) end)
+    pcall(function()
+        local et = exp.Type
+        out.type = assetId(et)
+        et.Levels:ForEach(function(_, lv)
+            local L = lv:get()
+            local e = { additionalCells = L.AdditionalCellCount, upgradesTo = assetId(L.Type) }
+            pcall(function() e.weeks = L.Cost.Duration.ScaledTicks / 1680 end)
+            pcall(function()
+                local cost = json.object()
+                L.Cost.StockpileCost:ForEach(function(k, v)
+                    local key = (assetId(k:get()) or "?"):gsub("^Core_", ""):gsub("Resource$", "")
+                    local val = v:get()
+                    if type(val) == "number" and val > 0 then cost[key] = val end
+                end)
+                e.cost = cost
+            end)
+            out.levels[#out.levels + 1] = e
+        end)
+    end)
+    return out, exp, owner
+end
+
+function A.expandDistrict(args)
+    A.assertNoCutscene("expand_district")
+    local info, exp, owner = A.districtExpansion(args)
+    local cells = {}
+    for i, c in ipairs(args.cells or {}) do cells[i] = math.tointeger(tonumber(c)) end
+    if #cells == 0 then error("cells=[...] required (adjacent cells; see levels[].additionalCells)", 0) end
+    info.cells = args.cells
+    if args.dryRun then return info end
+    -- Measured: the actor FName has no effect. Try the expansion component FName (args.idFrom=actor to override).
+    local id = (args.idFrom == "actor") and owner:GetFName() or exp:GetFName()
+    info.id = id:ToString()
+    local world = owner:GetWorld()
+    cdo("PXInstructionUtils"):ExpandDistrict(world, id, cells, {}, false)
+    pcall(function() info.underExpansionNow = reflect.isValid(exp.Operation) end)
+    pcall(function() info.queuedCells = #uarray(exp.QueuedCells) end)
+    return info
+end
+
+-- Learning aid: hook PXInstructionUtils functions and record the arguments the game UI passes,
+-- to discover id formats (Name ids are not reflected properties). Hooks live in _G so module
+-- reloads do not register them twice. Read with `instruction_log`.
+_G.FP2_INSTRUCTION_LOG = _G.FP2_INSTRUCTION_LOG or {}
+_G.FP2_INSTRUCTION_HOOKS = _G.FP2_INSTRUCTION_HOOKS or {}
+
+local function describeArg(p)
+    local ok, v = pcall(function() return p:get() end)
+    if not ok then v = p end
+    if type(v) == "userdata" then
+        local okS, sv = pcall(function() return v:ToString() end)
+        if okS and sv then return sv end
+        local okP, path = pcall(function() return reflect.path(v) end)
+        if okP and path then return path end
+        return tostring(v)
+    elseif type(v) == "table" then
+        local parts = {}
+        for i, x in ipairs(v) do
+            if i > 12 then break end
+            local okX, xv = pcall(function() return x:get() end)
+            parts[#parts + 1] = tostring(okX and xv or x)
+        end
+        return "[" .. table.concat(parts, ",") .. "]"
+    end
+    return tostring(v)
+end
+
+function A.hookInstructions(args)
+    local names = args.names or { "ExpandDistrict", "PlaceBuilding", "UpgradeBuilding", "PlaceDistrict",
+        "ExecuteCommunityAction", "BuildCity", "ConstructOutpost", "ConnectOutpostToCity", "BuildTrail",
+        "ResolveDilemma", "SetActorAbilityActive", "DeactivateLogic", "ActivateLogic", "StartTerritoryExploration" }
+    local added, failed = json.array(), json.array()
+    for _, n in ipairs(names) do
+        if not _G.FP2_INSTRUCTION_HOOKS[n] then
+            local ok, err = pcall(function()
+                RegisterHook("/Script/Frostpunk2.PXInstructionUtils:" .. n, function(...)
+                    local params = { ... }
+                    local rec = { fn = n, at = os.time(), args = {} }
+                    for i = 2, #params do rec.args[#rec.args + 1] = describeArg(params[i]) end
+                    local log = _G.FP2_INSTRUCTION_LOG
+                    log[#log + 1] = rec
+                    if #log > 50 then table.remove(log, 1) end
+                end)
+            end)
+            if ok then _G.FP2_INSTRUCTION_HOOKS[n] = true; added[#added + 1] = n else failed[#failed + 1] = n .. ": " .. tostring(err) end
+        end
+    end
+    return { added = added, failed = failed }
+end
+
+function A.instructionLog(args)
+    local out = json.array()
+    for _, r in ipairs(_G.FP2_INSTRUCTION_LOG or {}) do
+        out[#out + 1] = { fn = r.fn, at = r.at, args = json.array(r.args) }
+    end
+    if args.clear then _G.FP2_INSTRUCTION_LOG = {} end
+    return out
+end
+
 return A

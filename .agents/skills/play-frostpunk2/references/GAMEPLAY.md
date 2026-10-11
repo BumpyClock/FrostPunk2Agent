@@ -25,6 +25,18 @@ Frostpunk 2 knowledge; verify before relying on it.
   `Toggle_IndustrialGoodsProduction` / `Toggle_IndustrialPrefabsProduction` (`fp2 abilities describe=true`,
   `fp2 ability owner=Production#N id=Toggle_IndustrialPrefabsProduction active=true`). Prefab supply is set by how
   many Industrial districts make prefabs and at what efficiency (`fp2 districts` `efficiencyPct`). (observed)
+- Deposits run out. An Extraction district whose deposit is exhausted goes inactive with reason
+  `NoDeposit` (`fp2 districts`), and its supply drops to 0 without a `need.deficit` first. Watch deposit
+  `amount` (`fp2 extract name=deposits`) and `inactiveReasons`. (observed: the only sawmill ran dry and Materials
+  fell 345/day)
+- Industry consumes Materials to make Goods or Prefabs, so a Materials outage also stops prefab output. With no
+  prefabs, you cannot build a new Extraction district (150), which is a deadlock unless you can expand an
+  existing one. (observed)
+- District expansion adds cells (Extraction: +3 cells, 50 prefabs + 50 heatstamps, 2 weeks) and upgrades the
+  type (Extraction -> Extraction_2_Upgraded). A new deposit cell joins the district immediately and extraction
+  resumes before the upgrade finishes. (observed: Materials went from -345 to +210/day the next day)
+- Switching districts off (`district_active`) is the fast lever to stretch a shrinking stock while the fix
+  builds; switch them back one at a time and measure each step. (observed)
 - Districts next to Housing add Squalor. Housing next to the generator ring gets +1 temperature. (observed)
 
 ## Heat
