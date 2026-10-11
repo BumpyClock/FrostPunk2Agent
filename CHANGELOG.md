@@ -7,6 +7,10 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `frostbreak_path`: plans frostbreaking to a cell or deposit (shortest frozen route plus room for a
+  district) in expander-sized batches; `go=true` starts the first batch.
+- `research` reports `progress` and `weeksLeft`; `research_topics` reports names, questions, outcome
+  descriptions and the city problems each outcome solves (`solves=<Statistic>` filter).
 - `watch-start` keeps a rolling save (`agent-rolling`, every 2 in-game weeks by default; `saveEvery`, `saveName`).
 - `save` writes immediately (`SaveGameImmediate`) and takes `override=true` to reuse a slot.
 - `saves` shows each file's display name; `load` accepts a file name or display name and uses

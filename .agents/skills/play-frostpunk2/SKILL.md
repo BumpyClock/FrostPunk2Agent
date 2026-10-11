@@ -83,7 +83,7 @@ Most accept `dryRun=true`.
 | Clock | `fp2 date` |
 | Free cells, deposits | `fp2 cells free=true [deposit=soil] [nearX=.. nearY=..]` (cells marked `outside` count as buildable; measured), `fp2 extract name=deposits type=logistics` |
 | Districts, buildings | `fp2 districts`, `fp2 district_types`, `fp2 building_types [district=Housing]` |
-| Research | `fp2 research`, `fp2 research_topics` |
+| Research | `fp2 research` (topic, `progress`, `weeksLeft`), `fp2 research_topics` (name, question, per-community outcome name, description, `solves`); `solves=Squalor` finds research that fixes a city problem |
 | Frostland territories | `fp2 territories [state=revealed|explored|charted|hidden] [limit=30]`: nearest first, plus those being explored |
 | Abilities, generator, heat | `fp2 abilities`, `fp2 generator`, `fp2 heat` |
 | Council | `fp2 council`, `fp2 laws` |
@@ -97,7 +97,7 @@ Most accept `dryRun=true`.
 |---|---|
 | Pick a placement | `fp2 pick_cells count=6 [deposit=soil]` returns connected cells next to the city |
 | Build a district | `fp2 place_district type=Housing 'cells=[..6..]' [dryRun=true]` |
-| Frostbreak | `fp2 pick_cells count=8 frozen=true [nearX=.. nearY=..]`, then `fp2 expand 'cells=[..8..]' [type=..]`; `fp2 expanders` lists types |
+| Frostbreak | `fp2 frostbreak_path deposit=Logistics` (or `target=<cell>`) plans the shortest frozen route plus room for a district, in 8-cell batches; `go=true` starts batch 1. Manual: `fp2 pick_cells count=8 frozen=true`, then `fp2 expand 'cells=[..8..]'`. Far deposits: `fp2 cells deposit=Logistics limit=2000` |
 | Build a building | `fp2 place_building type=H_ResearchInstitute [district=Housing]` |
 | Explore a territory | `fp2 explore territory=<name or ref> [dryRun=true]` (revealed territories only; `dryRun` shows preparation weeks) |
 | Start research | `fp2 research_start topic=<id> [community=<type>]` (the community picks the outcome variant) |

@@ -78,6 +78,11 @@ not play (see the no-cheats rule in SKILL.md).
   `A.assertNoCutscene` if they involve choices or the Council, and the Leader ActionOrigin
   (`A.leaderOrigin()`).
 
+- Out-params: pass an empty Lua table for each out-param; UE4SS fills it after the call, keyed by the
+  param name for scalars (`prog.outProgress`) or by field for structs (`left.ScaledTicks`). Measured with
+  `PXResearchUtils.GetResearchProgress(nation, topic, prog, left)`.
+- TSet properties: `ForEach` passes `(elem)`; TArray passes `(index, elem)`. `actions.lua` `uarray` handles both.
+
 ## Crash hazards (measured)
 
 - FText inside struct or container params or return values crashes the game (access violation in

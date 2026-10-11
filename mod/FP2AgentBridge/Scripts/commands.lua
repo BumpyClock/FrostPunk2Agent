@@ -583,6 +583,7 @@ def("district_active", {
 def("territories", { help = "Frostland territories by state (default revealed = explorable), nearest first, plus those being explored. args: state, limit", run = function(args) return actions.territories(args) end })
 def("explore", { help = "Start exploring a revealed territory (InstructStartTerritoryExploration). args: territory (ref or name substring), dryRun", mutation = true, run = function(args) return actions.explore(args) end })
 def("expanders", { help = "Area expander (frostbreaking) types for the city.", run = function(args) return actions.expanders(args) end })
+def("frostbreak_path", { help = "Plan frostbreaking to a target: shortest frozen route from thawed land, split into expander batches in build order. args: target (cell) or deposit (type substring, e.g. Logistics), around (extra cells thawed around the target; default 5 for deposit), batch=8, go=true starts batch 1", mutation = true, run = function(args) return actions.frostbreakPath(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",
     mutation = true,

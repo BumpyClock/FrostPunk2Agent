@@ -397,6 +397,20 @@ function A.openModals()
     return list
 end
 
+local function uarray(v)
+    if type(v) == "table" then return v end
+    local out = {}
+    -- TArray ForEach passes (index, elem); TSet passes (elem).
+    pcall(function()
+        v:ForEach(function(a, b)
+            local e = b ~= nil and b or a
+            local ok, x = pcall(function() return e:get() end)
+            out[#out + 1] = ok and x or e
+        end)
+    end)
+    return out
+end
+
 -- Game rich text to plain text: <img id="FoodPositive"></> -> [Food+], style tags dropped.
 function A.plainText(v)
     if type(v) ~= "string" then return v end
@@ -504,10 +518,42 @@ function A.researchStatus(args)
         if reflect.isValid(o) then out.outcome = assetId(o) end
     end)
     pcall(function() out.speed = u:GetResearchSpeed(ctx(), nation) end)
+    -- Out-params: UE4SS fills the tables passed in their place (prog.outProgress, left.ScaledTicks; measured).
+    pcall(function()
+        local t = u:GetResearchTopicInProgress(nation)
+        if not reflect.isValid(t) then return end
+        local prog, left = {}, {}
+        u:GetResearchProgress(nation, t, prog, left)
+        if prog.outProgress then out.progress = math.floor(prog.outProgress * 1000 + 0.5) / 1000 end
+        if left.ScaledTicks then out.weeksLeft = math.floor(left.ScaledTicks / 168 + 0.5) / 10 end
+    end)
     return out
 end
 
 -- args: all=true to include locked/unavailable topics, contains (id substring), limit
+local function textOf(v)
+    if v == nil then return nil end
+    local ok, sv = pcall(function() return v:ToString() end)
+    if not ok then sv = tostring(v) end
+    if sv == nil or sv == "" or sv:find("BLANK_ON_PURPOSE", 1, true) then return nil end
+    return A.plainText(sv)
+end
+
+-- Outcome details: player-facing name, description, and the city problems (statistics) it solves.
+local function outcomeInfo(o, ce)
+    if not reflect.isValid(o) then return end
+    pcall(function() ce.name = textOf(o.IngameName) or textOf(o.EditorName) end)
+    pcall(function() ce.description = textOf(o.Description) or textOf(o.EditorDescription) end)
+    pcall(function()
+        local solves = json.array()
+        for _, st in ipairs(uarray(o.StatisticProblemsSolved)) do
+            if reflect.isValid(st) then solves[#solves + 1] = assetId(st) end
+        end
+        if #solves > 0 then ce.solves = solves end
+    end)
+end
+
+-- args: contains, all, limit, solves (statistic name, e.g. Squalor: only topics with an outcome solving it)
 function A.researchTopics(args)
     local u = cdo("PXResearchUtils")
     local nation = nationOf(args)
@@ -523,16 +569,24 @@ function A.researchTopics(args)
         if keep then
             pcall(function() e.radical = u:IsResearchTopicRadical(ctx(), t) end)
             pcall(function() e.cost = costMap(u:GetResearchTopicStockpileCost(ctx(), t)) end)
+            pcall(function() e.name = textOf(t.IngameName) end)
+            pcall(function() e.question = textOf(t.QuestionText) end)
+            local solvesAny = {}
             pcall(function()
                 local comms = json.array()
                 for _, c in ipairs(objList(u:GetCommunitiesAvailableForResearchTopic(ctx(), nation, t))) do
                     local ce = { community = communityLabel(c) }
-                    pcall(function() ce.outcome = assetId(u:GetMatchingOutcome(ctx(), nation, t, c)) end)
+                    pcall(function()
+                        local o = u:GetMatchingOutcome(ctx(), nation, t, c)
+                        ce.outcome = assetId(o)
+                        if not args.brief then outcomeInfo(o, ce) end
+                    end)
+                    for _, st in ipairs(ce.solves or {}) do solvesAny[st:lower()] = true end
                     comms[#comms + 1] = ce
                 end
                 e.communities = comms
             end)
-            out[#out + 1] = e
+            if not args.solves or solvesAny[tostring(args.solves):lower()] then out[#out + 1] = e end
             if args.limit and #out >= tonumber(args.limit) then break end
         end
     end
@@ -743,19 +797,6 @@ end
 -- Example: Mass-Produced Goods -> { kind = "EconomyResourceRatio", Ratios = { Core_GoodsResource = 0.25 }, ... }
 local EFFECT_NOISE = { VisibilityMode = true, CustomRecievingFactorNameText = true, bIsMultipliable = true }
 
-local function uarray(v)
-    if type(v) == "table" then return v end
-    local out = {}
-    -- TArray ForEach passes (index, elem); TSet passes (elem).
-    pcall(function()
-        v:ForEach(function(a, b)
-            local e = b ~= nil and b or a
-            local ok, x = pcall(function() return e:get() end)
-            out[#out + 1] = ok and x or e
-        end)
-    end)
-    return out
-end
 
 local function simplify(v, depth)
     if type(v) ~= "table" then
@@ -1226,6 +1267,95 @@ function A.explorationSummary(args)
         out[#out + 1] = { name = t.name, progress = t.progress, explored = t.explored }
     end
     return { exploring = out, revealed = r.total }
+end
+
+-- Plan frostbreaking toward a target cell: shortest route through frozen cells from thawed land
+-- (or land being expanded), split into expander-sized batches in build order.
+-- args: target (cell index) or deposit (type substring, nearest frozen match), batch=8,
+--       go=true to start the first batch through A.expand (only if it touches thawed land now).
+function A.frostbreakPath(args)
+    local city = A.city(args)
+    local center = geo.location(city)
+    local map = A.cellMap(city)
+    local info = {}
+    for idx, c in pairs(map) do info[idx] = cellInfo(c, center, true) end
+    local size = tonumber(args.batch) or 8
+    local target = tonumber(args.target)
+    if not target and args.deposit then
+        local want, best = tostring(args.deposit):lower(), nil
+        for i, e in pairs(info) do
+            for _, d in ipairs(e.deposits or {}) do
+                if d:lower():find(want, 1, true) and (not best or (e.d or 1e18) < (info[best].d or 1e18)) then best = i end
+            end
+        end
+        target = best
+    end
+    if not target or not info[target] then error("target cell or deposit required (no match)", 0) end
+    if not info[target].frozen then return { target = target, frozen = false, batches = json.array(), note = "target is not frozen" } end
+    local function thawed(e) return e and (not e.frozen or e.expanding) end
+    local function passable(e) return e and e.frozen and not e.expanding and not e.blocked end
+    -- Multi-source BFS from frozen cells touching thawed land.
+    local prev, queue, head, seen = {}, {}, 1, {}
+    for i, e in pairs(info) do
+        if passable(e) then
+            for _, n in ipairs(e.nb or {}) do
+                if thawed(info[n]) then queue[#queue + 1] = i; seen[i] = true; break end
+            end
+        end
+    end
+    local found = false
+    while head <= #queue do
+        local i = queue[head]; head = head + 1
+        if i == target then found = true; break end
+        for _, n in ipairs(info[i].nb or {}) do
+            if not seen[n] and passable(info[n]) then seen[n] = true; prev[n] = i; queue[#queue + 1] = n end
+        end
+    end
+    if not found then error("no frozen route to cell " .. target, 0) end
+    local path = {}
+    local cur = target
+    while cur do table.insert(path, 1, cur); cur = prev[cur] end
+    local used, batches = {}, json.array()
+    for _, i in ipairs(path) do used[i] = true end
+    -- Thaw room around the target too (a district needs 6 cells): default 5 extra when a deposit is the goal.
+    local around = tonumber(args.around) or (args.deposit and 5 or 0)
+    if around > 0 then
+        local q, h, extra = { target }, 1, 0
+        local vis = { [target] = true }
+        while h <= #q and extra < around do
+            local i = q[h]; h = h + 1
+            for _, n in ipairs(info[i].nb or {}) do
+                if not vis[n] then
+                    vis[n] = true
+                    local e = info[n]
+                    if e and not e.blocked then q[#q + 1] = n end
+                    if extra < around and passable(e) and not used[n] then used[n] = true; path[#path + 1] = n; extra = extra + 1 end
+                end
+            end
+        end
+    end
+    -- Batches along the path; pad short batches with frozen neighbours of the batch.
+    local k = 1
+    while k <= #path do
+        local b = json.array()
+        for j = k, math.min(k + size - 1, #path) do b[#b + 1] = path[j] end
+        k = k + size
+        local guard = 0
+        while #b < size and guard < 50 do
+            guard = guard + 1
+            local added = false
+            for _, i in ipairs(b) do
+                for _, n in ipairs(info[i].nb or {}) do
+                    if #b < size and not used[n] and passable(info[n]) then used[n] = true; b[#b + 1] = n; added = true end
+                end
+            end
+            if not added then break end
+        end
+        batches[#batches + 1] = b
+    end
+    local out = { target = target, deposits = info[target].deposits, distance = info[target].d, pathLength = #path, batches = batches, steps = #batches }
+    if args.go then out.started = A.expand({ cells = batches[1], type = args.type, city = args.city }) end
+    return out
 end
 
 return A
