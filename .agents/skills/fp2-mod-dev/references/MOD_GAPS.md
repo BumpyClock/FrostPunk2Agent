@@ -8,6 +8,8 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - Proximity magnitudes: `layout_preview` matches giver/taker types but not effect sizes. Sizes live in
   `/Game/Scenarios/Shared/Configs/CellProximity/Rules/DA_CellProximityRule_*` and
   `PXCellProximityHolderComponent.SupportedCellProximities` (not read yet).
+- Deconstructions are not listed in `construction`/`brief` (measured); read progress with
+  `PXDeconstructionUtils.GetDeconstructionProgress(actor)`.
 - Ability cost and refusal reason: `fp2 ability` reports `activeNow:false` with no reason when the game refuses
   (measured: Insulate District with 9 prefabs). Cost data is not read; find it on the ability asset or a
   `Can*` check that does not return FText.

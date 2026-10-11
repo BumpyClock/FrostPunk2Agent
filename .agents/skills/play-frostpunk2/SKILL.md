@@ -98,6 +98,7 @@ validate through the game and charge normal costs; most accept `dryRun=true`.
 | HUD, triage | `fp2 snapshot` (every HUD section), `fp2 brief` (alerts, deficits, depleting stocks, modals, construction), `fp2 extract name=<x>` (omit `name` to list), `fp2 date` |
 | Districts | `fp2 districts` (efficiency, proximity, workforce), `fp2 district_types`, `fp2 district_active district=Production#2 active=false` (frees workforce) |
 | Place a district | `fp2 pick_cells count=6 [type=X] [deposit=soil]`, `fp2 layout_preview type=X 'cells=[..]'`, `fp2 place_district type=Housing 'cells=[..6..]'`; deposits: `fp2 cells free=true deposit=..`, `fp2 extract name=deposits` |
+| Deconstruct | `fp2 deconstruct district=X dryRun=true` shows the refund (a depleted Extraction district returned 158 prefabs + 75 heatstamps over 3 weeks, measured); without dryRun starts it at normal duration |
 | Buildings | `fp2 building_types [district=Housing]`, `fp2 place_building type=H_ResearchInstitute [district=Housing#0]` |
 | Frostbreak | `fp2 frostbreak_path deposit=Logistics [go=true]`, or `fp2 pick_cells count=8 frozen=true` + `fp2 expand 'cells=[..8..]'` |
 | Research | `fp2 research` (`speed` 0 without a Research Institute, observed), `fp2 research_topics [all=true] [solves=Squalor]`, `fp2 research_plan topic=X`, `fp2 research_start topic=<id> community=<type>` |

@@ -617,6 +617,7 @@ def("district_expansion", { help = "District expansion/upgrade info: current lev
 def("expand_district", { help = "Expand and upgrade a district onto adjacent cells (PXInstructionUtils.ExpandDistrict, real cost). args: district (label), cells=[indices], dryRun", mutation = true, run = function(args) return actions.expandDistrict(args) end })
 def("instruction_hooks", { help = "Hook PXInstructionUtils functions to record the arguments the game UI passes (learn id formats). args: names=[...]", run = function(args) return actions.hookInstructions(args) end })
 def("instruction_log", { help = "Arguments recorded by instruction_hooks (last 50). args: clear=true", run = function(args) return actions.instructionLog(args) end })
+def("deconstruct", { help = "Deconstruct a district for its refund (normal duration, Leader origin). args: district (label), dryRun", mutation = true, run = function(args) return actions.deconstruct(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",
     mutation = true,

@@ -32,6 +32,13 @@ Frostpunk 2 knowledge; verify before relying on it.
 - Industry consumes Materials to make Goods or Prefabs, so a Materials outage also stops prefab output. With no
   prefabs, you cannot build a new Extraction district (150), which is a deadlock unless you can expand an
   existing one. (observed)
+- A small wood deposit (86.4K) fed one sawmill for about 6 months (observed). Plan the next deposit before the
+  current one runs out; expansion has one level, so it works once per district (measured).
+- A depleted district can be deconstructed for a refund (`fp2 deconstruct`); that refund can fund the replacement
+  district when prefabs are the bottleneck. (observed)
+- Cold deaths happened at Cold 10 (18 deaths in one wave, observed). Overdrive lowered the Heating requirement but
+  did not move Cold's target; switching off heated non-essential districts did (Cold target 14 -> 10). Insulate
+  District costs 50 prefabs + 50 heatstamps (activation cost in `abilities describe=true`).
 - District expansion adds cells (Extraction: +3 cells, 50 prefabs + 50 heatstamps, 2 weeks) and upgrades the
   type (Extraction -> Extraction_2_Upgraded). A new deposit cell joins the district immediately and extraction
   resumes before the upgrade finishes. (observed: Materials went from -345 to +210/day the next day)

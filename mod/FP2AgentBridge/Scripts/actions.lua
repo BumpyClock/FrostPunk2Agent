@@ -2039,4 +2039,32 @@ function A.instructionLog(args)
     return out
 end
 
+-- Deconstruct a district for its refund (e.g. a depleted Extraction district returns prefabs).
+-- Uses the district type's own deconstruction duration as the time override, so it is the normal
+-- operation, not a shortcut. args: district (label), dryRun
+function A.deconstruct(args)
+    A.assertNoCutscene("deconstruct")
+    local city = A.city(args)
+    local want = tostring(args.district or ""):lower()
+    local d, label
+    for _, x in ipairs(objList(city:GetDistricts())) do
+        local l = ((assetId(x.DistrictType) or "") .. "#" .. tostring(x.DistrictId))
+        if l:lower() == want then d, label = x, l end
+    end
+    if not reflect.isValid(d) then error("no district " .. tostring(args.district), 0) end
+    local owner = d:GetOwner()
+    local du = cdo("PXDeconstructionUtils")
+    local out = { district = label }
+    pcall(function() out.refund = costMap(du:GetDeconstructionRefund(owner)) end)
+    local ticks = 0
+    pcall(function() ticks = d.DistrictType.DeconstructionSetup.Cost.Duration.ScaledTicks end)
+    out.weeks = ticks / 1680
+    pcall(function() out.underDeconstruction = du:IsUnderDeconstruction(owner) end)
+    if args.dryRun or out.underDeconstruction then return out end
+    if ticks <= 0 then error("could not read the normal deconstruction duration; refusing to start with an override of 0", 0) end
+    du:StartDeconstruction(ctx(), owner, A.leaderOrigin(), { ScaledTicks = ticks }, true)
+    pcall(function() out.underDeconstructionNow = du:IsUnderDeconstruction(owner) end)
+    return out
+end
+
 return A

@@ -7,6 +7,7 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `deconstruct district=X [dryRun]`: refund preview and deconstruction at the normal duration.
 - `generator` reports `wear`, `wearIncreasing`, `broken`; `overdrive-cycle` duty-cycles overdrive under a wear ceiling.
 - `brief` counts only dialogs with choices as decisions.
 - `fp2 turn [weeks=4] [stopOn=..] [speed=3] [saveEvery=2]`: the play primitive. Resumes time, stops at the first
