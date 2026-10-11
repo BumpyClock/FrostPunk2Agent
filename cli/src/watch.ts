@@ -70,7 +70,7 @@ export function facts(s: Snap): Map<string, string> {
 
   const kinds: Record<string, number> = {};
   // Bark speech bubbles come and go constantly; they carry no actionable state.
-  for (const i of Array.isArray(s.icons) ? s.icons : []) if (!/^Bark/.test(i.kind)) kinds[i.kind] = (kinds[i.kind] ?? 0) + 1;
+  for (const i of Array.isArray(s.icons) ? s.icons : []) if (!/Bark/.test(i.kind)) kinds[i.kind] = (kinds[i.kind] ?? 0) + 1;
   for (const [k, n] of Object.entries(kinds)) put(`icons.${k}`, n);
 
   put("districts", (Array.isArray(s.districts) ? s.districts : []).map((d: any) => `${d.type}:${(d.buildings ?? []).join("+")}`).sort());
