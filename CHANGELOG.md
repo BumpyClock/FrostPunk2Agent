@@ -7,6 +7,8 @@ The project has no tagged releases yet.
 
 ### Added
 
+- Tech tree planning: `research_topics all=true` describes locked topics (outcomes, requirement trees,
+  prerequisite topics, research weeks); `research_plan topic=X` returns the ordered path to a topic.
 - `utopia` reads each faction's Utopia Tree (points, nodes, state, descriptions, links);
   `utopia-assign node=X` spends a point through the game's panel handlers.
 - Watcher `autoAck` (on in `watch-start`) dismisses one-option dialogs and reports `dialog.acknowledged`.

@@ -85,6 +85,7 @@ Most accept `dryRun=true`.
 | Free cells, deposits | `fp2 cells free=true [deposit=soil] [nearX=.. nearY=..]` (cells marked `outside` count as buildable; measured), `fp2 extract name=deposits type=logistics` |
 | Districts, buildings | `fp2 districts`, `fp2 district_types`, `fp2 building_types [district=Housing]` |
 | Utopia Tree | `fp2 utopia` (per faction: points, cap, next threshold, nodes with state, description, unlocks/requires); `fp2 utopia-assign node=<tag or name>` spends a point (opens and closes the panel) |
+| Tech tree planning | `fp2 research_topics all=true` lists locked topics too, with `outcomes`, `requires` (all/any trees of research, building, unlock leaves plus hint text), `prereqTopics` and `weeks`; `fp2 research_plan topic=X` gives the ordered path (prerequisites first), each step's `alsoNeeds`, `remaining` and `researchWeeksAtSpeed1` |
 | Research | `fp2 research` (topic, `progress`, `weeksLeft`), `fp2 research_topics` (name, question, per-community outcome name, description, `solves`); `solves=Squalor` finds research that fixes a city problem |
 | Frostland territories | `fp2 territories [state=revealed|explored|charted|hidden] [limit=30]`: nearest first, plus those being explored |
 | Abilities, generator, heat | `fp2 abilities`, `fp2 generator`, `fp2 heat` |

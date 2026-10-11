@@ -414,10 +414,7 @@ end
 -- Game rich text to plain text: <img id="FoodPositive"></> -> [Food+], style tags dropped.
 function A.plainText(v)
     if type(v) ~= "string" then return v end
-    v = v:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&amp;", "&"):gsub("
-
-", "
-")
+    v = v:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&amp;", "&"):gsub("\r", "")
     v = v:gsub('<img id="(%a-)Positive">', "[%1+]"):gsub('<img id="(%a-)Negative">', "[%1-]")
     v = v:gsub('<img id="(.-)">', "[%1]"):gsub("</>", ""):gsub("<%a+>", ""):gsub("  +", " ")
     return v
@@ -602,6 +599,34 @@ function A.researchTopics(args)
                 end
                 e.communities = comms
             end)
+            if not e.communities or #e.communities == 0 then
+                -- Locked topics have no available communities; list their outcomes directly for planning.
+                pcall(function()
+                    local outs = json.array()
+                    for _, o in ipairs(uarray(t.Outcomes)) do
+                        local ce = { outcome = assetId(o) }
+                        if not args.brief then outcomeInfo(o, ce) end
+                        for _, st in ipairs(ce.solves or {}) do solvesAny[st:lower()] = true end
+                        outs[#outs + 1] = ce
+                    end
+                    e.outcomes = outs
+                end)
+            end
+            if not e.unlocked or args.requires then
+                pcall(function()
+                    local pre, reqs = {}, json.array()
+                    for _, r in ipairs(uarray(t.Requirements)) do
+                        local d = A.describeRequirement(r, 6, pre)
+                        if d then reqs[#reqs + 1] = d end
+                    end
+                    if #reqs > 0 then e.requires = reqs end
+                    local list = json.array()
+                    for k in pairs(pre) do list[#list + 1] = k end
+                    table.sort(list)
+                    if #list > 0 then e.prereqTopics = list end
+                end)
+            end
+            pcall(function() e.weeks = math.floor(t.ResearchTime.ScaledTicks / 168 + 0.5) / 10 end)
             if not args.solves or solvesAny[tostring(args.solves):lower()] then out[#out + 1] = e end
             if args.limit and #out >= tonumber(args.limit) then break end
         end
@@ -872,6 +897,37 @@ local function policyEffects(p)
         end
     end
     return out
+end
+
+-- Requirement trees (research topics, laws, buildings): composite all/any nodes and typed leaves.
+-- prereqTopics collects every ResearchTopic leaf for planning.
+local REQ_NOISE = { CustomRequirementNotMetText = true, MarkDeprecated = true, Requirements = true, Mode = true }
+function A.describeRequirement(r, depth, prereqTopics)
+    depth = depth or 6
+    if not reflect.isValid(r) or depth <= 0 then return nil end
+    local cls = reflect.className(r) or "?"
+    local e = json.object()
+    pcall(function()
+        local hint = r.CustomRequirementNotMetText:ToString()
+        if hint and hint ~= "" then e.hint = A.plainText(hint) end
+    end)
+    if cls:find("CompositeRequirement", 1, true) then
+        local mode = "all"
+        pcall(function() if tostring(reflect.enumNames("EPXCompositeRequirementMode")[r.Mode] or r.Mode):find("Any") then mode = "any" end end)
+        local kids = json.array()
+        for _, c in ipairs(uarray(r.Requirements)) do
+            local d = A.describeRequirement(c, depth - 1, prereqTopics)
+            if d then kids[#kids + 1] = d end
+        end
+        if #kids == 1 and not e.hint then return kids[1] end
+        e[mode] = kids
+        return e
+    end
+    e.kind = cls:gsub("^PX", ""):gsub("Requirement$", "")
+    local fields = simplify(reflect.dump(r, { depth = 2, gameOnly = true }), 3) or {}
+    for k, v in pairs(fields) do if not REQ_NOISE[k] then e[k] = v end end
+    if prereqTopics and e.kind == "ResearchTopic" and type(e.ResearchTopic) == "string" then prereqTopics[e.ResearchTopic] = true end
+    return e
 end
 
 function A.laws(args)
@@ -1474,6 +1530,56 @@ function A.utopiaAssign(args)
     details:AssignPoint()
     local names = reflect.enumNames("EPXUtopiaToolNodeState")
     return { node = tagName(inst.GameplayTag), before = names[before] or before, after = names[inst.State] or inst.State }
+end
+
+-- Long-term planning: ordered research path to a topic (prerequisites first), with the
+-- non-research requirements (buildings, laws, ...) each step needs. args: topic (id substring)
+function A.researchPlan(args)
+    local want = tostring(args.topic or ""):lower()
+    if want == "" then error("topic required", 0) end
+    local all = A.researchTopics({ all = true, requires = true, brief = true, city = args.city })
+    local byId, target = {}, nil
+    for _, t in ipairs(all) do
+        byId[t.id] = t
+        if not target and (t.id:lower() == want or t.id:lower():find(want, 1, true) or (t.name or ""):lower():find(want, 1, true)) then target = t end
+    end
+    if not target then error("no research topic matching " .. want, 0) end
+    local order, seen = json.array(), {}
+    local function otherReqs(node, acc)
+        if type(node) ~= "table" then return end
+        if node.kind and node.kind ~= "ResearchTopic" then
+            local copy = json.object()
+            for k, v in pairs(node) do copy[k] = v end
+            acc[#acc + 1] = copy
+        end
+        for _, key in ipairs({ "all", "any" }) do
+            if node[key] then
+                if key == "any" then
+                    local alt = json.object(); alt.anyOf = json.array()
+                    for _, c in ipairs(node[key]) do local sub = json.array(); otherReqs(c, sub); for _, x in ipairs(sub) do alt.anyOf[#alt.anyOf + 1] = x end end
+                    if #alt.anyOf > 0 then acc[#acc + 1] = alt end
+                else
+                    for _, c in ipairs(node[key]) do otherReqs(c, acc) end
+                end
+            end
+        end
+    end
+    local function visit(id, depth)
+        if seen[id] or depth > 30 then return end
+        seen[id] = true
+        local t = byId[id]
+        if not t then return end
+        for _, pre in ipairs(t.prereqTopics or {}) do visit(pre, depth + 1) end
+        local step = { id = t.id, name = t.name, researched = (t.researched or 0) > 0, unlocked = t.unlocked, cost = t.cost, weeks = t.weeks }
+        local other = json.array()
+        for _, r in ipairs(t.requires or {}) do otherReqs(r, other) end
+        if #other > 0 then step.alsoNeeds = other end
+        order[#order + 1] = step
+    end
+    visit(target.id, 0)
+    local todo, weeks = 0, 0
+    for _, st in ipairs(order) do if not st.researched then todo = todo + 1; weeks = weeks + (st.weeks or 0) end end
+    return { topic = target.id, steps = order, remaining = todo, researchWeeksAtSpeed1 = weeks }
 end
 
 return A
