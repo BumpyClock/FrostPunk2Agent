@@ -93,6 +93,7 @@ export async function turn(opts: TurnOptions) {
   const returned: unknown[] = [];
   const dropped: Record<string, number> = {};
   let stoppedBy: { reason: string; kinds: string[] } | null = null;
+  let pauseGraceUsed = false;
   const deadline = Date.now() + opts.timeoutMs;
 
   try {
@@ -142,6 +143,15 @@ export async function turn(opts: TurnOptions) {
     const ticks = Number(s.date?.ticks ?? fromTicks);
     const stops = events.filter((e) => isStop(e, opts.stopOn)).map((e) => e.kind);
     const reasons = pauseReasons.filter((r) => r !== "SavingGame");
+    // The game pauses itself (player pause flag) a moment before an event dialog registers (measured: two
+    // "UserPaused" stops with no human present, each followed by a story dialog). Re-poll once before
+    // reporting a bare UserPaused so the dialog arrives as a stop event.
+    const bareUserPause = !stops.length && reasons.length > 0 && reasons.every((r) => r === "UserPaused");
+    if (bareUserPause && !pauseGraceUsed) {
+      pauseGraceUsed = true;
+      await sleep(1500);
+      continue;
+    }
     if (stops.length) stoppedBy = { reason: "event", kinds: [...new Set(stops)] };
     else if (reasons.length) stoppedBy = { reason: reasons.join(", "), kinds: [] }; // modal, cutscene, or the human paused
     else if (ticks - fromTicks >= opts.weeks * TICKS_PER_WEEK) stoppedBy = { reason: "heartbeat", kinds: [] };
