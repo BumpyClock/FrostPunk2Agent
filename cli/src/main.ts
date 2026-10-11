@@ -140,7 +140,10 @@ async function advance(ticks: number, timeoutMs: number) {
     t = await time();
     if ((t.gameTimeTicks ?? 0) - from >= ticks) break;
     if (t.paused) {
-      stoppedBy = (t.pauseReasons ?? []).join(", ") || "paused";
+      // Saving pauses the game for a moment (watcher rolling save); keep waiting through it.
+      const reasons = (t.pauseReasons ?? []).filter((r: string) => r !== "SavingGame");
+      if ((t.pauseReasons ?? []).length > 0 && reasons.length === 0) continue;
+      stoppedBy = reasons.join(", ") || "paused";
       break;
     }
   }
