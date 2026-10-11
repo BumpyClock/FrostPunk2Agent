@@ -960,4 +960,43 @@ function A.heatAuto(args)
     return A.heat(args)
 end
 
+---------------------------------------------------------------------------
+-- District on/off (frees or reclaims workforce). Uses the player's own deactivation reason.
+
+local function findDistrict(city, label)
+    local want = tostring(label or ""):lower()
+    for _, d in ipairs(objList(city:GetDistricts())) do
+        local l = (assetId(d.DistrictType) or "District") .. "#" .. tostring(d.DistrictId)
+        if l:lower() == want or (want ~= "" and l:lower():find(want, 1, true)) then return d, l end
+    end
+    error("no district matching " .. tostring(label) .. " (labels look like Production#2; see fp2 heat or abilities)", 0)
+end
+
+-- args: district (label, e.g. Production#2), active=true|false
+function A.setDistrictActive(args)
+    A.assertNoCutscene("district_active")
+    local city = A.city(args)
+    local d, label = findDistrict(city, args.district)
+    local owner = d:GetOwner()
+    local au = cdo("PXActivityUtils")
+    local reason = StaticFindObject("/Game/Scenarios/Shared/Configs/Activity/DeactivationReasons/DA_DeactivationReason_PlayerChoice.DA_DeactivationReason_PlayerChoice")
+    if not reflect.isValid(reason) then
+        for _, r in ipairs(FindAllOf("PXDeactivationReasonType") or {}) do
+            if (reflect.shortName(r) or "") == "DA_DeactivationReason_PlayerChoice" then reason = r end
+        end
+    end
+    if not reflect.isValid(reason) then error("PlayerChoice deactivation reason not found", 0) end
+    local active = args.active ~= false
+    if active then
+        cdo("PXInstructionUtils"):InstructActivateLogic(ctx(), owner)
+    else
+        cdo("PXInstructionUtils"):InstructDeactivateLogic(ctx(), owner, reason)
+    end
+    local reasons = json.array()
+    pcall(function()
+        for _, r in ipairs(objList(au:GetDeactivationReasons(owner))) do reasons[#reasons + 1] = assetId(r) end
+    end)
+    return { district = label, requested = active, deactivationReasons = reasons }
+end
+
 return A
