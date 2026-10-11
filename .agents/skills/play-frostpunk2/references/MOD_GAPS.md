@@ -5,6 +5,12 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 ## Not covered yet
 
 - Council negotiation and promises (`InstructNegotiate`, `PXDesireUtils.MakePromise`).
+- Proximity magnitudes: `layout_preview` matches giver/taker types but not effect sizes. Sizes live in
+  `/Game/Scenarios/Shared/Configs/CellProximity/Rules/DA_CellProximityRule_*` and
+  `PXCellProximityHolderComponent.SupportedCellProximities` (not read yet).
+- District upgrades (Housing_2_Upgraded, Housing_3_Advanced): not placeable directly
+  (`ConstructionByPlayerBlocked`); likely reached through buildings and `PXBuildingUtils.UpgradeBuilding`. Unconfirmed.
+- Efficiency levels: `districts` reads the current level and percent; changing it (`IncreaseEfficiency`) is not wrapped.
 - Utopia Tree node unlocks: no non-UI command path. `utopia_assign` drives the panel's own handlers
   (`PXUtopiaToolNodesPanel.HandleUtopiaToolNodeClicked`, then `PXUtopiaNodeDetailsPanel.AssignPoint`) while the
   panel is open; the CLI `utopia-assign` opens and closes it with U (measured: Goods Emporium Open -> Unlocked).

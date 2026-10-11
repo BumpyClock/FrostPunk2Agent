@@ -35,8 +35,8 @@ Frostpunk 2 knowledge; verify before relying on it.
   need; `fp2 district_active active=false` switches a district off to free its workforce. Effects are unmeasured.
 - `fp2 heat_auto active=true` fixed a -240 Heating deficit after a temperature drop, as long as coal
   throughput allowed it. (observed)
-- Turn on the generator's Caloryfics Boost early (`fp2 ability id=CaloryficsBoost active=true`); it cut
-  coal use. (observed)
+- Generator abilities trade one input for another (`fp2 abilities describe=true`). Compare benefit, cost
+  and side effects before toggling. (observed: Caloryfics Boost cut coal use in one run)
 - Cold deaths came in waves about every 11 weeks while Shelter was in deficit (58 deaths per wave). Fix the
   Shelter deficit; `deaths.increased` in the watcher reports each wave. (observed; cause inferred)
 - A generator upgrade building can change the generator mode without raising `powerLimit` (observed:
@@ -52,7 +52,8 @@ Before spending on colonies, settlements or big builds, audit the base (`fp2 sna
 vs `powerLimit` (headroom), food `change`, free workforce, Squalor/Tension trends, death waves, and whether
 the expansion competes with survival for scarce inputs (Cores, prefabs, workers). Expansion that consumes the
 city's safety margin is short-term pain that can become collapse in the next cold snap. Decide per run;
-expanding early can be right when the base has slack. (observed: at 92% generator load and negative food,
+expanding early can be right when the base has slack. Revisit the verdict after each temperature drop or population jump, and include
+lead times (research weeks, construction weeks, weeks before a law's effect shows). (observed: at 92% generator load and negative food,
 the run paused colonies and built the generator upgrade first)
 
 ## Priorities early (general)

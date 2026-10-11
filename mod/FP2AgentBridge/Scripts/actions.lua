@@ -278,6 +278,12 @@ function A.districtTypes(args)
         pcall(function() e.canConstruct = u:CanConstructDistrict(city, obj) end)
         pcall(function() e.needsDeposit = u:IsDistrictRequiringDeposits(obj) end)
         e.cost = try(u, "GetDistrictConstructionCost", { nation, obj, true })
+        if not args.brief then
+            pcall(function() e.name = textOf(obj.IngameName) end)
+            pcall(function() e.description = textOf(obj.DescriptionText) end)
+            pcall(function() e.effects = textOf(obj.CustomGameplayEffectsText) end)
+            pcall(function() e.proximity = A.districtProximity(obj) end)
+        end
         out[#out + 1] = e
     end
     return out
@@ -337,6 +343,7 @@ function A.pickCells(args)
         for _, d in ipairs(e.deposits or {}) do if d:lower():find(depFilter, 1, true) then return true end end
         return false
     end
+    local candidates
     local ref = center
     if args.nearX and args.nearY then ref = { X = tonumber(args.nearX), Y = tonumber(args.nearY) } end
     local function dist(e) return ((e.x or 0) - ref.X) ^ 2 + ((e.y or 0) - ref.Y) ^ 2 end
@@ -370,8 +377,28 @@ function A.pickCells(args)
         if #chosen >= count then
             local cells = json.array()
             for _, i in ipairs(chosen) do cells[#cells + 1] = i end
-            return { cells = cells, seed = seed.i, seedDeposits = seed.deposits, distanceFromCity = seed.d }
+            local cand = { cells = cells, seed = seed.i, seedDeposits = seed.deposits, distanceFromCity = seed.d }
+            if not args.type then return cand end
+            -- Layout-aware: score adjacency effects for this district type (see layoutPreview).
+            local okP, prev = pcall(A.layoutPreview, { type = args.type, cells = cells, city = args.city })
+            if okP then
+                cand.score, cand.receives, cand.gives, cand.neighbours = prev.score, prev.receives, prev.gives, prev.neighbours
+            end
+            candidates = candidates or {}
+            candidates[#candidates + 1] = cand
+            if #candidates >= (tonumber(args.candidates) or 8) then break end
         end
+    end
+    if candidates and #candidates > 0 then
+        table.sort(candidates, function(a, b)
+            if (a.score or 0) ~= (b.score or 0) then return (a.score or 0) > (b.score or 0) end
+            return (a.distanceFromCity or 0) < (b.distanceFromCity or 0)
+        end)
+        local best = candidates[1]
+        local alts = json.array()
+        for i = 2, math.min(#candidates, 4) do alts[#alts + 1] = { cells = candidates[i].cells, score = candidates[i].score, receives = candidates[i].receives } end
+        best.alternatives = alts
+        return best
     end
     error("no connected cluster of " .. count .. " usable cells found (" .. #seeds .. " seeds)", 0)
 end
@@ -415,6 +442,10 @@ end
 function A.plainText(v)
     if type(v) ~= "string" then return v end
     v = v:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&amp;", "&"):gsub("\r", "")
+    -- UTF-8 punctuation read back as Latin-1 (measured: a left quote arrives as three garbage chars).
+    v = v:gsub("\195\162\226\130\172\203\156", "'"):gsub("\195\162\226\130\172\226\132\162", "'")
+    v = v:gsub("\195\162\226\130\172\197\147", '"'):gsub("\195\162\226\130\172\194\157", '"'):gsub("\195\162\226\130\172\226\128\156", "-")
+    v = v:gsub("\226\128\152", "'"):gsub("\226\128\153", "'"):gsub("\226\128\156", '"'):gsub("\226\128\157", '"')
     v = v:gsub('<img id="(%a-)Positive">', "[%1+]"):gsub('<img id="(%a-)Negative">', "[%1-]")
     v = v:gsub('<img id="(.-)">', "[%1]"):gsub("</>", ""):gsub("<%a+>", ""):gsub("  +", " ")
     return v
@@ -692,6 +723,18 @@ function A.districts(args)
         if reflect.isValid(owner) then
             e.label = (e.type or "?") .. "#" .. tostring(e.id)
             pcall(function() e.workforce = cdo("PXWorkforceUtils"):GetActorTotalWorkforce(owner) end)
+            pcall(function() e.efficiencyPct = math.floor(cdo("PXEconomyUtils"):GetActorEconomicEfficiencyPercent(owner) * 10 + 0.5) / 10 end)
+            pcall(function()
+                local lv = cdo("PXEfficiencyUtils"):GetCurrentEfficiencyLevel(owner)
+                if reflect.isValid(lv) then e.efficiencyLevel = assetId(lv) end
+            end)
+            pcall(function()
+                local affected = json.array()
+                for _, t in ipairs(objList(cdo("PXCellProximityUtils"):GetActorAffectedCellProximities(owner))) do
+                    if reflect.isValid(t) then affected[#affected + 1] = (assetId(t) or "?"):gsub("^CellProximityType_", "") end
+                end
+                if #affected > 0 then e.affectedBy = affected end
+            end)
             pcall(function()
                 local reasons = json.array()
                 for _, r in ipairs(objList(cdo("PXActivityUtils"):GetDeactivationReasons(owner))) do
@@ -728,6 +771,10 @@ function A.buildingTypes(args)
             if keep and #e.districts > 0 then
                 local okC, c = pcall(reflect.invoke, bu, "GetBuildingTypeConstructionCost", { nation, bt, true })
                 e.cost = okC and compactCost(c) or { error = tostring(c) }
+                if not args.brief then
+                    local okI, info = pcall(A.buildingInfo, bt)
+                    if okI and info then for k, v in pairs(info) do e[k] = v end end
+                end
                 out[#out + 1] = e
             end
         end
@@ -1663,6 +1710,183 @@ function A.frostSites(args)
         end
     end
     return { counts = counts, sites = out }
+end
+
+-- Player-facing building facts from its type asset: name, description, effect texts,
+-- statistics it changes (e.g. Squalor -15), and economy (produces/consumes) when present.
+local buildingInfoCache = {}
+function A.buildingInfo(bt)
+    if not reflect.isValid(bt) then return nil end
+    local key = reflect.path(bt)
+    if buildingInfoCache[key] then return buildingInfoCache[key] end
+    local e = json.object()
+    buildingInfoCache[key] = e
+    e.name = textOf(bt.IngameName)
+    e.description = textOf(bt.Description)
+    e.effects = textOf(bt.CustomBuildingGameplayEffectsText)
+    e.otherEffects = textOf(bt.CustomOtherGameplayEffectsText)
+    -- Only guarded reads here: reflect.plain on arbitrary building-type containers reached a SoftObject
+    -- property and crashed the game (measured, push_softobjectproperty). Maps are walked by hand.
+    pcall(function()
+        local st = json.object()
+        bt.StatisticsChange:ForEach(function(k, v)
+            local key = assetId(k:get())
+            local val = v:get()
+            if key and type(val) == "number" then st[key] = val end
+        end)
+        if next(st) ~= nil then e.statistics = st end
+    end)
+    pcall(function()
+        local eco = json.object()
+        bt.EconomySetup.Resources:ForEach(function(k, v)
+            local key = assetId(k:get())
+            local val = v:get()
+            if key and type(val) == "number" then eco[(key:gsub("^Core_", ""):gsub("Resource$", ""))] = val end
+        end)
+        if next(eco) ~= nil then e.economy = eco end
+    end)
+    return e
+end
+
+-- Snapshot section: unlocked building types and visible abilities with names/descriptions,
+-- so the watcher can announce new ones with their meaning. Static asset data is cached.
+local abilityInfoCache = {}
+function A.unlocks(args)
+    local out = { buildings = json.array(), abilities = json.array() }
+    pcall(function()
+        for _, bt in ipairs(objList(cdo("PXBuildingUtils"):GetUnlockedBuildings(ctx()))) do
+            local info = A.buildingInfo(bt) or {}
+            out.buildings[#out.buildings + 1] = { id = assetId(bt), name = info.name, description = info.description, effects = info.effects, statistics = info.statistics, economy = info.economy }
+        end
+    end)
+    pcall(function()
+        local au = cdo("PXAbilityUtils")
+        local city = A.city(args or {})
+        for _, a in ipairs(abilityActors(city)) do
+            for _, ab in ipairs(objList(au:GetActorVisibleAbilities(ctx(), a.actor))) do
+                local key = reflect.path(ab)
+                local info = abilityInfoCache[key]
+                if not info then
+                    info = {}
+                    pcall(function() info.name = textOf(ab.IngameName) end)
+                    pcall(function() info.description = textOf(ab.Description) end)
+                    abilityInfoCache[key] = info
+                end
+                local e = { owner = a.label, id = assetId(ab), name = info.name, description = info.description }
+                pcall(function() e.active = au:IsActorAbilityActive(ctx(), a.actor, ab) end)
+                out.abilities[#out.abilities + 1] = e
+            end
+        end
+    end)
+    return out
+end
+
+---------------------------------------------------------------------------
+-- Layout: proximity (adjacency) effects between districts.
+-- A district type GIVES proximity types (e.g. SqualorGiver, depth = cells of reach) and TAKES others
+-- (e.g. SqualorTaker, HeatTaker). An effect applies when a neighbour gives X and this district takes X.
+
+local function proxName(t)
+    local n = assetId(t) or "?"
+    return (n:gsub("^CellProximityType_", ""))
+end
+
+local function proxKey(name)
+    -- "SqualorGiver" / "SqualorTaker" / "Containment_Housing_Giver" -> shared key
+    return (name:gsub("_?Giver", ""):gsub("_?Taker", ""))
+end
+
+local proximityCache = {}
+function A.districtProximity(dt)
+    if not reflect.isValid(dt) then return nil end
+    local key = reflect.path(dt)
+    if proximityCache[key] then return proximityCache[key] end
+    local e = { gives = json.array(), takes = json.array() }
+    pcall(function()
+        dt.CellProximitySetup.GiverTypesSetup:ForEach(function(k, v)
+            local t = k:get()
+            local depth
+            pcall(function() depth = v:get().ProximityCellDepth end)
+            e.gives[#e.gives + 1] = { type = proxName(t), depth = depth }
+        end)
+    end)
+    pcall(function()
+        dt.CellProximitySetup.TakerTypes:ForEach(function(a, b)
+            local t = (b ~= nil and b or a):get()
+            e.takes[#e.takes + 1] = proxName(t)
+        end)
+    end)
+    proximityCache[key] = e
+    return e
+end
+
+-- Effects between a district type and a set of neighbour district types.
+local function interactions(selfProx, neighbours)
+    local received, given = json.array(), json.array()
+    local takes = {}
+    for _, t in ipairs(selfProx.takes) do takes[proxKey(t)] = t end
+    for _, nb in ipairs(neighbours) do
+        local np = nb.prox
+        for _, g in ipairs(np.gives) do
+            if takes[proxKey(g.type)] then received[#received + 1] = { from = nb.label, effect = proxKey(g.type), giver = g.type } end
+        end
+        local ntakes = {}
+        for _, t in ipairs(np.takes) do ntakes[proxKey(t)] = true end
+        for _, g in ipairs(selfProx.gives) do
+            if ntakes[proxKey(g.type)] then given[#given + 1] = { to = nb.label, effect = proxKey(g.type), giver = g.type } end
+        end
+    end
+    return received, given
+end
+
+-- Preview a placement: which neighbouring districts the cells touch and the proximity effects
+-- the new district would receive from them and give to them. args: type, cells=[indices]
+function A.layoutPreview(args)
+    local city = A.city(args)
+    local du = cdo("PXDistrictUtils")
+    local dt = findTyped(reflect.invoke(du, "GetSupportedDistricts", { city }), args.type, "district type")
+    local map = A.cellMap(city)
+    local center = geo.location(city)
+    local chosen = {}
+    for _, i in ipairs(args.cells or {}) do chosen[tonumber(i)] = true end
+    local labelByRef, protoByRef = {}, {}
+    for _, d in ipairs(objList(city:GetDistricts())) do
+        pcall(function()
+            labelByRef[reflect.path(d)] = assetId(d.DistrictType) .. "#" .. tostring(d.DistrictId)
+            protoByRef[reflect.path(d)] = d.DistrictType
+        end)
+    end
+    local seen, neighbours = {}, {}
+    for i in pairs(chosen) do
+        local c = map[i]
+        if c then
+            local info = cellInfo(c, center, true, true)
+            for _, n in ipairs(info.nb or {}) do
+                if not chosen[n] and map[n] then
+                    local dref
+                    pcall(function()
+                        local d = map[n].DistrictOwner
+                        if reflect.isValid(d) then dref = reflect.path(d) end
+                    end)
+                    if dref and labelByRef[dref] and not seen[dref] then
+                        seen[dref] = true
+                        neighbours[#neighbours + 1] = { label = labelByRef[dref], prox = A.districtProximity(protoByRef[dref]) }
+                    end
+                end
+            end
+        end
+    end
+    local selfProx = A.districtProximity(dt)
+    local received, given = interactions(selfProx, neighbours)
+    local labels = json.array()
+    for _, nb in ipairs(neighbours) do labels[#labels + 1] = nb.label end
+    -- Heuristic score (inferred polarity): Squalor/Sickliness/EfficiencyDecrease hurt the receiver,
+    -- other proximity effects (heat, workforce/maintenance reduction, trust, tension/crime reduction) help.
+    local function bad(effect) return effect:find("Squalor") or effect:find("Sickliness") or effect:find("Decrease") end
+    local score = 0
+    for _, r in ipairs(received) do score = score + (bad(r.effect) and -1 or 1) end
+    for _, g in ipairs(given) do score = score + (bad(g.effect) and -1 or 0.5) end
+    return { type = assetId(dt), neighbours = labels, receives = received, gives = given, score = score, proximity = selfProx }
 end
 
 return A

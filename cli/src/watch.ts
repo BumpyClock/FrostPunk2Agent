@@ -36,7 +36,11 @@ export function facts(s: Snap): Map<string, string> {
     put(`${decision ? "modal" : "notice"}.${m.title ?? m.class}`, { title: m.title, class: m.class, description: m.description, choices: m.choices });
   }
 
-  for (const c of Array.isArray(s.construction) ? s.construction : []) put(`construction.${c.district ?? c.target}#${c.ref?.slice(-12)}`, c.state);
+  for (const c of Array.isArray(s.construction) ? s.construction : []) put(`construction.${c.name ?? c.building ?? c.district ?? c.target}#${c.ref?.slice(-12)}`, c.state);
+
+  // New buildings/abilities become available: announce them with their in-game meaning.
+  for (const b of asArray(s.unlocks?.buildings)) put(`unlock.building.${b.id}`, { name: b.name, description: b.description, effects: b.effects, statistics: b.statistics, economy: b.economy });
+  for (const a of asArray(s.unlocks?.abilities)) put(`unlock.ability.${a.owner}.${a.id}`, { owner: a.owner, name: a.name, description: a.description });
 
   const r = s.research ?? {};
   put("research.topic", r.topic ?? null);
@@ -111,6 +115,12 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         break;
       case "notice":
         if (b !== undefined) ev.push({ kind: "notification", detail: to });
+        break;
+      case "unlock":
+        if (a === undefined && b !== undefined) {
+          const isBuilding = k.startsWith("unlock.building.");
+          ev.push({ kind: isBuilding ? "building.unlocked" : "ability.available", detail: { id: k.split(".").pop(), ...(to as object) } });
+        }
         break;
       case "construction":
         ev.push({ kind: b === undefined ? "construction.finished" : a === undefined ? "construction.started" : "construction.state", detail: { what: k.slice(13).split("#")[0], from, to } });

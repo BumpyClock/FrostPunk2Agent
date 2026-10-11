@@ -7,6 +7,11 @@ The project has no tagged releases yet.
 
 ### Added
 
+- Layout: `district_types` proximity gives/takes, `districts` efficiency and proximity effects, `layout_preview`,
+  and layout-scored `pick_cells type=X`.
+- `building_types` adds name, description, effects, statistics and economy; snapshot `unlocks` lists buildings and
+  abilities; watcher emits `building.unlocked` and `ability.available`; construction entries name the building.
+- Skill: planning cadence, binding-constraint thinking, lead times, verification and shell rules (from session review).
 - `abilities describe=true` returns each ability's in-game name and description.
 - `place_building district=` accepts labels from `districts` (for example `MainQuarter#0`).
 - `frost_sites`: Frostland outposts (settlement upgrade chain) and colony sites with territory and state.

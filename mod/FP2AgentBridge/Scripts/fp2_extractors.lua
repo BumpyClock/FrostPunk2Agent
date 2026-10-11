@@ -246,6 +246,13 @@ return function(X)
         inState = true,
         run = function()
             local out = json.array()
+            -- Building actors under construction: owner actor path -> building type.
+            local buildingTypeByOwner = {}
+            for _, b in ipairs(FindAllOf("PXBuildingComponent") or {}) do
+                pcall(function()
+                    if reflect.isValid(b) then buildingTypeByOwner[reflect.path(b:GetOwner())] = b.Type end
+                end)
+            end
             for _, c in ipairs(FindAllOf("PXConstructionComponent") or {}) do
                 if reflect.isValid(c) and not (reflect.path(c) or ""):find("Default__", 1, true) then
                     local state = "?"
@@ -255,9 +262,11 @@ return function(X)
                         pcall(function()
                             local owner = c:GetOwner()
                             e.target = reflect.className(owner)
-                            pcall(function()
-                                for _, comp in ipairs({ "PXDistrictComponent" }) do end
-                            end)
+                            local bt = buildingTypeByOwner[reflect.path(owner)]
+                            if bt and reflect.isValid(bt) then
+                                e.building = (reflect.shortName(bt) or ""):gsub("^DA_", "")
+                                pcall(function() e.name = bt.IngameName:ToString() end)
+                            end
                         end)
                         pcall(function()
                             local d = c.ParentComponent

@@ -37,6 +37,26 @@ Run a detached watcher and react to its events instead of polling.
 4. Verify the effect with `fp2 brief` or `fp2 snapshot`, then continue.
 5. `fp2 watch-stop` ends the watcher.
 
+The Claude Code Monitor tool expires after 30 minutes; the detached watcher and `watch.jsonl` keep running.
+Re-arm the Monitor as soon as it expires, and read the lines appended since the last event you handled.
+Filter routine kinds (stat bands, quest progress, icons, pause toggles, saves, Council phase steps) out of
+the Monitor; they stay in the log.
+
+### Planning cadence
+
+Events are a safety net, not the strategy.
+
+- Keep a goal stack: the scenario quest (`snapshot.quests`), one city-problem target, one research goal
+  (`fp2 research_plan`), one capacity goal (workforce, prefabs, Cores, heat headroom). Re-read it when
+  research finishes, a build completes, a Council session opens or a Utopia point arrives. Between those,
+  letting stocks build up is a valid choice. An event is a reason to check the stack, not always to act.
+- For each decision, name the binding constraint and what the choice trades away. If the bridge cannot
+  show the number you need, add that read before deciding.
+- Count lead times: research weeks, construction `weeksLeft`, Council sessions about 10 weeks apart, and laws
+  whose effects show weeks later (observed: migration). Do not judge a law or build before its lead time.
+- Before committing scarce inputs to growth, run the stability check in
+  [GAMEPLAY.md](references/GAMEPLAY.md) and record the verdict in the gameplay blog, whichever way it goes.
+
 The watcher also overwrites one rolling save (`agent-rolling`) every 2 in-game weeks (`saveEvery=N`,
 `saveName=X`, `saveEvery=0` turns it off) and emits `watch.saved`. A crash or closed game then loses at most
 2 weeks. Without it, all progress since the last manual save was lost once (measured).
@@ -66,6 +86,7 @@ Each line has `at`, `date`, `week`, `kind`, `detail`.
 | `ui.cutscene.changed`, `ui.pauseReasons.changed` | A cutscene or pause reason appeared or cleared | Do not click or choose during a cutscene |
 | `deaths.increased` | Death toll rose; `detail` has from, to, `byCause` | Find the cause (cold, hunger, sickness) and fix its need |
 | `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
+| `building.unlocked`, `ability.available` | A building type or ability became available; `detail` has name, description, effects | Weigh it against the goal stack |
 | `watch.started`, `watch.autopaused`, `bridge.error` | Watcher status | `bridge.error`: `fp2 status` |
 
 ## Commands
@@ -100,6 +121,8 @@ Most accept `dryRun=true`.
 |---|---|
 | Pick a placement | `fp2 pick_cells count=6 [deposit=soil]` returns connected cells next to the city |
 | Build a district | `fp2 place_district type=Housing 'cells=[..6..]' [dryRun=true]` |
+| Layout | `fp2 district_types` (name, description, proximity `gives`/`takes`), `fp2 districts` (`efficiencyPct`, `efficiencyLevel`, `affectedBy` proximity), `fp2 layout_preview type=X 'cells=[..]'` (neighbours, effects received and given, heuristic `score`), `fp2 pick_cells count=6 type=X [candidates=8]` (best-scored cluster plus `alternatives`). Score polarity is inferred: Squalor, Sickliness, Decrease effects count negative |
+| Buildings and abilities | `fp2 building_types` (name, description, effects, `statistics` such as Squalor -15, `economy` output), `fp2 abilities describe=true`; snapshot `unlocks` lists both; construction entries name the building |
 | Frostland sites | `fp2 frost_sites [kind=outpost|colony] [state=Hidden] [territory=X]`: outposts (with `upgradesTo` settlement chain, `built`, `population`) and colony sites, each with territory and site state; `counts` summarises by state. Settlements are upgraded outposts (need Skyways connection + Settlement Heating); colonies cost 400 prefabs, 1 Core, 20 logistics units |
 | Frostbreak | `fp2 frostbreak_path deposit=Logistics` (or `target=<cell>`) plans the shortest frozen route plus room for a district, in 8-cell batches; `go=true` starts batch 1. Manual: `fp2 pick_cells count=8 frozen=true`, then `fp2 expand 'cells=[..8..]'`. Far deposits: `fp2 cells deposit=Logistics limit=2000` |
 | Build a building | `fp2 place_building type=H_ResearchInstitute [district=Housing]` |
@@ -125,6 +148,10 @@ Most accept `dryRun=true`.
 
 Read `fp2 council` (`phase`, `agendaPolicy`, `seats`, `minTicksToNextSession`, `activePolicies`) and
 `fp2 laws` (in-game `name`, `description`, `effect`, per-faction support and `seats` For/Against/Hesitant).
+Resolve every id to its in-game name, description and effects before acting on it: laws (`laws`),
+research outcomes (`research_topics`), abilities (`abilities describe=true`), buildings (`building_types`)
+and districts (`district_types`). Variants matter too: `research_start` without `community=` takes the first
+available variant, and variants shift community relations, so compare them first.
 Read each candidate's `name`, `description`, `effect` and `effects` (modifier data such as
 `Ratios: {Goods: 0.25}` or `EffectTemplate: Sickliness_Marginal_Increase`) before proposing it; asset ids do not say what a
 law does. Then decide for this run: weigh what the law costs people against what the city needs now
@@ -210,6 +237,16 @@ secondary to playing and to improving the bridge; keep entries brief.
 - Stop a foreground `fp2 watch` before `bun run build`. `watch-start` runs a copy and does not block builds,
   but run `watch-stop` then `watch-start` to pick up the new build.
 - One controller drives the UI at a time; a client lock serializes bridge calls.
+- Save (`fp2 save name=agent-... override=true`) before the first use of any new mutating command or new
+  reflective read, and before handing the live game to a subagent. Several crashes came from first calls.
+- When a command has no visible effect, read `pauseReasons`, `cutscene`, `modals` and window focus before
+  repeating it. Repeated clicks delayed one diagnosis (measured).
+- Verify every change landed: never hide `fp2 reload` output (a broken reload went unnoticed for minutes,
+  measured); after editing Lua or TS, grep the anchor or run the command that exercises the new branch; a
+  `true` return proves neither effect nor persistence (measured: `LoadGame` from the main menu).
+- Shell: in Git Bash prefix `MSYS_NO_PATHCONV=1` before `fp2` calls with `/Game/...` paths; pass JSON args
+  single-quoted (`'args=["@ctx"]'`). Edit files with the Edit tool or a Python script file, not inline
+  heredocs with escapes. After one quoting failure, switch tools instead of retrying the same form.
 
 ## Grow the mod as you play
 

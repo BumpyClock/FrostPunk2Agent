@@ -579,6 +579,7 @@ def("snapshot", {
         end)
         out.generator = try(function() return actions.generator(args) end)
         out.exploration = try(function() return actions.explorationSummary(args) end)
+        out.unlocks = try(function() return actions.unlocks(args) end)
         out.districts = try(function()
             local list = json.array()
             for _, d in ipairs(actions.districts(args)) do
@@ -606,6 +607,7 @@ def("utopia", { help = "Utopia Tree per faction: points, cap, next threshold, no
 def("utopia_assign", { help = "Spend a Utopia Tree point on a node via the panel handlers. Needs the Utopia panel open (key U). args: node (tag suffix like Venturers.Hub, or name)", mutation = true, run = function(args) return actions.utopiaAssign(args) end })
 def("research_plan", { help = "Ordered research path to a topic (prerequisites first) with each step's other requirements (buildings, laws), remaining count and research weeks. args: topic (id or name substring)", run = function(args) return actions.researchPlan(args) end })
 def("frost_sites", { help = "Frostland outposts (settlement chain via upgradesTo) and colony sites with territory, site state, built flag and population. args: kind=outpost|colony, state, territory, limit=60", run = function(args) return actions.frostSites(args) end })
+def("layout_preview", { help = "Preview a district placement: neighbouring districts and the proximity (adjacency) effects it would receive and give, e.g. SqualorGiver next to Housing. args: type, cells=[indices from pick_cells]", run = function(args) return actions.layoutPreview(args) end })
 def("expand", {
     help = "Frostbreak/expand area. args: cells=[indices], type (expander id substring), dryRun=true to only check/price",
     mutation = true,
