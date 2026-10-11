@@ -54,7 +54,7 @@ Frostpunk 2 knowledge; verify before relying on it.
 - Generator abilities trade one input for another (`fp2 abilities describe=true`). Compare benefit, cost
   and side effects before toggling. (observed: Caloryfics Boost cut coal use in one run)
 - Cold deaths came in waves about every 11 weeks while Shelter was in deficit (58 deaths per wave). Fix the
-  Shelter deficit; `deaths.increased` in the watcher reports each wave. (observed; cause inferred)
+  Shelter deficit; `deaths.increased` (a `fp2 turn` stop event) reports each wave. (observed; cause inferred)
 - A generator upgrade building can change the generator mode without raising `powerLimit` (observed:
   Symbiosis Lvl1 kept 750). It also exposes City Support abilities (`fp2 abilities describe=true`): Food
   Production, Housing (+1 temperature level), Heavy Industry. Food Production raised food by about 8/day with no
@@ -84,7 +84,8 @@ the run paused colonies and built the generator upgrade first)
 
 - The game's autosave rotates AutoSave1 and AutoSave2 and overwrote an older playthrough's autosave.
   Copy them out (for example to `.runtime/save-backup/`) before playing a new game on a shared profile. (observed)
-- `fp2 save` writes a new `FrostPunk2SaveGameN.sav` each time and flushes on the next game tick. (observed)
+- `fp2 save` writes a new `FrostPunk2SaveGameN.sav` each time (observed); `override=true` reuses the slot with
+  that display name.
 
 ## Time
 

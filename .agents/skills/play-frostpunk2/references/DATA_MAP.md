@@ -32,7 +32,7 @@ marked `inState`. `fp2 snapshot` is a separate bridge command that builds the HU
 | `population` | yes | `WorkforceHolder`, `peopleAllocationHolderComponent`, `PXTemperatureComponent`, `Generator` | `totalWorkforce`, `homeless`, `communitySizes`, `population`, `temperatureLevel`, `temperatureC` (`Degrees` of the current level; unverified against the HUD), `generator` (`power`, `potentialPower`, `fuel`, `mode`). Measured gap: `population` sums unassigned community sizes only (10429 vs HUD about 30.7K). Use `society.population` for the total. |
 | `society` | yes | `PXTrustUtils`, `PXCommunityUtils` | `totalTrust`, `population` (`GetScaledCityPopulationSize`), `communitiesSize`, and `communities` sorted by size with `community`, `size`, `standing`, `fervor`, plus `deathToll` (HUD death counter widget `TargetDeathCount`) and `deathsByCause` (death-meter script map). Not yet compared to the HUD faction bar or death counter (unverified); the death fields are absent when the widget does not exist. |
 | `construction` | yes | every `PXConstructionComponent` not in state `Finished` | `state`, `target` (owner class), `district`, `progress` (0 to 1), `weeksLeft`, `ref`. |
-| `quests` | yes | `PXQuestUtils.GetActiveQuests` | `class`, `name`, `description`, `weeksLeft` (omitted for endless quests), and `objectives` with `name` or `debug`, `progress`, `max`. A quest named `silent stat quest` is ignored by the watcher. |
+| `quests` | yes | `PXQuestUtils.GetActiveQuests` | `class`, `name`, `description`, `weeksLeft` (omitted for endless quests), and `objectives` with `name` or `debug`, `progress`, `max`. A quest named `silent stat quest` produces no events. |
 | `icons` | yes | visible `PXTrackerPanel` widgets | `kind` (widget class without `WBP_`/`_C`), `target`, `location`, `screen` (client pixel), `district`, `ref`. `all=true` includes hidden. Click one through the game with `open_icon ref=...`. |
 | `districts` | no | `districtHolder.Districts` | Per city: `districts` with `ref` and `type`; `limit=100`. The richer view is the `districts` command. |
 | `deposits` | no | every `PXDepositComponent` | Sorted by distance to the main city. `type`, `amount`, `location`, `distance`, `screen`. Args: `limit=30`, `type`, `maxDistance`. |
@@ -55,6 +55,38 @@ that section only.
 | `districts` | `type`, `id`, `buildings`, `underConstruction` per district |
 
 The snapshot has no `time` or `session` sections; use `date` and `pauseReasons`, or `extract name=time`.
+
+## Turn events
+
+`fp2 turn` returns these in `events`; each has `week`, `date`, `kind`, `detail`. Every event, including noise, is
+appended to `.runtime/watch.jsonl`. Stop kinds by default: `dialog.opened`, `dialog.ackFailed`, `deaths.increased`,
+`need.deficit`, `stock.runway` (10 weeks or less), `research.finished`, `construction.finished`,
+`council.sessionAvailable.changed` (session opens), `exploration.finished`, `temperature.changed`,
+`building.unlocked`, `ability.available`, `district.deactivated`, `homeless.changed`. Noise kinds (`icons.changed`,
+`game.paused`, `game.resumed`, `ui.pauseReasons.changed`, `stock.recovered`, `dialog.closed`, `stat.falling`,
+`exploration.progress`, `construction.state`) are only counted in `dropped`.
+
+| Event kind | Meaning | Reaction |
+|---|---|---|
+| `dialog.opened` | Modal or decision; `detail` has title, description, choices | `fp2 modals`, decide, `fp2 choose index=N` |
+| `dialog.acknowledged` | `turn` dismissed a one-option dialog with no effects ("I see"); `detail` keeps its text | Read it; faction or story news |
+| `dialog.ackFailed` | Auto-ack could not dismiss a one-option dialog (`detail.error`); the game stays paused | `fp2 modals`, then `fp2 choose index=0 ref=<modal ref>` |
+| `notification` | Dialog without choices (population growth, info popup) | Read `detail`; usually no action |
+| `need.deficit` / `need.ok` | A need balance went below or back to 0 | Heating: see [GAMEPLAY.md](GAMEPLAY.md) Heat |
+| `stock.runway` / `stock.recovered` | Stock runway crossed 20, 10, 5 or 2 weeks, or recovered | Fix the supply of that resource |
+| `stat.rising` / `stat.falling` | A statistic crossed a 10-point band; `detail` has current and target | Treat Cold, Hunger, Tension, Sickliness, Crime, Squalor |
+| `trust.up/down`, `standing.up/down` | Total trust or community standing crossed a 10-point band | `fp2 council`, `fp2 laws` |
+| `construction.started/state/finished`, `research.started/finished` | Work began, changed or ended | Queue the next build or topic |
+| `exploration.started/progress/finished`, `exploration.revealed.changed` | Exploration began, advanced a quarter, finished, or the revealed territory count changed | `fp2 territories`, then `fp2 explore` |
+| `quest.progress` | Quest objective progress changed | `fp2 snapshot --fields quests` |
+| `icons.changed` | Count of a map tracker kind changed (Bark icons ignored) | `fp2 extract name=icons`, `fp2 open_icon ref=..` |
+| `council.sessionAvailable.changed`, `council.phase.changed`, `council.agenda.changed` | Council session opened or changed | See Council in SKILL.md |
+| `ui.cutscene.changed`, `ui.pauseReasons.changed` | A cutscene or pause reason appeared or cleared | No input during a cutscene; skip with `fp2 keys e@3000` |
+| `deaths.increased` | Death toll rose; `detail` has from, to, `byCause` | Find the cause (cold, hunger, sickness) and fix its need |
+| `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
+| `district.deactivated` / `district.activated` | A district went off or on; `detail.reasons` (`NoDeposit`: deposit exhausted, `PlayerChoice`) | `NoDeposit`: expand onto a new deposit or build elsewhere before stocks run out |
+| `building.unlocked`, `ability.available` | A building type or ability became available; `detail` has name, description, effects | Weigh it against the goal stack |
+| `bridge.error` | A bridge call failed | `fp2 status`, then `fp2 recover` |
 
 ## Ids
 

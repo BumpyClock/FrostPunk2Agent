@@ -202,7 +202,7 @@ const CRITICAL = new Set(["district.deactivated", "dialog.ackFailed", "explorati
 const TICKS_PER_WEEK = 1680;
 
 // A dialog whose only option is an acknowledgement with no gameplay effect ("I see").
-function isAckOnly(m: any): boolean {
+export function isAckOnly(m: any): boolean {
   const choices = asArray(m?.choices);
   return choices.length === 1 && !choices[0]?.effects && !choices[0]?.description;
 }

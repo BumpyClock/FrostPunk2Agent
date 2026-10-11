@@ -1,312 +1,148 @@
 ---
 name: play-frostpunk2
-description: Play Frostpunk 2 through the FP2AgentBridge UE4SS mod and the `fp2` CLI. Read exact city state as JSON, control time, camera, screenshots, mouse and keys from one CLI, and grow the mod's data and action coverage as you play.
+description: Play Frostpunk 2 through the FP2AgentBridge UE4SS mod and the `fp2` CLI. Use for a play session. Start with `fp2 recover`, keep a goal stack in `fp2 goals`, and advance with `fp2 turn`, which runs until a stop event or a heartbeat and returns events, due goals and a brief. When play needs a read or action the bridge lacks, switch to the `fp2-mod-dev` skill.
 ---
 
 # Play Frostpunk 2
 
-Frostpunk 2 is a city-survival builder. Keep the city warm, fed, housed and supplied, expand districts
-onto deposits, research ideas, and pass laws in the Council while factions pull the city apart.
-You lose when Trust or Tension collapses, or when people freeze or starve.
+Frostpunk 2 is a city-survival builder. Keep the city warm, fed, housed and supplied, expand districts onto deposits,
+research ideas, and pass laws in the Council while factions pull the city apart. You lose when Trust or Tension
+collapses, or when people freeze or starve. Aim for the best decision per in-game week, with tokens as the constraint.
+Use bridge commands for state and actions; use screenshots and input only where no command exists.
 
-Goal: keep the city alive and growing, with decisions you can explain. Use the bridge for state and
-actions. Use screenshots and input only where the bridge has no command.
-
-All commands go through `./fp2.exe` at the repo root (source in `cli/`; `fp2 -h` lists subcommands).
-Run it from PowerShell: Git Bash rewrites `/Script/...` arguments into Windows paths. Quote arrays:
-`'cells=[1,2,3]'`.
+All commands go through `./fp2.exe` at the repo root (`fp2 -h` lists them). Run it from PowerShell: Git Bash rewrites
+`/Script/...` arguments into Windows paths (there, prefix `MSYS_NO_PATHCONV=1`). Quote arrays: `'cells=[1,2,3]'`.
 
 ## How to approach the game
 
 ### The game loop
 
-- **Heat drives everything.** Generator power and heat allocation feed the needs (Heating, Warmth,
-  Shelter, Nourishment, Possession, Maintenance). A negative need raises its statistic (Cold, Hunger,
-  Squalor, ...), statistics raise Tension and erode Trust, and Trust or Tension collapse ends the game.
-  Temperature drops arrive without warning, so generator headroom (`power` vs `powerLimit`) is the city's
-  safety margin.
-- **Inputs are scarce and shared.** Workforce staffs every district and is also drawn by construction while it
-  runs. Prefabs and Cores gate districts, upgrades and colonies. Heatstamps pay for research, buildings and
-  hubs. Coal, food and materials are flows: read `change` and runway, not stock alone.
-- **Time scales differ by an order of magnitude.** Stocks drain in weeks. Construction takes 2 to 5 weeks.
-  Research takes 10 to 30. Council sessions come about 10 weeks apart. Laws, migration and many abilities take
-  weeks to show their effect.
-- **Society reacts to everything.** Each law, research variant and dialog choice shifts community standing.
-  New factions form from the city's direction and bring their own quests and Utopia Trees. Trust and Tension
-  decide survival as much as resources do.
-- **Expansion competes with the city.** Frostland exploration reveals territories and sites; outposts can
-  become settlements (Skyways connection); colonies need prefabs, a Core and logistics units. Every one of
-  those draws on the same scarce inputs the city needs to survive.
+- **Heat drives everything.** Generator power and heat allocation feed the needs (Heating, Warmth, Shelter,
+  Nourishment, Possession, Maintenance). A negative need raises its statistic (Cold, Hunger, Squalor, ...), which
+  raises Tension and erodes Trust. Temperature drops arrive without warning, so generator headroom (`power` vs
+  `powerLimit`) is the safety margin.
+- **Inputs are scarce and shared.** Workforce staffs districts and running construction. Prefabs and Cores gate
+  districts, upgrades and colonies. Heatstamps pay for research, buildings and hubs. Coal, food and materials are
+  flows: read `change` and runway, not stock alone.
+- **Time scales differ by an order of magnitude.** Stocks drain in weeks. Construction takes 2 to 5 weeks, research
+  10 to 30. Council sessions come about 10 weeks apart. Laws, migration and abilities take weeks to act.
+- **Society reacts to everything.** Each law, research variant and dialog choice shifts community standing. New
+  factions bring their own quests and Utopia Trees. Trust and Tension decide survival as much as resources do.
+- **Expansion competes with the city.** Exploration, outposts, settlements and colonies draw on the same scarce
+  inputs the city needs to survive.
 
 ### Thinking patterns
 
-These are the habits that separated good turns from bad ones in past runs. They do not say which choice to
-make; each run decides for itself.
+These habits separated good turns from bad ones in past runs. They do not say which choice to make.
 
-1. **Stabilize before you grow.** Before any growth commitment (expansion, colonies, big research
-   detours), check the base: generator headroom, food and fuel runway, free workforce, Squalor and Tension
-   trends, recent death waves, and whether the growth spends inputs survival also needs. If the base has
-   no slack, fix the base first. Record the verdict either way, and revisit it after a temperature drop or a
-   population jump. (A past run expanded while people froze and food fell; it reversed course only when
-   challenged.)
-2. **Plan from a goal stack, not from events.** Hold the scenario quest, one city-problem target, one
-   research path (`research_plan`) and one capacity goal. An event is a prompt to re-check the stack,
-   not an instruction. If an event changes nothing in the stack, note it and move on; waiting while stocks
-   build is a real move. (A past run spent ~170 wakeups reacting and neglected its quests.)
-3. **Decide from facts, never from ids or defaults.** Before acting, resolve every id to its in-game name,
-   description and effects (laws, research outcomes and variants, abilities, buildings, districts, dialog
-   choices). Compare the alternatives, including research variants and their community effects. If the bridge
-   cannot show what you need, add the read before deciding. (A past run passed a child-labour law believing
-   it was something else, and took default research variants without weighing them.)
-4. **Respect lead times before judging.** When you act, write down the effect you expect and when it should
-   show. Do not call a law, build or ability a failure before that window passes. (A past run declared the
-   migration law useless; it later brought +200 and then +1,191 people.)
-5. **Name the binding constraint and the trade.** For each decision, state which input limits you
-   (workforce, prefabs, Cores, heat headroom, food runway) and what the choice costs. Prefer reversible moves
-   when unsure (district on/off, ability toggles), then measure the result with `brief` or `snapshot`.
+1. **Stabilize before you grow.** Before a growth commitment, check generator headroom, food and fuel runway, free
+   workforce, Squalor and Tension trends, recent deaths, and whether growth spends inputs survival needs. No slack:
+   fix the base first. Record the verdict; revisit it after a temperature drop or population jump. (A past run
+   expanded while people froze and food fell.) Checklist: [GAMEPLAY.md](references/GAMEPLAY.md).
+2. **Plan from the goal stack, not from events.** An event is a prompt to re-check the stack, not an instruction.
+   Waiting while stocks build is a real move. (A past run spent ~170 wakeups reacting and neglected its quests.)
+3. **Decide from facts, never from ids or defaults.** Resolve every id to its in-game name, description and effects,
+   and compare the alternatives, including research variants. If the bridge cannot show it, get the read first.
+   (A past run passed a child-labour law believing it was something else.)
+4. **Respect lead times before judging.** Write down the expected effect and when it should show. Do not call an
+   action a failure before then. (A past run called the migration law useless; it later brought +200, then +1,191.)
+5. **Name the binding constraint and the trade.** State which input limits you and what the choice costs. When
+   unsure, prefer reversible moves (district on/off, ability toggles), then measure.
 
 ## Session start
 
-1. `fp2 status`. `alive:false` means the game is not running or the mod did not load.
-   Launch with `fp2 launch`. Install with `./scripts/Install-Bridge.ps1` (game closed).
-2. `fp2 wait-ready` after launching, loading a save, or starting a game.
-3. `fp2 pause`, then `fp2 watch-start` (see Play loop), then `fp2 brief`.
-4. Read [DATA_MAP.md](references/DATA_MAP.md) for field meanings and units.
+1. `fp2 status`, then `fp2 recover` (launches if needed, loads `name=X` or the newest `agent-rolling` or `AutoSave*`,
+   ends paused). First install: `./scripts/Install-Bridge.ps1` with the game closed. If `turn` warns about a
+   detached watcher, run `fp2 watch-stop`.
+2. `fp2 goals`. If empty, seed it: `long` = the scenario quest (`fp2 snapshot --fields quests`); `short` = one
+   city-problem target, one capacity goal, and the research path from `fp2 research_plan topic=X`. Then `fp2 turn`.
 
-## Play loop
+## The turn loop
 
-Run a detached watcher and react to its events instead of polling.
+`fp2 turn` resumes time, runs until the first stop event or `weeks` in-game weeks (the heartbeat), pauses, and
+returns `{turn: {fromWeek, toWeek, date, advancedWeeks, stoppedBy: {reason, kinds}}, events, dropped,
+goals: {open, due, file}, brief, warnings?}`. Each turn:
 
-1. `fp2 watch-start` starts a hidden watcher that appends one JSON line per meaningful change to
-   `.runtime/watch.jsonl` (errors go to `watch.jsonl.err`). It prints the tail command.
-   Start a Monitor on it: `tail -n0 -F ".runtime/watch.jsonl"`.
-2. `fp2 advance ticks=1680` resumes time for one week. It ends paused, prints a brief, and stops early
-   when a modal or event pauses the game (`stoppedBy`). The default is 24000 ticks.
-3. When an event arrives, pause if needed, then act on the cause (table below).
-4. Verify the effect with `fp2 brief` or `fp2 snapshot`, then continue.
-5. `fp2 watch-stop` ends the watcher.
+- Read `stoppedBy.reason`. `event` or `heartbeat`: continue below. A modal class: `fp2 modals`, decide,
+  `fp2 choose index=N`. `Cutscene ...`: skip with `fp2 keys e@3000`. `UserPaused`: the user paused; ask before
+  resuming. With a modal or cutscene already open, `turn` returns at once without resuming time.
+- Treat each event as a question: does it threaten a goal, finish one, or open an option? If not, let it pass.
+  Quiet turn: run the next one. Event kinds and reactions: [DATA_MAP.md](references/DATA_MAP.md#turn-events).
+- Act only when a goal or a stop event calls for it. Apply thinking patterns 1, 3 and 5 first.
+- When an action has a delay (law, build, research), add `fp2 goals add horizon=check due=<week> expect=".."`.
+- When `goals.due` is non-empty, judge each `expect` against the brief, then `fp2 goals done id=N note=".."` or
+  `fp2 goals edit id=N due=.. expect=..` with the reason.
+- Re-plan when research finishes, a build completes, a Council session opens, a territory is explored, or the
+  heartbeat fires: re-read `snapshot.quests`, `fp2 research_plan`, `fp2 utopia`, `fp2 frost_sites`, free workforce
+  and stocks, and update the `long` and `short` goals.
+- Read only what the decision needs: `fp2 turn --fields turn,events,goals.due,brief.alerts`.
 
-The Claude Code Monitor tool expires after 30 minutes; the detached watcher and `watch.jsonl` keep running.
-Re-arm the Monitor as soon as it expires, and read the lines appended since the last event you handled.
-Filter routine kinds (stat bands, quest progress, icons, pause toggles, saves, Council phase steps) out of
-the Monitor; they stay in the log.
-
-### Planning cadence
-
-Mechanics for thinking pattern 2:
-
-- Re-read the goal stack when research finishes, a build completes, a Council session opens, a territory is
-  explored or a Utopia point arrives. Sources: `snapshot.quests`, `fp2 research`, `fp2 research_plan`,
-  `fp2 utopia`, `fp2 frost_sites`, free workforce and stocks in `fp2 brief`.
-- Between those triggers, let time run. Do not answer routine events one by one.
-- When you commit to something with a delay (law, build, migration, exploration), log the expected effect and
-  the date to check it.
-- Before committing scarce inputs to growth, run the stability check in
-  [GAMEPLAY.md](references/GAMEPLAY.md) and record the verdict in the gameplay blog.
-
-The watcher also overwrites one rolling save (`agent-rolling`) every 2 in-game weeks (`saveEvery=N`,
-`saveName=X`, `saveEvery=0` turns it off) and emits `watch.saved`. A crash or closed game then loses at most
-2 weeks. Without it, all progress since the last manual save was lost once (measured).
-
-The watcher auto-pauses the game on the kinds in `pauseOn` unless the player already paused. Defaults for
-`watch-start`: `dialog.opened,need.deficit,stock.runway,research.finished,construction.finished`.
-Override with `pauseOn=critical` (a preset: those plus `stat.rising`, `ui.cutscene.changed`,
-`council.sessionAvailable.changed`, `exploration.finished`) or a comma list of kinds. `fp2 watch` (foreground, no auto-pause by
-default) takes the same arguments; run it only under a Monitor.
-
-Each line has `at`, `date`, `week`, `kind`, `detail`.
-
-| Event kind | Meaning | Reaction |
-|---|---|---|
-| `dialog.opened` / `dialog.closed` | Modal or decision; `detail` has title, description, choices | `fp2 modals`, decide, `fp2 choose index=N` |
-| `notification` | Dialog without choices (population growth, info popup); no auto-pause by default | Read `detail`; usually no action |
-| `dialog.acknowledged` | `watch-start` dismissed a one-option dialog with no effects ("I see"); `detail` keeps its text | Read it; faction or story news |
-| `dialog.ackFailed` | Auto-ack could not dismiss a one-option dialog (`detail.error`); the game stays paused (critical) | `fp2 modals`, then `fp2 choose index=0 ref=<modal ref>` |
-| `need.deficit` / `need.ok` | A need balance went below or back to 0 | Heating: see GAMEPLAY.md |
-| `stock.runway` / `stock.recovered` | Stock runway crossed 20, 10, 5 or 2 weeks (`recovered` never auto-pauses) | Fix the supply of that resource |
-| `stat.rising` / `stat.falling` | A statistic crossed a 10-point band; `detail` has current and target | Treat Cold, Hunger, Tension, Sickliness, Crime, Squalor |
-| `trust.up/down`, `standing.up/down` | Total trust or community standing crossed a 10-point band | Check `fp2 council` and `fp2 laws` |
-| `construction.started/state/finished`, `research.started/finished` | Work began, changed or ended | Queue the next build or topic |
-| `exploration.started/progress/finished`, `exploration.revealed.changed` | Frostland exploration began, advanced in quarter steps, finished, or the count of revealed territories changed | `fp2 territories`, then `fp2 explore` |
-| `quest.progress` | Quest objective progress changed | Check `snapshot.quests` |
-| `icons.changed` | Count of a map tracker kind changed (Bark icons ignored) | `extract name=icons`, `open_icon` |
-| `council.sessionAvailable.changed`, `council.phase.changed`, `council.agenda.changed` | Council session opened or changed | See Council |
-| `ui.cutscene.changed`, `ui.pauseReasons.changed` | A cutscene or pause reason appeared or cleared | Do not click or choose during a cutscene |
-| `deaths.increased` | Death toll rose; `detail` has from, to, `byCause` | Find the cause (cold, hunger, sickness) and fix its need |
-| `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
-| `district.deactivated` / `district.activated` | A district went off or back on; `detail.reasons` (`NoDeposit` = its deposit is exhausted, `PlayerChoice`) | `NoDeposit`: expand onto a new deposit or build elsewhere before stocks run out |
-| `building.unlocked`, `ability.available` | A building type or ability became available; `detail` has name, description, effects | Weigh it against the goal stack |
-| `watch.started`, `watch.autopaused`, `bridge.error` | Watcher status | `bridge.error`: `fp2 status` |
+**Gameplay blog.** Keep a decision log in `gameplay-<YYYY-MM-DD>.html` (one self-contained page per real-world day,
+repo root). At each major decision (law, large build, deaths, crisis, recovery), insert an entry after
+`<!-- entries:start -->`: in-game date, what you did, the tradeoff and its human cost, and what kind of city it
+builds. State guesses and mistakes plainly. Keep entries brief; the log is secondary to play.
 
 ## Commands
 
-Mutating commands validate through the game, charge normal costs, and use the Leader action origin.
-Most accept `dryRun=true`.
-
-### Reads
-
-| Need | Command |
-|---|---|
-| Mod alive | `fp2 status` (heartbeat only) |
-| Whole HUD in one call | `fp2 snapshot`: date, pauseReasons, cutscene, resources, needs, statistics, population, society, construction, quests, icons, modals, research, council, generator, exploration, districts |
-| Triage | `fp2 brief`: alerts, need deficits, depleting stocks, modals, construction |
-| Raw extractors | `fp2 state` (all `inState` extractors), `fp2 extract name=<x>` (omit `name` to list), `names=[..]` |
-| Clock | `fp2 date` |
-| Free cells, deposits | `fp2 cells free=true [deposit=soil] [nearX=.. nearY=..]` (cells marked `outside` count as buildable; measured), `fp2 extract name=deposits type=logistics` |
-| Districts, buildings | `fp2 districts`, `fp2 district_types`, `fp2 building_types [district=Housing]` |
-| Utopia Tree | `fp2 utopia` (per faction: points, cap, next threshold, nodes with state, description, unlocks/requires); `fp2 utopia-assign node=<tag or name>` spends a point (opens and closes the panel) |
-| Tech tree planning | `fp2 research_topics all=true` lists locked topics too, with `outcomes`, `requires` (all/any trees of research, building, unlock leaves plus hint text), `prereqTopics` and `weeks`; `fp2 research_plan topic=X` gives the ordered path (prerequisites first), each step's `alsoNeeds`, `remaining` and `researchWeeksAtSpeed1` |
-| Research | `fp2 research` (topic, `progress`, `weeksLeft`), `fp2 research_topics` (name, question, per-community outcome name, description, `solves`); `solves=Squalor` finds research that fixes a city problem |
-| Frostland territories | `fp2 territories [state=revealed|explored|charted|hidden] [limit=30]`: nearest first, plus those being explored |
-| Abilities, generator, heat | `fp2 abilities`, `fp2 generator`, `fp2 heat` |
-| Council | `fp2 council`, `fp2 laws` |
-| Dialogs | `fp2 modals` |
-| Saves | `fp2 saves [limit=20]` (disk listing, newest first; `file` and `display` name) |
-| Hotkeys | `fp2 keybinds contains=..`. Measured: Council C, Research R, Frostland V, Districts B |
-
-### Actions
-
-| Action | Command |
-|---|---|
-| Pick a placement | `fp2 pick_cells count=6 [deposit=soil]` returns connected cells next to the city |
-| Build a district | `fp2 place_district type=Housing 'cells=[..6..]' [dryRun=true]` |
-| Layout | `fp2 district_types` (name, description, proximity `gives`/`takes`), `fp2 districts` (`efficiencyPct`, `efficiencyLevel`, `affectedBy` proximity), `fp2 layout_preview type=X 'cells=[..]'` (neighbours, effects received and given, heuristic `score`), `fp2 pick_cells count=6 type=X [candidates=8]` (best-scored cluster plus `alternatives`). Score polarity is inferred: Squalor, Sickliness, Decrease effects count negative |
-| Buildings and abilities | `fp2 building_types` (name, description, effects, `statistics` such as Squalor -15, `economy` output), `fp2 abilities describe=true`; snapshot `unlocks` lists both; construction entries name the building |
-| Frostland sites | `fp2 frost_sites [kind=outpost|colony] [state=Hidden] [territory=X]`: outposts (with `upgradesTo` settlement chain, `built`, `population`) and colony sites, each with territory and site state; `counts` summarises by state. Settlements are upgraded outposts (need Skyways connection + Settlement Heating); colonies cost 400 prefabs, 1 Core, 20 logistics units |
-| Frostbreak | `fp2 frostbreak_path deposit=Logistics` (or `target=<cell>`) plans the shortest frozen route plus room for a district, in 8-cell batches; `go=true` starts batch 1. Manual: `fp2 pick_cells count=8 frozen=true`, then `fp2 expand 'cells=[..8..]'`. Far deposits: `fp2 cells deposit=Logistics limit=2000` |
-| Build a building | `fp2 place_building type=H_ResearchInstitute [district=Housing]` |
-| Explore a territory | `fp2 explore territory=<name or ref> [dryRun=true]` (revealed territories only; `dryRun` shows preparation weeks) |
-| Start research | `fp2 research_start topic=<id> [community=<type>]` (the community picks the outcome variant) |
-| Answer a dialog | `fp2 choose index=N` |
-| Open a map icon's event | `fp2 open_icon ref=<icon ref from extract name=icons>` |
-| Toggle an ability | `fp2 ability owner=Production id=Toggle_IndustrialPrefabsProduction active=true` |
-| Generator overdrive | `fp2 overdrive active=true\|false` |
-| Distribute leftover heat | `fp2 heat_distribute`; `fp2 heat_auto active=true\|false` toggles automatic allocation |
-| Adjust one district's heat | `fp2 heat_adjust district=Housing#1 adjustment=1` (labels come from `fp2 heat`) |
-| Switch a district off or on | `fp2 district_active district=Production#2 active=false` (off frees its workforce) |
-
-### Time
+Never pipe `fp2` output through python or `ConvertFrom-Json`; use `--fields a.b,c[0].d` (one path prints the value,
+several print an object keyed by path). Never `Start-Sleep` after an input; use `wait=<cond>`. Mutating commands
+validate through the game and charge normal costs; most accept `dryRun=true`.
 
 | Need | Command |
 |---|---|
-| Pause, resume | `fp2 pause`, `fp2 resume` (verified through the `UserPaused` reason; modals may still pause) |
-| Speed | `fp2 speed 1\|2\|3` |
-| Let time pass | `fp2 advance [ticks=N]` (1680 ticks = 1 week) |
+| Play a turn | `fp2 turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]` |
+| Goal stack | `fp2 goals [all=true]`, `goals add text=".." [horizon=long\|short\|check] [due=<week>] [expect=".."]`, `goals done id=N [note=..]`, `goals edit id=N [text=..] [due=..] [expect=..] [horizon=..]`, `goals rm id=N`. File: `.runtime/goals.jsonl` |
+| Start, crash recovery | `fp2 recover [name=<save display name>]`; in a loaded game it only pauses |
+| Wait for state | `fp2 wait-for cond=<c> [timeout=20]`; `c`: `modal`, `no-modal`, `council`, `no-council`, `cutscene`, `no-cutscene`, `paused`, `running`, `ready`, `reason:<s>`, `no-reason:<s>`. `click`, `hold`, `keys` take `wait=<c>` |
+| HUD, triage | `fp2 snapshot` (every HUD section), `fp2 brief` (alerts, deficits, depleting stocks, modals, construction), `fp2 extract name=<x>` (omit `name` to list), `fp2 date` |
+| Districts | `fp2 districts` (efficiency, proximity, workforce), `fp2 district_types`, `fp2 district_active district=Production#2 active=false` (frees workforce) |
+| Place a district | `fp2 pick_cells count=6 [type=X] [deposit=soil]`, `fp2 layout_preview type=X 'cells=[..]'`, `fp2 place_district type=Housing 'cells=[..6..]'`; deposits: `fp2 cells free=true deposit=..`, `fp2 extract name=deposits` |
+| Buildings | `fp2 building_types [district=Housing]`, `fp2 place_building type=H_ResearchInstitute [district=Housing#0]` |
+| Frostbreak | `fp2 frostbreak_path deposit=Logistics [go=true]`, or `fp2 pick_cells count=8 frozen=true` + `fp2 expand 'cells=[..8..]'` |
+| Research | `fp2 research` (`speed` 0 without a Research Institute, observed), `fp2 research_topics [all=true] [solves=Squalor]`, `fp2 research_plan topic=X`, `fp2 research_start topic=<id> community=<type>` |
+| Utopia, Frostland | `fp2 utopia`, `fp2 utopia-assign node=X`, `fp2 territories`, `fp2 explore territory=X [dryRun=true]`, `fp2 frost_sites [kind=outpost\|colony]` |
+| Heat, abilities | `fp2 generator`, `fp2 heat`, `fp2 heat_distribute`, `fp2 heat_auto active=true`, `fp2 heat_adjust district=Housing#1 adjustment=1`, `fp2 overdrive active=true`, `fp2 abilities describe=true`, `fp2 ability owner=Production#N id=<id> active=true` |
+| Dialogs, map icons | `fp2 modals`, `fp2 choose index=N`, `fp2 extract name=icons`, `fp2 open_icon ref=<icon ref>` |
+| Saves, time | `fp2 saves`, `fp2 save name=agent-X [override=true]`, `fp2 new-game`, `fp2 launch`; secondary: `fp2 pause`, `fp2 resume`, `fp2 speed 1\|2\|3`, `fp2 advance [ticks=N]` (1680 ticks = 1 week) |
+| UI fallback | `fp2 screenshot [region=hud\|..] [scale=0.5]`, `fp2 click x,y [wait=..]`, `fp2 hold x,y ms=2000`, `fp2 keys escape`, `fp2 camera ref=<obj>`, `fp2 locate ref=<obj>`, `fp2 keybinds contains=..` |
 
-### Council
+UI facts (measured): pixels are game client pixels (double a `scale=0.5` screenshot pixel); `locate` uses the same
+space. Many confirm buttons need `fp2 hold x,y ms=2000`. Skip cutscenes with `fp2 keys e@3000`. Do not tap Alt in
+game (economy overlay). The mouse at the window edge pans; re-center with `fp2 camera ref=first:BP_BaseCity_C`.
+Hotkeys: Council C, Research R, Frostland V, Districts B.
 
-Read `fp2 council` (`phase`, `agendaPolicy`, `seats`, `minTicksToNextSession`, `activePolicies`) and
-`fp2 laws` (in-game `name`, `description`, `effect`, per-faction support and `seats` For/Against/Hesitant).
-Resolve every id to its in-game name, description and effects before acting on it: laws (`laws`),
-research outcomes (`research_topics`), abilities (`abilities describe=true`), buildings (`building_types`)
-and districts (`district_types`). Variants matter too: `research_start` without `community=` takes the first
-available variant, and variants shift community relations, so compare them first.
-Read each candidate's `name`, `description`, `effect` and `effects` (modifier data such as
-`Ratios: {Goods: 0.25}` or `EffectTemplate: Sickliness_Marginal_Increase`) before proposing it; asset ids do not say what a
-law does. Then decide for this run: weigh what the law costs people against what the city needs now
-(deficits, workforce, deaths, trust), and against the alternatives. No law is always right or always wrong;
-a harsh law can be the better choice when the alternative is collapse. Record the reasoning (see the
-gameplay blog below). `fp2 laws all=true` lists every inactive law; the default lists only laws proposable
-now and is empty between sessions. Seats For/Against/Hesitant predict the vote; the game uses the same split.
+## Council
 
-Pass a law when `fp2 council` shows an open session (`phase` 1, Agenda; the watcher emits
-`council.sessionAvailable.changed`): `fp2 pass-law policy=<id>`. It runs `council-open` (key C, then skips
-the chamber cutscene), `propose` (RequestSession), `vote` (InstructVote), presses Escape on the result
-screen, and returns `{policy, vote, active, phase, inParliament}`. Check `active`. Sessions reopened about
-10 weeks after each vote (observed).
+Read `fp2 council` (`phase`, `agendaPolicy`, `minTicksToNextSession`, `activePolicies`) and `fp2 laws` (in-game
+`name`, `description`, `effect`, `effects`, and seats For/Against/Hesitant, which predict the vote). The default
+lists laws proposable now; `all=true` lists every inactive law.
 
-`propose` and `vote` also exist as bridge commands. Both refuse unless the Council scene is open
-(`inParliament`) and no cutscene plays; `unsafe=true` bypasses the scene check and risks locked input.
-Measurements are in [MOD_GAPS.md](references/MOD_GAPS.md). Research needs a Research Institute (a Housing building); previously observed: research speed is 0 without one (`fp2 research` shows `speed`).
+Asset ids do not say what a law does. Read each candidate's text and `effects`, then decide for this run: weigh
+what it costs people against what the city needs now (deficits, workforce, deaths, trust) and against the
+alternatives. No law is always right or always wrong. Record the reasoning in the gameplay blog.
 
-### Saves, launch, new game
-
-| Need | Command |
-|---|---|
-| Start or recover the game | `fp2 launch` (closes a stuck crash reporter, starts via Steam, waits for the bridge) |
-| New game from the main menu | `fp2 new-game` (Utopia Builder, Windswept Peaks, first 3 communities, intro skipped, paused) |
-| Save | `fp2 save name=X` writes immediately; `override=true` reuses the slot with that name |
-| Load | `fp2 load name=X` (main menu or in game), `fp2 wait-ready`, `fp2 pause`, `fp2 keys space` (closes the loading screen) |
-
-### UI fallback
-
-Use these only when the bridge has no command.
-
-| Need | Command |
-|---|---|
-| Screenshot | `fp2 screenshot [region=hud\|objectives\|bottom\|center\|x0,y0,x1,y1] [scale=0.5] [out=path]`; prints a PNG path to Read |
-| Click, hold, drag | `fp2 click x,y [--double]`, `fp2 rclick x,y`, `fp2 hold x,y ms=2000`, `fp2 drag x,y x2,y2`, `fp2 scroll x,y ±n`, `fp2 move x,y` |
-| Keys | `fp2 keys escape`, `fp2 keys ctrl+r`, `fp2 keys e@3000` (hold 3 s); `--keep-focus` stays in the game |
-| Camera | `fp2 camera ref=<object>`, `fp2 camera x=.. y=..`, `fp2 camera reset=true` |
-| Object to pixel | `fp2 locate ref=<object>` returns world location and client pixel |
-| Focus window | `fp2 focus [--max]` |
-
-Coordinates are game client pixels at full resolution (multiply a `scale=0.5` screenshot pixel by 2).
-Fractions 0 to 1 also work. `locate` uses the same pixel space, so `fp2 click <x>,<y>` clicks an object.
-
-UI facts (measured):
-
-- Many confirm buttons need press-and-hold: `fp2 hold x,y ms=2000`.
-- Skip cutscenes by holding E: `fp2 keys e@3000`. Holding Space also skips but toggles pause.
-- District placement in the UI: Districts menu (`B`), pick a type, click 6 adjacent hex tiles, click the
-  check mark. `time.pauseReasons` shows `DistrictPainting` in placement mode. Prefer `place_district`.
-- Hatched terrain is frozen; frostbreak it first. Extraction and Logistics districts must start on a deposit.
-- Mouse near the window edge pans the camera. Re-center with `fp2 camera ref=first:BP_BaseCity_C`.
-- The game stops rendering when unfocused. `screenshot`, `click` and `keys` focus it first. Do not tap Alt
-  while the game is focused: held Alt shows the economy overlay.
-- A screenshot can come back as a flat dark frame after an action. The CLI retries and sets `blank`.
-
-## Decisions and the gameplay blog
-
-Each run makes its own choices; this skill does not prescribe laws, factions or a society. Decide from
-the game's own text and state, name the tradeoff, and own the outcome.
-
-Keep a short decision log in `gameplay-<YYYY-MM-DD>.html` (one self-contained page per real-world day,
-repo root). Add an entry at each major decision: a law, a large build, deaths, a crisis, a recovery. Each
-entry gives the in-game date, what you did, the tradeoff and its human cost, and what kind of city it
-builds. Note guesses and mistakes plainly. Insert new entries after `<!-- entries:start -->`. The log is
-secondary to playing and to improving the bridge; keep entries brief.
+`fp2 pass-law policy=<id>` opens the Council, proposes, votes, dismisses the result and returns `active`; check it.
+It refuses when no session is open (`phase` 1) unless `--force`. Sessions reopened ~10 weeks after a vote (observed).
 
 ## Safety rules
 
-- Cutscene guard: do not `choose`, `vote`, `propose`, `ability` or `overdrive` while a pause reason
-  contains `Cutscene` (the bridge refuses). `click`, `rclick` and `hold` refuse too unless `--force`.
-  Skip the cutscene first. Clicking Council UI during the intro cutscene left it unresponsive (measured).
-- Vote and propose only inside the Council scene (`council.inParliament`). `InstructVote` outside it
-  locked all game input until a reload (measured).
-- Crash hazards (measured): UFunction calls whose struct or container params contain FText crash the game;
-  `call` and the mod's own invokes refuse them. Reading SoftObject properties crashes UE4SS; dumps skip
-  them. Never pass `unsafe=true` to bypass these. See [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md).
-- No cheats: no `TryChange*Stockpile`, no `PXCheat*`, no `set` on game state. New actions must go through
-  the game's validated paths (`Instruct*`, `Try*`/`Can*` with an ActionOrigin).
-- Never overwrite or delete the user's saves. `save` writes a new numbered file unless `override=true`
-  reuses a slot with the same display name; only override agent-named slots.
-- `fp2 reload` re-requires all Lua modules except `main.lua`, with no keys. `fp2 reload --full` sends
-  Ctrl+R for `main.lua` changes; in game R opens Research, so the CLI closes the Idea Tree afterward.
-- Stop a foreground `fp2 watch` before `bun run build`. `watch-start` runs a copy and does not block builds,
-  but run `watch-stop` then `watch-start` to pick up the new build.
-- One controller drives the UI at a time; a client lock serializes bridge calls.
-- Save (`fp2 save name=agent-... override=true`) before the first use of any new mutating command or new
-  reflective read, and before handing the live game to a subagent. Several crashes came from first calls.
+- Cutscene guard: `choose`, `vote`, `propose`, `ability`, `overdrive`, and `click`/`rclick`/`hold` without `--force`
+  refuse during a `Cutscene` pause reason. Skip it first: Council input during a cutscene froze the UI (measured).
+- Vote and propose only inside the Council scene (`council.inParliament`). `InstructVote` outside it locked all
+  game input until a reload (measured). Never pass `unsafe=true`.
+- No cheats: no `TryChange*Stockpile`, `PXCheat*`, `call` or `set` to change game state.
+- Never overwrite or delete the user's saves. Use `override=true` only on agent-named slots.
 - When a command has no visible effect, read `pauseReasons`, `cutscene`, `modals` and window focus before
-  repeating it. Repeated clicks delayed one diagnosis (measured).
-- Verify every change landed: never hide `fp2 reload` output (a broken reload went unnoticed for minutes,
-  measured); after editing Lua or TS, grep the anchor or run the command that exercises the new branch; a
-  `true` return proves neither effect nor persistence (measured: `LoadGame` from the main menu).
-- Shell: in Git Bash prefix `MSYS_NO_PATHCONV=1` before `fp2` calls with `/Game/...` paths; pass JSON args
-  single-quoted (`'args=["@ctx"]'`). Edit files with the Edit tool or a Python script file, not inline
-  heredocs with escapes. After one quoting failure, switch tools instead of retrying the same form.
+  repeating it. A `true` return proves neither effect nor persistence (measured).
 
-## Grow the mod as you play
+## Growing the bridge
 
-When you read a number from a screenshot, click through a menu repeatedly, or hit a UI wall, add an
-extractor or action. Read [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md) first, then check
-[MOD_GAPS.md](references/MOD_GAPS.md) for what is known missing.
+When a read or action is missing, switch to the `fp2-mod-dev` skill; its detour policy says whether to build it now.
+Log gaps in [MOD_GAPS.md](../fp2-mod-dev/references/MOD_GAPS.md). Reflection commands (`call`, `object`, `get`,
+`describe`, `find_all`, `search`) belong to that skill and its rules.
 
 ## References
 
-- [DATA_MAP.md](references/DATA_MAP.md): extractors, field meanings, units, ids. Read when interpreting state.
-- [GAMEPLAY.md](references/GAMEPLAY.md): economy rules and early priorities. Read before deciding builds.
-- [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md): mod layout, discovery commands, crash hazards. Read before editing Lua.
-- [MOD_GAPS.md](references/MOD_GAPS.md): uncovered features and measured caveats. Read before relying on Council or saves.
-- `research/fp2_functions.txt`, `research/ACTION_CANDIDATES.md`: callable game functions.
+- [DATA_MAP.md](references/DATA_MAP.md): extractors, turn events, fields, units, ids. Read to interpret state.
+- [GAMEPLAY.md](references/GAMEPLAY.md): economy and heat rules, stability check. Read before deciding builds.
+- [MOD_GAPS.md](../fp2-mod-dev/references/MOD_GAPS.md): uncovered features, measured Council and save caveats.

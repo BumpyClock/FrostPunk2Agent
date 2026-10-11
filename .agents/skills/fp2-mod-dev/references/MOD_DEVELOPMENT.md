@@ -105,8 +105,8 @@ not play (see the no-cheats rule in SKILL.md).
   `AK::WriteBytesMem::SetCount`, measured right after `PXOutpostUtils.GetAllOutposts` was called with a level
   path as `WorldContextObject`). `call` now always fills `WorldContextObject` with the PlayerController; pass
   `"@ctx"` as a placeholder.
-- Subagents doing read-only research share the live game: give them a save point first, and keep them to
-  `object`, `get`, `describe`, `find_all` and curated commands where possible.
+- Subagents share the live game. Two crashes came from subagents doing reflective calls (measured); keep them
+  to curated commands (see Subagents in SKILL.md).
 - `reflect.plain` on arbitrary asset containers is not SoftObject-guarded: plain-converting building-type
   properties crashed the game in `push_softobjectproperty` (measured). For asset data, walk maps with
   `ForEach` and keep only object keys and number or text values, or use `reflect.dump` (guarded).
@@ -114,12 +114,12 @@ not play (see the no-cheats rule in SKILL.md).
   strings to `FName` for Name params; in actions use `FName("...")` or an FName read from the game.
 - Hooks (`RegisterHook`) on `PXInstructionUtils` functions only see calls that go through script; the UI calls
   them natively (measured: no records during a UI district expansion).
-- Save before testing a new read on a live game. `fp2 save` then `fp2 advance ticks=10` flushes it.
+- Save before testing a new read on a live game: `fp2 save name=agent-<what> override=true`, then `fp2 saves`.
 - Game crash reports are in `%LOCALAPPDATA%\11bitstudios\Frostpunk2\Steam\Saved\Crashes\*\CrashContext.runtime-xml`
   (`<ErrorMessage>`, `<CallStack>`).
-- After a crash: `fp2 launch`, `fp2 keys enter` on the title screen, `fp2 load name=<save>` (uses
-  `ForceLoadGame` from the main menu; plain `LoadGame` returns true there and does nothing, measured),
-  `fp2 wait-ready`, `fp2 pause`, then `fp2 keys space` to close the loading screen.
+- After a crash: `fp2 recover [name=<save>]` launches the game, loads the save from the main menu, waits until
+  ready, closes the loading screen and pauses. Loading uses `ForceLoadGame`; plain `LoadGame` returns true from the
+  main menu and does nothing (measured).
 
 ## Verify
 

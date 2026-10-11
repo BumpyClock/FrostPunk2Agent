@@ -7,6 +7,18 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `fp2 turn [weeks=4] [stopOn=..] [speed=3] [saveEvery=2]`: the play primitive. Resumes time, stops at the first
+  stop event or after `weeks` in-game weeks, pauses, and returns `{turn, events, dropped, goals, brief}`. Events also
+  go to `.runtime/watch.jsonl`. Rolling save every `saveEvery` weeks.
+- `fp2 goals`, `goals add`, `goals done`, `goals edit`, `goals rm`: goal stack in `.runtime/goals.jsonl`, returned by
+  every `turn`.
+- `fp2 recover [name=..]`: relaunch if needed, load the newest agent-rolling or AutoSave (or `name`), wait until
+  ready, pause.
+- `fp2 wait-for cond=.. [timeout=20]`; `click`, `hold` and `keys` take `wait=<cond>`.
+- `--fields a.b,c[0].d` on any command prints only those paths.
+- `reload` errors include a `context` field.
+- Skill split: `.agents/skills/play-frostpunk2` (play) and `.agents/skills/fp2-mod-dev` (extending the bridge;
+  references hold `MOD_DEVELOPMENT.md` and `MOD_GAPS.md`).
 - `district_expansion` (levels, cells, cost, upgrade type) and `expand_district` (experimental; see MOD_GAPS),
   `instruction_hooks` / `instruction_log` for learning instruction arguments.
 - `call` converts strings to FName for Name params; `advance` waits through SavingGame pauses; watcher auto-ack
@@ -63,6 +75,7 @@ The project has no tagged releases yet.
 
 ### Changed
 
+- `pass-law` refuses without an open Council session unless `--force`.
 - Cutscene guard: `choose`, `vote`, `propose`, `ability` and `overdrive` refuse during a cutscene, and
   `click`, `rclick` and `hold` refuse unless `--force`.
 - The watcher ignores bark icons and does not auto-pause on `stock.recovered`.
@@ -75,5 +88,4 @@ The project has no tagged releases yet.
 
 ### Known issues
 
-- `fp2 pass-law` does not check for an open session before it starts.
 - `population.population` sums unassigned community sizes only and differs from the HUD total.

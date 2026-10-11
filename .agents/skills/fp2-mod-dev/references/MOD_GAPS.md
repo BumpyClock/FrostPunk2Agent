@@ -37,9 +37,10 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 
 ### Saves
 
-`save name=X` queues `PXSaveSubsystem.SaveGame`. The game writes a new incrementing file each time
-(`FrostPunk2SaveGame.sav`, `FrostPunk2SaveGame1.sav`, ...), never overwrites, and flushes only on the next
-game tick, so run `fp2 advance ticks=10` and check `fp2 saves`. `load name=X` resolves display names
+`save name=X` writes immediately through `PXSaveSubsystem.SaveGameImmediate` (from the code).
+Without `override=true` the game writes a new incrementing file each time (`FrostPunk2SaveGame.sav`,
+`FrostPunk2SaveGame1.sav`, ...); `override=true` reuses the slot with that display name. `queued=true` takes the
+old `SaveGame` path, which flushes only on the next game tick (measured). Check with `fp2 saves`. `load name=X` resolves display names
 through `DoesSaveGameExists`, not file names. Do not delete or overwrite the user's saves.
 
 ### Council
@@ -54,7 +55,7 @@ through `DoesSaveGameExists`, not file names. Do not delete or overwrite the use
   (`unsafe=true` overrides the scene check only).
 - `fp2 pass-law policy=<id>` runs `council-open`, `propose`, a 4 s wait, cutscene skip, `vote`, a 6 s wait,
   Escape (result screen), and a second Escape if still in the chamber. It reports `active` from
-  `council.activePolicies`. It needs an open session; it has no separate check for that.
+  `council.activePolicies`. It refuses without an open session unless `--force`.
 - `council-open` presses C and skips the chamber intro cutscene before returning. Council UI input during
   that cutscene left the UI unresponsive (measured).
 - Sessions reopened about 10 weeks after each vote (observed). The watcher emits

@@ -9,6 +9,9 @@ import { click, drag, move, scroll } from "./mouse";
 import { watch } from "./watch";
 import { join } from "node:path";
 import { repoRoot } from "./bridge";
+import { cutsceneReason, setPaused, setSpeed, sleep, time, userPaused, waitAlive, waitFor, waitReady } from "./game";
+import { addGoal, goalView, loadGoals, removeGoal, updateGoal } from "./goals";
+import { STOP_DEFAULT, turn } from "./turn";
 
 // Named crop regions as fractions of the client area (calibrated on a 21:9 maximized window).
 const REGIONS: Record<string, number[]> = {
@@ -18,7 +21,20 @@ const REGIONS: Record<string, number[]> = {
   center: [0.25, 0.2, 0.75, 0.8],
 };
 
-const HELP = `fp2 <subcommand> [key=value ...] [--compact] [--timeout S] [--args-file F|-]
+const HELP = `fp2 <subcommand> [key=value ...] [--compact] [--fields a.b,c[0].d] [--timeout S] [--args-file F|-]
+
+Play loop:
+  recover [name=X]       relaunch if the bridge is dead, load X or the newest agent-rolling/AutoSave from the
+                         main menu, wait until ready, pause; in a loaded game it only pauses
+  turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]
+                         resume, run until a stop event or weeks pass, pause; returns {turn, events, dropped,
+                         goals, brief}. Events also append to .runtime/watch.jsonl. Default stopOn: ${STOP_DEFAULT.join(",")}
+  goals                  open goals (all=true includes done); file .runtime/goals.jsonl, one JSON per line
+  goals add text=".." [horizon=long|short|check] [due=<week>] [expect=".."]
+  goals done id=N [note=".."] | goals edit id=N [text=..] [due=..] [expect=..] [horizon=..] | goals rm id=N
+  wait-for cond=<c> [timeout=20]
+                         c: modal | no-modal | council | no-council | cutscene | no-cutscene | paused | running |
+                         ready | reason:<substr> | no-reason:<substr>. click/hold/keys accept wait=<c>.
 
 Local subcommands:
   status                 heartbeat (no game-thread round trip)
@@ -50,13 +66,15 @@ Local subcommands:
   hold x,y [ms=1500]     press-and-hold (FP2 confirm buttons need a hold)
   move x,y | drag x,y x2,y2 | scroll x,y <ticks>   (scroll: + up / - down)
   focus [--max]          bring the game window to the foreground (needed before screenshots); --max maximizes
-  reload [--full]        re-require Lua modules in place (no keys); --full = UE4SS Ctrl+R reload (main.lua changes)
+  reload [--full]        re-require Lua modules in place (no keys); --full = UE4SS Ctrl+R reload (main.lua changes);
+                         a Lua error returns the failing file's lines as context
 
 Bridge subcommands (run inside the game; 'fp2 help' lists them):
   state, extract name=X, world, find_all, classes, modules, search, describe, object, get,
   components, call, set, ping, help
 
-Values parse as JSON when valid, else strings. Dotted keys nest: a.b=1 -> {"a":{"b":1}}.`;
+Values parse as JSON when valid, else strings. Dotted keys nest: a.b=1 -> {"a":{"b":1}}.
+--fields prints only the given paths: one path prints the value, several print {path: value}.`;
 
 const SAVE_DIR = join(process.env.LOCALAPPDATA ?? "", "11bitstudios", "Frostpunk2", "Steam", "Saved", "SaveGames");
 
@@ -94,7 +112,7 @@ function parse(argv: string[]): Parsed {
     const a = argv[i];
     if (a.startsWith("--")) {
       const name = a.slice(2);
-      if (["timeout", "args-file"].includes(name)) flags[name] = argv[++i];
+      if (["timeout", "args-file", "fields"].includes(name)) flags[name] = argv[++i];
       else flags[name] = true;
     } else if (a.includes("=")) {
       const eq = a.indexOf("=");
@@ -108,25 +126,22 @@ function parse(argv: string[]): Parsed {
 }
 
 let compact = false;
-const print = (v: unknown) => console.log(compact ? JSON.stringify(v) : JSON.stringify(v, null, 2));
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+let fields: string[] = [];
 
-type TimeInfo = { paused: boolean; pauseReasons?: string[]; speed?: string; gameTimeTicks?: number };
-const time = () => call<TimeInfo>("extract", { name: "time" });
-
-// "UserPaused" is the player's toggle; other reasons (modals, tutorial logs) clear themselves
-// when the UI closes, so they must not count as "paused by us".
-const userPaused = (t: TimeInfo) => (t.pauseReasons ?? []).includes("UserPaused");
-
-async function setPaused(want: boolean): Promise<TimeInfo> {
-  // Uses PXTimeUtils.SetPausedByPlayer through the bridge (no keystrokes, works unfocused).
-  await call(want ? "game.pause" : "game.resume");
-  const t = await time();
-  if (userPaused(t) !== want) throw new BridgeError(`pause state not applied (reasons=${(t.pauseReasons ?? []).join(",")})`);
-  const others = (t.pauseReasons ?? []).filter((r) => r !== "UserPaused");
-  if (!want && others.length) (t as any).warning = `still paused by UI: ${others.join(", ")}`;
-  return t;
+/** Resolve a dotted path like `cities[0].stock.Core_FoodResource` against a value. */
+function pick(v: unknown, path: string): unknown {
+  let node: any = v;
+  for (const part of path.match(/[^.[\]]+/g) ?? []) {
+    if (node == null) return undefined;
+    node = node[part];
+  }
+  return node;
 }
+
+const print = (v: unknown) => {
+  if (fields.length) v = fields.length === 1 ? pick(v, fields[0]) : Object.fromEntries(fields.map((f) => [f, pick(v, f)]));
+  console.log(compact ? JSON.stringify(v) : JSON.stringify(v, null, 2));
+};
 
 async function advance(ticks: number, timeoutMs: number) {
   const start = await time();
@@ -168,10 +183,8 @@ async function settleIntro(maxSteps = 12) {
   }
 }
 
-const cutsceneReason = (t: TimeInfo) => (t.pauseReasons ?? []).find((r) => /Cutscene/i.test(r));
-
 // Skip any running cutscene (hold E) until its pause reason clears.
-async function skipCutscenes(maxTries = 6): Promise<TimeInfo> {
+async function skipCutscenes(maxTries = 6) {
   let t = await time();
   for (let i = 0; i < maxTries && cutsceneReason(t); i++) {
     await sendKeys(["e@3000"], true);
@@ -198,10 +211,35 @@ async function councilOpen() {
   return { ...(await call<any>("council")), pauseReasons: (await time()).pauseReasons };
 }
 
+// A Lua load error names the file and line; attach the surrounding lines so the fix needs no second read.
+function luaErrorContext(message: string): { file: string; line: number; context: string[] } | undefined {
+  const m = message.match(/([\w-]+\.lua):(\d+):/);
+  if (!m) return undefined;
+  const path = join(repoRoot(), "mod", "FP2AgentBridge", "Scripts", m[1]);
+  try {
+    const lines = readFileSync(path, "utf8").split(/\r?\n/);
+    const n = Number(m[2]);
+    const from = Math.max(1, n - 3);
+    const to = Math.min(lines.length, n + 3);
+    const context: string[] = [];
+    for (let i = from; i <= to; i++) context.push(`${i === n ? ">" : " "}${i}: ${lines[i - 1]}`);
+    return { file: m[1], line: n, context };
+  } catch {
+    return undefined;
+  }
+}
+
 async function reload(full: boolean) {
   if (!full) {
     // Keyless: re-require all Lua modules except main.lua inside the running VM.
-    return call("bridge.reload");
+    try {
+      return await call("bridge.reload");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const ctx = luaErrorContext(msg);
+      if (!ctx) throw e;
+      throw new BridgeError(`${msg}\n${ctx.file}:${ctx.line}\n${ctx.context.join("\n")}`);
+    }
   }
   // Full UE4SS reload (needed only for main.lua changes). Ctrl+R also hits the game's R = Research
   // hotkey, so close the Idea Tree it opens.
@@ -220,9 +258,71 @@ async function reload(full: boolean) {
   throw new BridgeError("no reload observed within 15s; check ue4ss/UE4SS.log");
 }
 
+/** Start the game via Steam if it is not running (closing a leftover crash reporter first) and wait for the bridge. */
+async function launchGame(timeoutMs: number) {
+  Bun.spawnSync(["taskkill", "/IM", "CrashReportClient.exe", "/F"], { stdout: "ignore", stderr: "ignore" });
+  const running = Bun.spawnSync(["tasklist", "/FI", "IMAGENAME eq Frostpunk2-Win64-Shipping.exe"]).stdout.toString();
+  if (!running.includes("Frostpunk2-Win64-Shipping")) {
+    Bun.spawn(["C:/Program Files (x86)/Steam/steam.exe", "-applaunch", "1601580"], { stdout: "ignore", stderr: "ignore" });
+  }
+  return waitAlive(timeoutMs);
+}
+
+type SaveEntry = { file: string; display?: string; modified: string; bytes: number };
+async function listSaves(): Promise<SaveEntry[]> {
+  const { readdirSync, statSync } = await import("node:fs");
+  return readdirSync(SAVE_DIR)
+    .filter((f) => f.endsWith(".sav"))
+    .map((f) => ({ file: f.slice(0, -4), display: saveDisplayName(join(SAVE_DIR, f)), modified: statSync(join(SAVE_DIR, f)).mtime.toISOString(), bytes: statSync(join(SAVE_DIR, f)).size }))
+    .sort((a, b) => b.modified.localeCompare(a.modified));
+}
+
+/** Newest agent rolling save or game autosave (by file time); the name `load` takes. */
+async function newestRecoverySave(): Promise<string> {
+  const s = (await listSaves()).find((x) => /^agent-|^AutoSave/i.test(x.display ?? x.file));
+  if (!s) throw new BridgeError("no agent-* or AutoSave* save found; pass name=<save>");
+  return s.display ?? s.file;
+}
+
+// Session start and crash recovery in one call. Measured sequence from past recoveries: launch, Enter on the
+// title screen, ForceLoadGame from the main menu (retried: the save subsystem is not ready at once),
+// wait until a city exists, a key to close the loading screen, then the player pause.
+async function recover(name: string | undefined, timeoutMs: number) {
+  const steps: string[] = [];
+  const st = await readStatus();
+  if (!st.alive) {
+    await launchGame(timeoutMs);
+    steps.push("launched");
+    await sleep(3000);
+  }
+  const ready = await waitReady(5_000).then(() => true, () => false);
+  if (ready) {
+    const t = await setPaused(true);
+    return { recovered: false, reason: "already in a loaded game", steps, time: t, brief: await brief() };
+  }
+  const save = name ?? (await newestRecoverySave());
+  await sendKeys(["enter"], true); // "press any key" title screen (harmless in the menu)
+  steps.push("title dismissed");
+  const deadline = Date.now() + 60_000;
+  for (;;) {
+    const err = await call("load", { name: save }).then(() => undefined, (e) => String(e));
+    if (!err) break;
+    if (Date.now() > deadline) throw new BridgeError(`load ${save} failed: ${err}`);
+    await sleep(5000);
+  }
+  steps.push(`loading ${save}`);
+  await waitReady(timeoutMs);
+  await sendKeys(["space"], true); // closes the loading screen (measured)
+  await sleep(2000);
+  const t = await setPaused(true);
+  steps.push("ready, paused");
+  return { recovered: true, save, steps, time: t, brief: await brief() };
+}
+
 async function main(argv: string[]): Promise<number> {
   const { positional, args, flags } = parse(argv);
   compact = Boolean(flags.compact);
+  fields = String(flags.fields ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   const timeoutMs = flags.timeout ? Number(flags.timeout) * 1000 : 30_000;
   const [cmd, ...rest] = positional;
   if (!cmd || cmd === "-h" || flags.help) {
@@ -248,34 +348,74 @@ async function main(argv: string[]): Promise<number> {
       return 0;
     case "speed": {
       const n = rest[0] ?? String(args.level ?? "");
-      if (!["1", "2", "3"].includes(n)) throw new BridgeError("speed needs 1, 2 or 3");
-      await call("game.speed", { level: Number(n) - 1 });
+      await setSpeed(Number(n));
       print(await time());
       return 0;
     }
     case "advance":
       print(await advance(Number(args.ticks ?? 24000), flags.timeout ? timeoutMs : 600_000));
       return 0;
-    case "wait-ready": {
-      // Until the bridge is alive, gameplay has begun and a city exists (after load / new game).
-      const deadline = Date.now() + (flags.timeout ? timeoutMs : 180_000);
-      let last: unknown = null;
-      while (Date.now() < deadline) {
-        try {
-          const t = await time();
-          const cities = await call<any[]>("find_all", { class: "PXCityComponent", limit: 1 });
-          last = { gameplayBegan: (t as any).gameplayBegan, cities: (cities as any).total };
-          if ((t as any).gameplayBegan && (cities as any).total > 0) {
-            print({ ready: true, ...t });
-            return 0;
-          }
-        } catch (e) {
-          last = String(e);
-        }
-        await sleep(1000);
-      }
-      throw new BridgeError(`not ready: ${JSON.stringify(last)}`);
+    case "turn": {
+      const stopOn = new Set(args.stopOn ? String(args.stopOn).split(",").map((s: string) => s.trim()).filter(Boolean) : STOP_DEFAULT);
+      print(
+        await turn({
+          weeks: Number(args.weeks ?? 4),
+          stopOn,
+          speed: args.speed === undefined ? 3 : Number(args.speed),
+          saveEveryWeeks: Number(args.saveEvery ?? 2),
+          saveName: String(args.saveName ?? "agent-rolling"),
+          autoAck: String(args.autoAck ?? "true") === "true",
+          intervalMs: Number(args.interval ?? 1.5) * 1000,
+          timeoutMs: flags.timeout ? timeoutMs : 600_000,
+        }),
+      );
+      return 0;
     }
+    case "goals": {
+      const sub = rest[0] ?? "list";
+      const id = Number(args.id);
+      switch (sub) {
+        case "list": {
+          const d = await call<any>("date").catch(() => ({}));
+          const view = { week: d.week, ...goalView(d.week) };
+          print(args.all === true ? { ...view, all: loadGoals().goals } : view);
+          return 0;
+        }
+        case "add": {
+          const d = await call<any>("date").catch(() => ({}));
+          print(addGoal({ text: String(args.text ?? ""), horizon: args.horizon, due: args.due === undefined ? undefined : Number(args.due), expect: args.expect }, { week: d.week, date: d.date }));
+          return 0;
+        }
+        case "done": {
+          const d = await call<any>("date").catch(() => ({}));
+          print(updateGoal(id, { done: true, doneWeek: d.week, ...(args.note ? { note: String(args.note) } : {}) }));
+          return 0;
+        }
+        case "edit": {
+          const patch: Record<string, unknown> = {};
+          for (const k of ["text", "horizon", "expect", "note"]) if (args[k] !== undefined) patch[k] = String(args[k]);
+          if (args.due !== undefined) patch.due = Number(args.due);
+          if (args.done !== undefined) patch.done = args.done === true;
+          print(updateGoal(id, patch));
+          return 0;
+        }
+        case "rm":
+          print(removeGoal(id));
+          return 0;
+        default:
+          throw new BridgeError("goals [list|add|done|edit|rm]");
+      }
+    }
+    case "recover":
+      print(await recover(args.name === undefined ? undefined : String(args.name), flags.timeout ? timeoutMs : 240_000));
+      return 0;
+    case "wait-for":
+      print(await waitFor(String(args.cond ?? rest[0] ?? ""), Number(args.timeout ?? 20) * 1000));
+      return 0;
+    case "wait-ready":
+      // Until the bridge is alive, gameplay has begun and a city exists (after load / new game).
+      print({ ready: true, ...(await waitReady(flags.timeout ? timeoutMs : 180_000)) });
+      return 0;
     case "screenshot": {
       const name = new Date().toISOString().replace(/[:.]/g, "-");
       let region = args.region;
@@ -355,6 +495,14 @@ async function main(argv: string[]): Promise<number> {
       // Bridge-only Council flow: open (skip cutscene) -> propose -> vote -> dismiss result -> verify.
       const policy = String(args.policy ?? "");
       if (!policy) throw new BridgeError("policy required (see fp2 laws)");
+      const c0 = await call<any>("council");
+      const sessionOpen = c0.phase === 1 || (c0.minTicksToNextSession ?? 1) <= 0;
+      if (!sessionOpen && !flags.force) throw new BridgeError(`no open Council session (phase ${c0.phase}, minTicksToNextSession ${c0.minTicksToNextSession}); wait for council.sessionAvailable.changed or pass --force`);
+      // Resolve the policy before opening the Council, so a typo does not leave the chamber open.
+      const laws = await call<any[]>("laws");
+      const needle = policy.toLowerCase();
+      const match = (Array.isArray(laws) ? laws : []).find((l) => [l.id, l.law, l.name].some((x) => typeof x === "string" && x.toLowerCase().includes(needle)));
+      if (!match) throw new BridgeError(`no proposable law matching '${policy}' (see fp2 laws)`);
       // Leaving the Council clears the player pause; restore it if we started paused.
       const wasPaused = userPaused(await time());
       await councilOpen();
@@ -383,8 +531,10 @@ async function main(argv: string[]): Promise<number> {
         if (cs) throw new BridgeError(`${cmd} blocked: cutscene active (${cs}); skip it (fp2 keys e@3000) or pass --force`);
       }
       const pt = String(rest[0] ?? "").split(",").map(Number);
-      if (pt.length !== 2 || pt.some(Number.isNaN)) throw new BridgeError(`${cmd} needs x,y`);
-      print(await click(pt, { right: cmd === "rclick", holdMs: cmd === "hold" ? Number(args.ms ?? 1500) : undefined, double: Boolean(flags.double) }));
+      if (pt.length !== 2 || pt.some(Number.isNaN)) throw new BridgeError(`${cmd} needs x,y (pixels, or 0..1 fractions)`);
+      const res: any = await click(pt, { right: cmd === "rclick", holdMs: cmd === "hold" ? Number(args.ms ?? 1500) : undefined, double: Boolean(flags.double) });
+      if (args.wait) res.waited = await waitFor(String(args.wait), Number(args.timeout ?? 20) * 1000);
+      print(res);
       return 0;
     }
     case "move":
@@ -396,16 +546,10 @@ async function main(argv: string[]): Promise<number> {
     case "scroll":
       print(await scroll(String(rest[0]).split(",").map(Number), Number(rest[1] ?? args.ticks ?? 1)));
       return 0;
-    case "saves": {
+    case "saves":
       // Disk listing (works without the game); newest first. `display` is the name `load` takes.
-      const { readdirSync, statSync } = await import("node:fs");
-      const list = readdirSync(SAVE_DIR)
-        .filter((f) => f.endsWith(".sav"))
-        .map((f) => ({ file: f.slice(0, -4), display: saveDisplayName(join(SAVE_DIR, f)), modified: statSync(join(SAVE_DIR, f)).mtime.toISOString(), bytes: statSync(join(SAVE_DIR, f)).size }))
-        .sort((a, b) => b.modified.localeCompare(a.modified));
-      print({ dir: SAVE_DIR, saves: list.slice(0, Number(args.limit ?? 20)) });
+      print({ dir: SAVE_DIR, saves: (await listSaves()).slice(0, Number(args.limit ?? 20)) });
       return 0;
-    }
     case "load": {
       // Accepts a display name or a file name (FrostPunk2SaveGame9); the game loads by display name.
       const { existsSync } = await import("node:fs");
@@ -415,24 +559,9 @@ async function main(argv: string[]): Promise<number> {
       print(await call("load", { ...args, name: display }));
       return 0;
     }
-    case "launch": {
-      // Close a leftover crash reporter (it blocks relaunch), start via Steam, wait for the bridge.
-      Bun.spawnSync(["taskkill", "/IM", "CrashReportClient.exe", "/F"], { stdout: "ignore", stderr: "ignore" });
-      const running = Bun.spawnSync(["tasklist", "/FI", "IMAGENAME eq Frostpunk2-Win64-Shipping.exe"]).stdout.toString();
-      if (!running.includes("Frostpunk2-Win64-Shipping")) {
-        Bun.spawn(["C:/Program Files (x86)/Steam/steam.exe", "-applaunch", "1601580"], { stdout: "ignore", stderr: "ignore" });
-      }
-      const deadline = Date.now() + (flags.timeout ? timeoutMs : 240_000);
-      while (Date.now() < deadline) {
-        const st = await readStatus();
-        if (st.alive) {
-          print({ launched: true, bridge: st });
-          return 0;
-        }
-        await sleep(2000);
-      }
-      throw new BridgeError("game/bridge did not come up in time");
-    }
+    case "launch":
+      print({ launched: true, bridge: await launchGame(flags.timeout ? timeoutMs : 240_000) });
+      return 0;
     case "new-game": {
       // Main menu -> Utopia Builder (no tales) -> first 3 communities + first faction -> Windswept Peaks
       // -> Start -> intro hold-confirm -> cutscene skip. Coordinates are client fractions measured on a
@@ -473,10 +602,13 @@ async function main(argv: string[]): Promise<number> {
       print({ started: true, time: t, brief: await brief() });
       return 0;
     }
-    case "keys":
+    case "keys": {
       await sendKeys(rest, Boolean(flags["keep-focus"]));
-      print({ sent: rest });
+      const res: any = { sent: rest };
+      if (args.wait) res.waited = await waitFor(String(args.wait), Number(args.timeout ?? 20) * 1000);
+      print(res);
       return 0;
+    }
     case "focus":
       await focusGame(Boolean(flags.max));
       print({ focused: true });
