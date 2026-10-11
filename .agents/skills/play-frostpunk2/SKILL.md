@@ -5,123 +5,189 @@ description: Play Frostpunk 2 through the FP2AgentBridge UE4SS mod and the `fp2`
 
 # Play Frostpunk 2
 
-Frostpunk 2 is a city-survival builder. Keep the city warm, fed, housed and supplied;
-expand districts onto deposits; research ideas; pass laws in the Council while factions
-pull the city apart. Losing: Trust or Tension collapse, or people freeze/starve.
+Frostpunk 2 is a city-survival builder. Keep the city warm, fed, housed and supplied, expand districts
+onto deposits, research ideas, and pass laws in the Council while factions pull the city apart.
+You lose when Trust or Tension collapses, or when people freeze or starve.
 
-Goal: keep the city alive and growing with deliberate, explained decisions.
+Goal: keep the city alive and growing, with decisions you can explain. Use the bridge for state and
+actions. Use screenshots and input only where the bridge has no command.
 
-## One CLI
-
-Everything goes through `./fp2.exe` (repo root; source `cli/`, rebuild with
-`cd cli; bun run build`). `./fp2.exe -h` lists subcommands. Prefer it over computer use:
-
-| Need | Command |
-|---|---|
-| Is the mod alive? | `fp2 status` |
-| Everything on screen, one call | `fp2 snapshot` (HUD, needs, stats, society, construction, research, council, quests, icons, dialogs, districts) |
-| React to changes | `fp2 watch interval=2 pauseOn=critical` under a Monitor tool: one JSON line per meaningful change |
-| What should I fix? | `fp2 brief` (alerts + deficits + depleting stocks) |
-| Exact numbers | `fp2 state`, `fp2 extract name=resources|needs|statistics|population|time|deposits|districts` |
-| Pause / resume / speed | `fp2 pause`, `fp2 resume`, `fp2 speed 1..3` (verified via `UserPaused` reason) |
-| Let time pass | `fp2 advance ticks=1680` (1 week); stops early when a modal/event pauses |
-| See the screen | `fp2 screenshot [region=hud|objectives|bottom|center|x0,y0,x1,y1] [scale=0.5]` → PNG path; Read it |
-| Click / hold / drag | `fp2 click x,y`, `fp2 hold x,y ms=2000`, `fp2 rclick`, `fp2 drag`, `fp2 scroll x,y ±n`, `fp2 move` |
-| Keys | `fp2 keys escape`, `fp2 keys space@3000` (hold 3 s) |
-| Camera | `fp2 camera ref=<object>` · `fp2 camera x=.. y=..` · `fp2 camera reset=true` |
-| Where is X on screen? | `fp2 locate ref=<object>` → world location + client pixel |
-| After editing Lua | `fp2 reload` |
-| Start / recover the game | `fp2 launch` (closes a stuck crash reporter, starts via Steam, waits for bridge) |
-| Load / save | `fp2 saves` (disk list), `fp2 load name=..`, `fp2 save name=..` (see caveat in MOD_GAPS) |
-| Popups & decisions | `fp2 modals` (title/description/decision), `fp2 choose index=N` |
-
-### Game actions (bridge → the game's own command layer, Leader action origin)
-
-All mutations validate through the game and charge normal costs; most accept `dryRun=true`.
-
-| Action | Command |
-|---|---|
-| Free cells / deposits | `fp2 cells free=true`, `fp2 cells deposit=soil`, `fp2 extract name=deposits type=logistics` |
-| Pick a placement | `fp2 pick_cells count=6 [deposit=soil]` → `{cells:[...]}` (connected, next to the city) |
-| Build a district | `fp2 district_types` → `fp2 place_district type=Housing 'cells=[..6..]' [dryRun=true]` |
-| Frostbreak | `fp2 pick_cells count=8 frozen=true nearX=.. nearY=..` → `fp2 expand 'cells=[..8..]'` |
-| Buildings | `fp2 building_types [district=Housing]` → `fp2 place_building type=H_ResearchInstitute [district=Housing]` |
-| Districts overview | `fp2 districts` |
-| Research | `fp2 research`, `fp2 research_topics`, `fp2 research_start topic=<id> [community=<type>]` (community decides the outcome variant) |
-| Construction progress | `fp2 extract name=construction` (also in `brief`) |
-| Time | `fp2 date`, `fp2 game.pause`, `fp2 game.resume`, `fp2 game.speed level=0..2` |
-| Abilities | `fp2 abilities` → `fp2 ability owner=Production id=Toggle_IndustrialPrefabsProduction active=true` (Instruct path) |
-| Generator | `fp2 generator`, `fp2 overdrive active=true|false` |
-| Quests / map icons | `fp2 extract name=quests`, `fp2 extract name=icons` (both in `state`) |
-| Event dialogs | `fp2 modals` → `fp2 choose index=N` (resolves the decision through the game) |
-| Council | `fp2 council`, `fp2 laws`, `fp2 council-open`; vote with `fp2 vote policy=..` only inside the Council after proposing |
-| Hotkeys | `fp2 keybinds contains=..` (Council C, Research R, Frostland V, Districts B, Frostbreak X, Buildings N) |
-| New game | `fp2 new-game` (from the main menu; resolves intro dialogs, pauses) |
-
-Pass arrays in PowerShell as single-quoted `'cells=[1,2,3]'`.
-
-### Council (measured working flow, bridge-only)
-
-1. `fp2 laws` → pick a policy with high `seats.For` and zero `Against` (the game predicts the same split).
-2. When `fp2 council` shows phase 1 (Agenda; the watcher emits `council.sessionAvailable.changed`):
-   `fp2 pass-law policy=<id>` → council-open (key C + cutscene skip) → `propose` (RequestSession) →
-   `vote` (InstructVote) → Escape on the result → returns `{vote, active}`.
-3. Sessions reopen ~10 weeks after each vote.
-
-Never act while a cutscene plays: `choose`/`vote`/`propose`, `click` and `hold` refuse while a `Cutscene` pause
-reason is active (override with `--force`). Bridge `propose`/`vote` are guarded/experimental (see MOD_GAPS).
-Research needs a Research Institute (Housing district building); without it `ResearchSpeedMultiplier` is 0.
-
-Coordinates are **game client pixels** at full resolution (a `scale=0.5` screenshot pixel ×2).
-Fractions `0..1` also work. `locate` returns the same pixel space, so
-`fp2 click <locate.screen.x>,<locate.screen.y>` clicks an object directly.
-
-Use computer-use tools only when the CLI cannot do something (e.g. a dialog that refuses
-synthetic input). Grant `frostpunk2-win64-shipping.exe` if you need it.
-
-## UI facts learned the hard way
-
-- Many confirm buttons need **press-and-hold** (`fp2 hold x,y ms=2000`). Skip cutscenes with `fp2 keys e@3000`
-  (holding Space skips too but also toggles pause).
-- New game from the main menu: Utopia Builder → Next (tales optional) → click 3 communities + a faction →
-  Next → map → Next → Start; then hold the intro confirm and skip the cutscene. Everything after that is bridge-driven.
-- District placement: Districts menu (bottom-right first icon, `B`), pick type, click 6 adjacent hex tiles,
-  then click the ✓ that appears. `time.pauseReasons` shows `DistrictPainting` while in placement mode.
-- Hatched terrain is frozen: "Frostbreak this area first". Extraction/Logistics districts must start on a deposit
-  (`fp2 extract name=deposits type=logistics`).
-- Mouse near window edges pans the camera; re-center with `fp2 camera ref=first:BP_BaseCity_C`.
-- The game stops rendering while unfocused; `screenshot`/`click` focus it first (no ALT tap when already focused —
-  held ALT shows the economy overlay).
-- Screenshots occasionally come back as a flat dark frame right after an action; the CLI retries (field `blank`).
+All commands go through `./fp2.exe` at the repo root (source in `cli/`; `fp2 -h` lists subcommands).
+Run it from PowerShell: Git Bash rewrites `/Script/...` arguments into Windows paths. Quote arrays:
+`'cells=[1,2,3]'`.
 
 ## Session start
 
-1. `fp2 status`. `alive:false` → game not running or mod not loaded. Install with
-   `./scripts/Install-Bridge.ps1` (game closed). Launch: `Start-Process steam://rungameid/1601580`.
-2. `fp2 wait-ready` after loading a save / starting a game.
-3. `fp2 pause`, then `fp2 brief`. Read [DATA_MAP.md](references/DATA_MAP.md) for meaning and units.
+1. `fp2 status`. `alive:false` means the game is not running or the mod did not load.
+   Launch with `fp2 launch`. Install with `./scripts/Install-Bridge.ps1` (game closed).
+2. `fp2 wait-ready` after launching, loading a save, or starting a game.
+3. `fp2 pause`, then `fp2 watch-start` (see Play loop), then `fp2 brief`.
+4. Read [DATA_MAP.md](references/DATA_MAP.md) for field meanings and units.
 
 ## Play loop
 
-1. **Pause.** `fp2 brief`.
-2. **Triage** worst first: negative need balances, stock `change` that empties a stockpile soon,
-   statistics whose `target` is high (Cold, Hunger, Tension, Sickliness, Crime, Squalor), homeless > 0.
-3. **Decide** one or two actions (see [GAMEPLAY.md](references/GAMEPLAY.md)).
-4. **Act**: prefer bridge action commands; else `screenshot` → `click`/`hold`.
-5. **Verify** with the mod (supply/demand, needs, construction).
-6. `fp2 advance ticks=1680`; handle whatever `stoppedBy` reports; repeat.
-7. Journal decisions/outcomes in `gameplay/<date>/log.md`.
+Run a detached watcher and react to its events instead of polling.
+
+1. `fp2 watch-start` starts a hidden watcher that appends one JSON line per meaningful change to
+   `.runtime/watch.jsonl` (errors go to `watch.jsonl.err`). It prints the tail command.
+   Start a Monitor on it: `tail -n0 -F ".runtime/watch.jsonl"`.
+2. `fp2 advance ticks=1680` resumes time for one week. It ends paused, prints a brief, and stops early
+   when a modal or event pauses the game (`stoppedBy`). The default is 24000 ticks.
+3. When an event arrives, pause if needed, then act on the cause (table below).
+4. Verify the effect with `fp2 brief` or `fp2 snapshot`, then continue.
+5. `fp2 watch-stop` ends the watcher.
+
+The watcher auto-pauses the game on the kinds in `pauseOn` unless the player already paused. Defaults for
+`watch-start`: `dialog.opened,need.deficit,stock.runway,research.finished,construction.finished`.
+Override with `pauseOn=critical` (a preset: those plus `stat.rising`, `ui.cutscene.changed`,
+`council.sessionAvailable.changed`) or a comma list of kinds. `fp2 watch` (foreground, no auto-pause by
+default) takes the same arguments; run it only under a Monitor.
+
+Each line has `at`, `date`, `week`, `kind`, `detail`.
+
+| Event kind | Meaning | Reaction |
+|---|---|---|
+| `dialog.opened` / `dialog.closed` | Modal or decision; `detail` has title, description, choices | `fp2 modals`, decide, `fp2 choose index=N` |
+| `need.deficit` / `need.ok` | A need balance went below or back to 0 | Heating: see GAMEPLAY.md |
+| `stock.runway` / `stock.recovered` | Stock runway crossed 20, 10, 5 or 2 weeks (`recovered` never auto-pauses) | Fix the supply of that resource |
+| `stat.rising` / `stat.falling` | A statistic crossed a 10-point band; `detail` has current and target | Treat Cold, Hunger, Tension, Sickliness, Crime, Squalor |
+| `trust.up/down`, `standing.up/down` | Total trust or community standing crossed a 10-point band | Check `fp2 council` and `fp2 laws` |
+| `construction.started/state/finished`, `research.started/finished` | Work began, changed or ended | Queue the next build or topic |
+| `quest.progress` | Quest objective progress changed | Check `snapshot.quests` |
+| `icons.changed` | Count of a map tracker kind changed (Bark icons ignored) | `extract name=icons`, `open_icon` |
+| `council.sessionAvailable.changed`, `council.phase.changed`, `council.agenda.changed` | Council session opened or changed | See Council |
+| `ui.cutscene.changed`, `ui.pauseReasons.changed` | A cutscene or pause reason appeared or cleared | Do not click or choose during a cutscene |
+| `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
+| `watch.started`, `watch.autopaused`, `bridge.error` | Watcher status | `bridge.error`: `fp2 status` |
+
+## Commands
+
+Mutating commands validate through the game, charge normal costs, and use the Leader action origin.
+Most accept `dryRun=true`.
+
+### Reads
+
+| Need | Command |
+|---|---|
+| Mod alive | `fp2 status` (heartbeat only) |
+| Whole HUD in one call | `fp2 snapshot`: date, pauseReasons, cutscene, resources, needs, statistics, population, society, construction, quests, icons, modals, research, council, generator, districts |
+| Triage | `fp2 brief`: alerts, need deficits, depleting stocks, modals, construction |
+| Raw extractors | `fp2 state` (all `inState` extractors), `fp2 extract name=<x>` (omit `name` to list), `names=[..]` |
+| Clock | `fp2 date` |
+| Free cells, deposits | `fp2 cells free=true [deposit=soil] [nearX=.. nearY=..]`, `fp2 extract name=deposits type=logistics` |
+| Districts, buildings | `fp2 districts`, `fp2 district_types`, `fp2 building_types [district=Housing]` |
+| Research | `fp2 research`, `fp2 research_topics` |
+| Abilities, generator, heat | `fp2 abilities`, `fp2 generator`, `fp2 heat` |
+| Council | `fp2 council`, `fp2 laws` |
+| Dialogs | `fp2 modals` |
+| Saves | `fp2 saves [limit=20]` (disk listing, newest first) |
+| Hotkeys | `fp2 keybinds contains=..`. Measured: Council C, Research R, Frostland V, Districts B |
+
+### Actions
+
+| Action | Command |
+|---|---|
+| Pick a placement | `fp2 pick_cells count=6 [deposit=soil]` returns connected cells next to the city |
+| Build a district | `fp2 place_district type=Housing 'cells=[..6..]' [dryRun=true]` |
+| Frostbreak | `fp2 pick_cells count=8 frozen=true [nearX=.. nearY=..]`, then `fp2 expand 'cells=[..8..]' [type=..]`; `fp2 expanders` lists types |
+| Build a building | `fp2 place_building type=H_ResearchInstitute [district=Housing]` |
+| Start research | `fp2 research_start topic=<id> [community=<type>]` (the community picks the outcome variant) |
+| Answer a dialog | `fp2 choose index=N` |
+| Open a map icon's event | `fp2 open_icon ref=<icon ref from extract name=icons>` |
+| Toggle an ability | `fp2 ability owner=Production id=Toggle_IndustrialPrefabsProduction active=true` |
+| Generator overdrive | `fp2 overdrive active=true\|false` |
+| Distribute leftover heat | `fp2 heat_distribute`; `fp2 heat_auto active=true\|false` toggles automatic allocation |
+
+### Time
+
+| Need | Command |
+|---|---|
+| Pause, resume | `fp2 pause`, `fp2 resume` (verified through the `UserPaused` reason; modals may still pause) |
+| Speed | `fp2 speed 1\|2\|3` |
+| Let time pass | `fp2 advance [ticks=N]` (1680 ticks = 1 week) |
+
+### Council
+
+Read `fp2 council` (`phase`, `agendaPolicy`, `seats`, `minTicksToNextSession`, `activePolicies`) and
+`fp2 laws` (per-faction support and `seats` For/Against/Hesitant per policy). Pick a policy with many
+seats For and none Against; the game predicts the same split.
+
+Pass a law when `fp2 council` shows an open session (`phase` 1, Agenda; the watcher emits
+`council.sessionAvailable.changed`): `fp2 pass-law policy=<id>`. It runs `council-open` (key C, then skips
+the chamber cutscene), `propose` (RequestSession), `vote` (InstructVote), presses Escape on the result
+screen, and returns `{policy, vote, active, phase, inParliament}`. Check `active`. Sessions reopened about
+10 weeks after each vote (observed).
+
+`propose` and `vote` also exist as bridge commands. Both refuse unless the Council scene is open
+(`inParliament`) and no cutscene plays; `unsafe=true` bypasses the scene check and risks locked input.
+Measurements are in [MOD_GAPS.md](references/MOD_GAPS.md). Research needs a Research Institute (a Housing building); previously observed: research speed is 0 without one (`fp2 research` shows `speed`).
+
+### Saves, launch, new game
+
+| Need | Command |
+|---|---|
+| Start or recover the game | `fp2 launch` (closes a stuck crash reporter, starts via Steam, waits for the bridge) |
+| New game from the main menu | `fp2 new-game` (Utopia Builder, Windswept Peaks, first 3 communities, intro skipped, paused) |
+| Save | `fp2 save name=X`, then `fp2 advance ticks=10` to flush |
+| Load | `fp2 load name=X` (main menu or in game), then `fp2 wait-ready` |
+
+### UI fallback
+
+Use these only when the bridge has no command.
+
+| Need | Command |
+|---|---|
+| Screenshot | `fp2 screenshot [region=hud\|objectives\|bottom\|center\|x0,y0,x1,y1] [scale=0.5] [out=path]`; prints a PNG path to Read |
+| Click, hold, drag | `fp2 click x,y [--double]`, `fp2 rclick x,y`, `fp2 hold x,y ms=2000`, `fp2 drag x,y x2,y2`, `fp2 scroll x,y ±n`, `fp2 move x,y` |
+| Keys | `fp2 keys escape`, `fp2 keys ctrl+r`, `fp2 keys e@3000` (hold 3 s); `--keep-focus` stays in the game |
+| Camera | `fp2 camera ref=<object>`, `fp2 camera x=.. y=..`, `fp2 camera reset=true` |
+| Object to pixel | `fp2 locate ref=<object>` returns world location and client pixel |
+| Focus window | `fp2 focus [--max]` |
+
+Coordinates are game client pixels at full resolution (multiply a `scale=0.5` screenshot pixel by 2).
+Fractions 0 to 1 also work. `locate` uses the same pixel space, so `fp2 click <x>,<y>` clicks an object.
+
+UI facts (measured):
+
+- Many confirm buttons need press-and-hold: `fp2 hold x,y ms=2000`.
+- Skip cutscenes by holding E: `fp2 keys e@3000`. Holding Space also skips but toggles pause.
+- District placement in the UI: Districts menu (`B`), pick a type, click 6 adjacent hex tiles, click the
+  check mark. `time.pauseReasons` shows `DistrictPainting` in placement mode. Prefer `place_district`.
+- Hatched terrain is frozen; frostbreak it first. Extraction and Logistics districts must start on a deposit.
+- Mouse near the window edge pans the camera. Re-center with `fp2 camera ref=first:BP_BaseCity_C`.
+- The game stops rendering when unfocused. `screenshot`, `click` and `keys` focus it first. Do not tap Alt
+  while the game is focused: held Alt shows the economy overlay.
+- A screenshot can come back as a flat dark frame after an action. The CLI retries and sets `blank`.
+
+## Safety rules
+
+- Cutscene guard: do not `choose`, `vote`, `propose`, `ability` or `overdrive` while a pause reason
+  contains `Cutscene` (the bridge refuses). `click`, `rclick` and `hold` refuse too unless `--force`.
+  Skip the cutscene first. Clicking Council UI during the intro cutscene left it unresponsive (measured).
+- Vote and propose only inside the Council scene (`council.inParliament`). `InstructVote` outside it
+  locked all game input until a reload (measured).
+- Crash hazards (measured): UFunction calls whose struct or container params contain FText crash the game;
+  `call` and the mod's own invokes refuse them. Reading SoftObject properties crashes UE4SS; dumps skip
+  them. Never pass `unsafe=true` to bypass these. See [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md).
+- No cheats: no `TryChange*Stockpile`, no `PXCheat*`, no `set` on game state. New actions must go through
+  the game's validated paths (`Instruct*`, `Try*`/`Can*` with an ActionOrigin).
+- Never overwrite or delete the user's saves. `save` always writes a new numbered file.
+- `fp2 reload` re-requires all Lua modules except `main.lua`, with no keys. `fp2 reload --full` sends
+  Ctrl+R for `main.lua` changes; in game R opens Research, so the CLI closes the Idea Tree afterward.
+- Stop a foreground `fp2 watch` before `bun run build`. `watch-start` runs a copy and does not block builds,
+  but run `watch-stop` then `watch-start` to pick up the new build.
+- One controller drives the UI at a time; a client lock serializes bridge calls.
 
 ## Grow the mod as you play
 
-Whenever you read a number from a screenshot, click through a menu repeatedly, or hit a
-UI wall, add an extractor or action command. See [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md);
-known gaps in [MOD_GAPS.md](references/MOD_GAPS.md); callable game functions in
-`research/fp2_functions.txt` and `research/ACTION_CANDIDATES.md`.
+When you read a number from a screenshot, click through a menu repeatedly, or hit a UI wall, add an
+extractor or action. Read [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md) first, then check
+[MOD_GAPS.md](references/MOD_GAPS.md) for what is known missing.
 
-## Rules
+## References
 
-- No cheating: no stockpile edits (`TryChange*Stockpile`), no `PXCheat*`, no `set` on game state.
-  Action commands must go through the game's own validated paths (Try*/Can* + ActionOrigin).
-- Do not overwrite or delete the user's saves.
-- One controller drives the UI at a time; the client lock serializes bridge calls.
+- [DATA_MAP.md](references/DATA_MAP.md): extractors, field meanings, units, ids. Read when interpreting state.
+- [GAMEPLAY.md](references/GAMEPLAY.md): economy rules and early priorities. Read before deciding builds.
+- [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md): mod layout, discovery commands, crash hazards. Read before editing Lua.
+- [MOD_GAPS.md](references/MOD_GAPS.md): uncovered features and measured caveats. Read before relying on Council or saves.
+- `research/fp2_functions.txt`, `research/ACTION_CANDIDATES.md`: callable game functions.
