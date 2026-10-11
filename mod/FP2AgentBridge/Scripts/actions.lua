@@ -1059,6 +1059,15 @@ function A.abilities(args)
         pcall(function()
             for _, ab in ipairs(objList(au:GetActorVisibleAbilities(ctx(), a.actor))) do
                 local e = { id = assetId(ab) }
+                if args.describe then
+                    e.ref = reflect.path(ab)
+                    for _, f in ipairs({ "IngameName", "Name", "DisplayName" }) do
+                        if not e.name then pcall(function() e.name = textOf(ab[f]) end) end
+                    end
+                    for _, f in ipairs({ "Description", "GameplayDescription", "CustomGameplayEffect" }) do
+                        if not e.description then pcall(function() e.description = textOf(ab[f]) end) end
+                    end
+                end
                 pcall(function() e.active = au:IsActorAbilityActive(ctx(), a.actor, ab) end)
                 pcall(function() e.everUsed = au:WasAbilityEverUsedInActor(a.actor, ab) end)
                 list[#list + 1] = e

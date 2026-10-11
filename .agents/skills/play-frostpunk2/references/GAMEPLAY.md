@@ -39,6 +39,10 @@ Frostpunk 2 knowledge; verify before relying on it.
   coal use. (observed)
 - Cold deaths came in waves about every 11 weeks while Shelter was in deficit (58 deaths per wave). Fix the
   Shelter deficit; `deaths.increased` in the watcher reports each wave. (observed; cause inferred)
+- A generator upgrade building can change the generator mode without raising `powerLimit` (observed:
+  Symbiosis Lvl1 kept 750). It also exposes City Support abilities (`fp2 abilities describe=true`): Food
+  Production, Housing (+1 temperature level), Heavy Industry. Food Production raised food by about 8/day with no
+  power change (observed).
 - If the generator is at its power limit, distribution does not help. Check `fp2 generator`
   (`power`, `powerLimit`, `capacityPct`, `overdriveSupported`, `canOverdrive`) and fuel stock. (general)
 

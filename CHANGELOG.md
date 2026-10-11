@@ -7,6 +7,8 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `abilities describe=true` returns each ability's in-game name and description.
+- `place_building district=` accepts labels from `districts` (for example `MainQuarter#0`).
 - `frost_sites`: Frostland outposts (settlement upgrade chain) and colony sites with territory and state.
 - `call` fills `WorldContextObject` with the PlayerController (`"@ctx"` placeholder) after a guessed context crashed the game.
 - Tech tree planning: `research_topics all=true` describes locked topics (outcomes, requirement trees,
