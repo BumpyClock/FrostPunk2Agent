@@ -6,6 +6,13 @@ label (measured / inferred / guessed), and what to do differently. Durable rules
 
 ## Gameplay
 
+- 2026-10-11, wk 300-304: `change` for prefabs and heatstamps is per WEEK, for coal, food and materials per DAY
+  (measured: prefabs 97 -> 120 in one week at "+23"; coal 68.7K -> 80.8K in 3 weeks at "+576"). Prefabs were the
+  real bottleneck for every build plan; I had planned at 7x the true rate. Switching Production#10 from goods to
+  prefabs took prefabs +10 -> +23/wk and Possession -69 -> -109 (measured).
+- wk 304: the sawmill's wood ran out and materials went -8 -> -515/day (measured). The `deposit.depleting` warnings
+  started at 20 weeks; I queued the replacement behind food and prefabs. With prefabs at +23/wk, a 190-prefab
+  replacement needs 8+ weeks of lead: start it at the 20-week warning.
 - 2026-10-11, wk 264-277: Housing districts hold one building; the promised hospital needed a new Housing district
   (200 prefabs, 4 wk) because `expand_district` silently did nothing (measured). Promise kept at wk 270: "Trust rises".
   Heat Utilisation research cut generator load (97.5% at the level-3 drop -> 82% after it plus the second mine; mixed,

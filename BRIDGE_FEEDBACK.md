@@ -35,3 +35,22 @@ maintainer reads this between sessions, fixes the bridge, and removes handled en
 - Tried: `fp2 expand_district district=Housing#1|#4|#9 'cells=[47,72,61]'` (cells free, unfrozen, contiguous 47-61-72, next to the Housing cluster that `pick_cells` names as Housing#4; measured). Each returned the level info with `underExpansionNow` false and `queuedCells` 0; no construction appeared in `brief` (measured). No error or reason given; `dryRun=true` gave the same output, so it does not check adjacency or affordability.
 - Workaround: placed a new Housing district (200 prefabs, 4 wk) instead of a 50-prefab upgrade.
 - Cost: ~150 prefabs and 2 extra weeks on a promise clock.
+- wk 290 update: same silent no-op on `expand_district district=Extraction#19 'cells=[466,476,501]'` with all three cells thawed and next to the district (measured). Workaround: a new 5-cell district (`place_district` accepted 5 cells).
+
+## 2026-10-11 wk 291 | frost_sites / explorations | gap
+- Wanted: what Randall's Flats gave after exploration (listed `possibleResources` People, Cores, Prefabs; `sites` 3), to get a Core for the Deep Melting Drill.
+- Tried: `fp2 explorations name=Randall` -> state explored, sites 3 (measured). `fp2 frost_sites territory=Randall` and `territory=Flats` list no site in Randall's Flats (the `Flats` match was Deathway Flats) (measured). `extract name=resources` CoresResource 0. `fp2 keys v keepFocus=true` then `fp2 screenshot`: still the city view (measured; the same V failure as wk 246).
+- Workaround: none; sent the teams to Kneeache Climbs.
+- Cost: cannot tell whether Randall's sites need an action (a cache, ruins, a settlement) or hold nothing; ~17 weeks of expedition may be wasted.
+
+## 2026-10-11 wk 295 | explore | gap
+- Wanted: to know why an expedition stopped and how many Frostland teams it needs before sending it.
+- Tried: `fp2 explore territory=Kneeache` (Hard) and `territory=Ratway` (Medium) with 15 teams total. `frost_teams` showed inUse 25 and 20 (free -10, -5) (measured). Each ended within 0.2-1 week with an `exploration.finished` event while the territory stayed `unexplored`, progress 0 (measured). `explore dryRun=true` returns no team cost; `explorations teams=true` exists but the abort is not reported as an abort.
+- Workaround: built a second Logistics district (200 prefabs, 5 weeks) for 30 teams.
+- Cost: two wasted expedition starts; the `exploration.finished` event reads like success. An `exploration.aborted` kind, and the team need in `explore dryRun`, would have saved both.
+
+## 2026-10-11 wk 308 | pick_cells deposit= | bug
+- Wanted: cells for a new wood (later soil) district after the old deposits ran out.
+- Tried: `fp2 pick_cells count=6 type=Extraction deposit=Wood` returned 250,289,213,260,194,245; I placed an Extraction district there (150 prefabs, 4 weeks). It finished with `NoDeposit`: all four wood deposits read 0 in `extract name=districtDeposits` (measured). `pick_cells type=Food_Supply deposit=soil` then proposed 140/150, whose soil deposits also read 0 (measured). `cells deposit=X` lists cells without amounts.
+- Workaround: matched `extract name=deposits` amounts to `cells` by distance by hand; frostbroke to live deposits.
+- Cost: 150 prefabs (~6.5 weeks of prefab output), 4 weeks, and a materials crisis (stock 30K -> 15K).
