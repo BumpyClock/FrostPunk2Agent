@@ -6,6 +6,13 @@ label (measured / inferred / guessed), and what to do differently. Durable rules
 
 ## Gameplay
 
+- 2026-10-11, wk 264-277: Housing districts hold one building; the promised hospital needed a new Housing district
+  (200 prefabs, 4 wk) because `expand_district` silently did nothing (measured). Promise kept at wk 270: "Trust rises".
+  Heat Utilisation research cut generator load (97.5% at the level-3 drop -> 82% after it plus the second mine; mixed,
+  inferred). Production#2 on prefabs gave +2 prefabs/day for 100 heat, 40 coal and 100 materials (measured): an
+  old district can be a net loss; measure before keeping it on.
+- wk 265: a Blasting Coal Mine drains a 96K tiny deposit in ~30 weeks (62K left at wk 265, 9 weeks left at wk 276,
+  measured). Each mine buys months, not years; plan the next coal source when the current one hits 20 weeks.
 - 2026-10-11, wk 253-254: coal crisis. Extraction#8 depleted wk 252; its replacement Extraction#17 (96K coal, frostbroken
   to cell 383) gave the same supply 162/day, so net stayed -114 (measured). Coal users measured by toggling while
   paused: Production#10 (goods) 36/day + 100 materials, Production#6 (prefabs) 24/day; Emergency Shifts on a coal

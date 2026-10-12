@@ -29,3 +29,9 @@ maintainer reads this between sessions, fixes the bridge, and removes handled en
 - Tried: `fp2 extract name=resources` gives city `supply` 162 and `change` -114 only (measured); no per-district consumer list.
 - Workaround: toggled districts off while paused and read `change` (Production#10 36/day, Production#6 24/day).
 - Cost: several toggles and reads; ~170 coal/day of demand is still unattributed.
+
+## 2026-10-11 wk 264 | expand_district | bug
+- Wanted: upgrade a Housing district (Housing_2_Upgraded, +3 cells, 50 prefabs + 50 hs, 2 wk) to get a building slot for the promised hospital.
+- Tried: `fp2 expand_district district=Housing#1|#4|#9 'cells=[47,72,61]'` (cells free, unfrozen, contiguous 47-61-72, next to the Housing cluster that `pick_cells` names as Housing#4; measured). Each returned the level info with `underExpansionNow` false and `queuedCells` 0; no construction appeared in `brief` (measured). No error or reason given; `dryRun=true` gave the same output, so it does not check adjacency or affordability.
+- Workaround: placed a new Housing district (200 prefabs, 4 wk) instead of a 50-prefab upgrade.
+- Cost: ~150 prefabs and 2 extra weeks on a promise clock.
