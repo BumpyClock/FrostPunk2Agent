@@ -265,6 +265,278 @@ return function(X)
             return out
         end,
     })
+    -- Weather: current temperature level and the HUD forecast strip (top right).
+    -- Data path (static, from research/fp2_functions.txt and research/city/PXTemperatureComponent.json):
+    --   current  PXTemperatureComponent.CurrentTemperatureLevel (PXTemperatureLevel asset; .Degrees measured in `population`)
+    --   horizon  PXTemperatureComponent.PredictionInterval (PXGameTime; 168000 ticks in the research dump)
+    --   forecast PXTemperatureUtils.GetTemperatureTimeline(WorldContextObject, Target, From, To) -> TArray<struct>
+    --            Unverified: the Target class and the entry struct's fields. Both are read from reflection at run time,
+    --            and the call is refused when the entry struct holds FText or SoftObject fields or Target is unknown.
+    --   whiteout PXWeatherTimelineWidget.SetupWhiteoutEvent(widget, temperatureTimelineChange) suggests timeline entries
+    --            carry the whiteout. Unverified: matched by field name /whiteout/i (bool, object or PXGameTime duration)
+    --            on the entry or on the level asset; `whiteout.known` is false when no such field exists.
+    --   storm    PXWeatherUtils.GetCityWeatherLevel(WorldContextObject, City) (unverified)
+    -- TemperatureLevel numbers rise as it gets colder (DA_TemperatureLevel1 -> 4 was a whiteout, measured).
+    local TICKS_WEEK = 1680
+    local function hasSoft(prop, depth)
+        if depth > 6 then return false end
+        if reflect.unsafeRead(prop) then return true end
+        local t = reflect.propType(prop)
+        if t == "StructProperty" then
+            local ok, sd = pcall(function() return prop:GetStruct() end)
+            if not ok or not reflect.isValid(sd) then return false end
+            local found = false
+            reflect.forEachProperty(sd, function(p)
+                if hasSoft(p, depth + 1) then found = true; return true end
+            end)
+            return found
+        elseif t == "ArrayProperty" or t == "SetProperty" then
+            local ok, inner = pcall(function() return prop:GetInner() end)
+            return ok and inner ~= nil and hasSoft(inner, depth + 1)
+        elseif t == "MapProperty" then
+            local okK, k = pcall(function() return prop:GetKeyProp() end)
+            local okV, v = pcall(function() return prop:GetValueProp() end)
+            return (okK and k ~= nil and hasSoft(k, depth + 1)) or (okV and v ~= nil and hasSoft(v, depth + 1))
+        end
+        return false
+    end
+
+    X.register({
+        name = "weather",
+        help = "Temperature now and the forecast strip: current level/degrees, forecast [{weeksFromNow, level, degrees, whiteout}], whiteout {known, active, startsInWeeks, endsInWeeks}, storm level. args: weeks=<horizon, capped at the game's prediction interval>, debug=true (entry schema, raw fields).",
+        run = function(args)
+            local debug = args.debug == true or args.debug == "true"
+            local out = { forecast = json.array() }
+            local wco = FindFirstOf("PlayerController")
+            if not reflect.isValid(wco) then return { missing = "PlayerController" } end
+            local city = cities()[1]
+            if not city then return { missing = "city" } end
+            local owner = (reflect.path(city) or ""):match("^(.*)%.[^%.]+$") or ""
+
+            -- A component on the main city actor (path prefix), so no guessed object reaches a game call.
+            local function cityComponent(className, allowOther)
+                local other
+                for _, c in ipairs(FindAllOf(className) or {}) do
+                    if reflect.isValid(c) then
+                        local p = reflect.path(c) or ""
+                        if not p:find("Default__", 1, true) then
+                            if owner ~= "" and p:sub(1, #owner + 1) == owner .. "." then return c end
+                            other = other or c
+                        end
+                    end
+                end
+                if allowOther then return other end
+                return nil
+            end
+
+            local function levelInfo(lv)
+                if not reflect.isValid(lv) then return nil end
+                local id = assetId(lv)
+                local info = { id = id, level = tonumber((id or ""):match("(%d+)$")) }
+                pcall(function() info.degrees = lv.Degrees end)
+                pcall(function()
+                    reflect.forEachProperty(lv:GetClass(), function(p)
+                        local n = reflect.propName(p)
+                        if n:lower():find("whiteout", 1, true) and reflect.propType(p) == "BoolProperty" then
+                            pcall(function() info.whiteout = lv[n] == true end)
+                        end
+                    end)
+                end)
+                return info
+            end
+
+            local tc = cityComponent("PXTemperatureComponent", true)
+            local predictionTicks
+            if reflect.isValid(tc) then
+                pcall(function() out.current = levelInfo(tc.CurrentTemperatureLevel) end)
+                pcall(function() predictionTicks = tc.PredictionInterval.ScaledTicks end)
+                if predictionTicks then out.predictionWeeks = math.floor(predictionTicks / 168 + 0.5) / 10 end
+            end
+            pcall(function()
+                -- Call only when the City param is declared as PXCityComponent (a wrong-class object can crash natively).
+                local wu = StaticFindObject("/Script/Frostpunk2.Default__PXWeatherUtils")
+                if not reflect.isValid(wu) then return end
+                local wf = wu.GetCityWeatherLevel
+                if not reflect.isValid(wf) or #reflect.unsafeParams(wf) > 0 then return end
+                local cityClass
+                wf:ForEachProperty(function(p)
+                    if reflect.propName(p) == "City" then cityClass = reflect.shortName(p:GetPropertyClass()) end
+                end)
+                if cityClass ~= "PXCityComponent" then out.stormSkipped = "City param class " .. tostring(cityClass); return end
+                local lv = wu:GetCityWeatherLevel(wco, city)
+                if reflect.isValid(lv) then out.storm = assetId(lv) end
+            end)
+
+            local now
+            pcall(function() now = FindFirstOf("PXTimeSubsystem").currentGameTime.ScaledTicks end)
+            if type(now) ~= "number" then out.timelineError = "no game time"; return out end
+            out.nowTicks = now
+
+            -- Signature check before the first call (FText/SoftObject in the entry struct crash UE4SS).
+            local tu = StaticFindObject("/Script/Frostpunk2.Default__PXTemperatureUtils")
+            if not reflect.isValid(tu) then out.timelineError = "no PXTemperatureUtils"; return out end
+            local fn = tu.GetTemperatureTimeline
+            if not reflect.isValid(fn) then out.timelineError = "no GetTemperatureTimeline"; return out end
+            local sig = {}
+            pcall(function() fn:ForEachProperty(function(p) sig[reflect.propName(p)] = p end) end)
+            local bad = reflect.unsafeParams(fn)
+            if #bad > 0 then out.timelineError = "FText in params " .. table.concat(bad, ","); return out end
+            if not sig.Target or not sig.From or not sig.To or not sig.ReturnValue then out.timelineError = "unexpected signature"; return out end
+            if reflect.paramTypeName(sig.From) ~= "Struct<PXGameTime>" or reflect.paramTypeName(sig.To) ~= "Struct<PXGameTime>" then
+                out.timelineError = "From/To not PXGameTime: " .. reflect.paramTypeName(sig.From)
+                return out
+            end
+            if hasSoft(sig.ReturnValue, 0) then out.timelineError = "SoftObject in timeline entries"; return out end
+            local targetClass
+            pcall(function() targetClass = reflect.shortName(sig.Target:GetPropertyClass()) end)
+            local fields = {}
+            pcall(function()
+                local sd = sig.ReturnValue:GetInner():GetStruct()
+                out.entryStruct = reflect.shortName(sd)
+                reflect.forEachProperty(sd, function(p)
+                    fields[#fields + 1] = { name = reflect.propName(p), type = reflect.paramTypeName(p) }
+                end)
+            end)
+            if debug then
+                out.targetClass = targetClass
+                local schema = json.array()
+                for _, f in ipairs(fields) do schema[#schema + 1] = f.name .. ":" .. f.type end
+                out.entrySchema = schema
+            end
+            if #fields == 0 then out.timelineError = "timeline entry struct not readable"; return out end
+
+            local target
+            if targetClass == "PXCityComponent" then
+                target = city
+            elseif targetClass == "PXTemperatureComponent" then
+                target = tc
+            elseif targetClass and targetClass:match("^PX.+Component$") then
+                target = cityComponent(targetClass, false)
+            end
+            if not reflect.isValid(target) then
+                out.timelineError = "no safe Target for class " .. tostring(targetClass)
+                return out
+            end
+
+            local horizon = predictionTicks and predictionTicks > 0 and predictionTicks or 26 * TICKS_WEEK
+            if tonumber(args.weeks) then horizon = math.min(horizon, tonumber(args.weeks) * TICKS_WEEK)
+            else horizon = math.min(horizon, 26 * TICKS_WEEK) end
+            -- Start 4 weeks back so an ongoing segment (e.g. an active whiteout) is in the list.
+            local from = math.max(0, now - 4 * TICKS_WEEK)
+            local raw = tu:GetTemperatureTimeline(wco, target, { ScaledTicks = from }, { ScaledTicks = now + horizon })
+            local items = {}
+            if type(raw) == "table" then
+                for _, e in ipairs(raw) do items[#items + 1] = e end
+            elseif type(raw) == "userdata" then
+                pcall(function() raw:ForEach(function(_, e) items[#items + 1] = e:get() end) end)
+            end
+            out.horizonWeeks = math.floor(horizon / 168 + 0.5) / 10
+
+            local entries = {}
+            local sawWhiteoutField = (out.current and out.current.whiteout ~= nil) or false
+            for _, item in ipairs(items) do
+                local e = { other = {} }
+                for _, f in ipairs(fields) do
+                    local name, ty = f.name, f.type
+                    local isWo = name:lower():find("whiteout", 1, true) ~= nil
+                    pcall(function()
+                        local v = item[name]
+                        if ty == "Struct<PXGameTime>" then
+                            local ticks = v.ScaledTicks
+                            if isWo then
+                                sawWhiteoutField = true
+                                e.whiteoutTicks = ticks
+                                if ticks > 0 then e.whiteout = true end
+                            elseif e.at == nil then
+                                e.at = ticks
+                                e.atField = name
+                            else
+                                e.other[name] = ticks
+                            end
+                        elseif ty:find("^Object") then
+                            if reflect.isValid(v) then
+                                local cls = reflect.className(v) or ""
+                                if cls:find("TemperatureLevel", 1, true) and not e.levelInfo then
+                                    e.levelInfo = levelInfo(v)
+                                    if e.levelInfo and e.levelInfo.whiteout ~= nil then sawWhiteoutField = true end
+                                elseif isWo then
+                                    sawWhiteoutField = true
+                                    e.whiteout = true
+                                else
+                                    e.other[name] = assetId(v)
+                                end
+                            elseif isWo then
+                                sawWhiteoutField = true
+                            end
+                        elseif ty == "Bool" then
+                            if isWo then
+                                sawWhiteoutField = true
+                                if v == true then e.whiteout = true end
+                            else
+                                e.other[name] = v
+                            end
+                        elseif type(v) == "number" or type(v) == "boolean" then
+                            e.other[name] = v
+                            if ty == "Int" and name:lower():find("change", 1, true) then e.change = v end
+                        end
+                    end)
+                end
+                if e.levelInfo and e.levelInfo.whiteout then e.whiteout = true end
+                if type(e.at) == "number" then entries[#entries + 1] = e end
+            end
+            table.sort(entries, function(a, b) return a.at < b.at end)
+
+            local function weeks(ticks) return math.floor((ticks - now) / 168 + 0.5) / 10 end
+            local active = out.current and out.current.whiteout == true
+            local currentEntry
+            for _, e in ipairs(entries) do
+                if e.at <= now then currentEntry = e end
+            end
+            if currentEntry and currentEntry.whiteout then
+                active = true
+                if currentEntry.whiteoutTicks and currentEntry.whiteoutTicks > 0 then
+                    out.whiteoutEndsAtTicks = currentEntry.at + currentEntry.whiteoutTicks
+                end
+            end
+            local wo = { known = sawWhiteoutField, active = active and true or false }
+            -- Entries that hold a relative Change (SetTemperatureLevelChangeAt) instead of a level: accumulate from now.
+            local running = out.current and out.current.level
+            for _, e in ipairs(entries) do
+                if e.at > now then
+                    local li = e.levelInfo or {}
+                    local level, derived = li.level, nil
+                    if level == nil and running and e.change then level = running + e.change; derived = true end
+                    if level then running = level end
+                    local item = { atTicks = e.at, weeksFromNow = weeks(e.at), level = level, levelId = li.id, degrees = li.degrees, whiteout = e.whiteout, derivedLevel = derived }
+                    if debug then item.atField = e.atField; item.fields = e.other end
+                    out.forecast[#out.forecast + 1] = item
+                    if wo.active then
+                        if wo.endsInWeeks == nil and not e.whiteout then wo.endsInWeeks = weeks(e.at) end
+                    elseif e.whiteout and wo.startsInWeeks == nil then
+                        wo.startsInWeeks = weeks(e.at)
+                        wo.startsAtTicks = e.at
+                        if e.whiteoutTicks and e.whiteoutTicks > 0 then wo.endsInWeeks = weeks(e.at + e.whiteoutTicks) end
+                    elseif wo.startsInWeeks ~= nil and wo.endsInWeeks == nil and not e.whiteout then
+                        wo.endsInWeeks = weeks(e.at)
+                    end
+                end
+            end
+            if wo.active and out.whiteoutEndsAtTicks and wo.endsInWeeks == nil then wo.endsInWeeks = weeks(out.whiteoutEndsAtTicks) end
+            out.whiteoutEndsAtTicks = nil
+            out.whiteout = wo
+            if debug then
+                local dump = json.array()
+                for i, e in ipairs(entries) do
+                    if i > 6 then break end
+                    dump[#dump + 1] = { at = e.at, atField = e.atField, level = e.levelInfo, whiteout = e.whiteout, whiteoutTicks = e.whiteoutTicks, fields = e.other }
+                end
+                out.entries = dump
+                out.entryCount = #items
+            end
+            return out
+        end,
+    })
+
     X.register({
         name = "construction",
         help = "Active constructions: what, state, progress 0..1, weeks left.",

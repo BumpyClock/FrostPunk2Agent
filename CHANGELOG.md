@@ -7,6 +7,10 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `weather` extractor (in `snapshot`): current temperature level and degrees, the forecast strip
+  (`PXTemperatureUtils.GetTemperatureTimeline` over the game's prediction interval) and whiteout state. Turn events
+  `weather.forecastDrop` (stops for a drop of 2+ levels or to level 3+) and `whiteout.incoming` (stops), plus
+  `whiteout.started` / `whiteout.ended`; each forecast warning fires once. Not yet verified on the live game.
 - `deposit.depleting` turn event (stops at 10 weeks or less) for deposits worked by Extraction-type districts, from the
   amount trend between snapshots. New extractor `districtDeposits`, included in `snapshot`.
 - `build_outpost` and `connect_outpost` (Frostland outposts; connection needs a trail).

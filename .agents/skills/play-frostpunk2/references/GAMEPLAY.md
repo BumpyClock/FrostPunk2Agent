@@ -73,6 +73,13 @@ Frostpunk 2 knowledge; verify before relying on it.
 - Overdrive closes a heat gap fast but wears the generator quickly (wear +0.14 per 6 game-hours, measured; 1.0 =
   malfunction with casualties). Wear decays to 0 within a day once off. `fp2 overdrive-cycle` alternates it under
   a ceiling; half-time overdrive did not move Cold's target in one test, so weigh it against wear risk.
+- Whiteout preparation. A whiteout dropped the city from TemperatureLevel1 to TemperatureLevel4 in one step:
+  Heating -750, Cold target 50, 40 deaths (measured). The game warned weeks earlier in a story dialog and the HUD
+  forecast strip; `fp2 extract name=weather` and the `whiteout.incoming` / `weather.forecastDrop` turn events read
+  it. Before the whiteout: shed non-essential heated districts (industry, coal, food) for its duration, keep a fuel
+  runway for the whole whiteout plus margin, and turn on generator City Support "Housing". Measured: shedding the
+  industry, coal and food districts cut the Heating deficit from -750 to 0 and the Cold target from 50 to 7.
+  Re-enable them when `whiteout.ended` arrives; check food and coal runways first.
 - If the generator is at its power limit, distribution does not help. Check `fp2 generator`
   (`power`, `powerLimit`, `capacityPct`, `overdriveSupported`, `canOverdrive`) and fuel stock. (general)
 

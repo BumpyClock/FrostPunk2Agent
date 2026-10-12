@@ -29,6 +29,9 @@ export const STOP_DEFAULT = [
   // which already stop; they are still returned as events.
   "district.deactivated",
   "deposit.depleting",
+  // Forecast strip warnings (once per forecast entry); forecastDrop stops only for big or severe drops.
+  "weather.forecastDrop",
+  "whiteout.incoming",
   "homeless.changed",
 ];
 
@@ -45,6 +48,7 @@ function isStop(e: WatchEvent, stopOn: Set<string>): boolean {
   const d: any = e.detail ?? {};
   if (e.kind === "stock.runway") return typeof d.weeksLeftUnder === "number" && d.weeksLeftUnder <= STOP_RUNWAY_WEEKS;
   if (e.kind === "deposit.depleting") return typeof d.weeksLeftUnder === "number" && d.weeksLeftUnder <= STOP_DEPOSIT_WEEKS;
+  if (e.kind === "weather.forecastDrop") return typeof d.level === "number" && (d.level - Number(d.from) >= 2 || d.level >= 3);
   if (e.kind === "council.sessionAvailable.changed") return d.to === true;
   if (e.kind === "homeless.changed") return d.to === true;
   // The agent's own toggles (PlayerChoice) are not news; a game-caused stop (NoDeposit, ...) is.

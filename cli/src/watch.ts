@@ -84,6 +84,63 @@ function depositBuckets(s: Snap): Map<string, number | "ok"> {
   return out;
 }
 
+// Weather warnings from the `weather` extractor (forecast strip). A `turn` starts from a fresh baseline, so a fact
+// diff would miss a drop that is already forecast; instead each forecast entry (absolute tick + level) and each
+// whiteout start warns once, tracked in .runtime/weather-warned.json. A load that moves the clock back re-arms them.
+export const WEATHER_WARN_WEEKS = 10;
+type Warned = { at: number; seenAt: number };
+const weatherFile = () => join(repoRoot(), ".runtime", "weather-warned.json");
+
+function loadWarned(): Map<string, Warned> {
+  try {
+    if (existsSync(weatherFile())) return new Map(Object.entries<Warned>(JSON.parse(readFileSync(weatherFile(), "utf8"))));
+  } catch {}
+  return new Map();
+}
+
+function saveWarned(m: Map<string, Warned>) {
+  try {
+    mkdirSync(join(repoRoot(), ".runtime"), { recursive: true });
+    writeFileSync(weatherFile(), JSON.stringify(Object.fromEntries(m)));
+  } catch {}
+}
+
+/** weather.forecastDrop (colder level within WEATHER_WARN_WEEKS) and whiteout.incoming, once per forecast entry. */
+export function weatherEvents(s: Snap): WatchEvent[] {
+  const w = s?.weather;
+  const now = Number(w?.nowTicks);
+  if (!w || w.error || !Number.isFinite(now) || !Array.isArray(w.forecast)) return [];
+  const warned = loadWarned();
+  const size = warned.size;
+  for (const [k, v] of warned) if (v.at < now || now < v.seenAt - TICKS_WEEK) warned.delete(k);
+  const ev: WatchEvent[] = [];
+  // A drop is a colder level than the one before it (now, then each forecast entry in time order).
+  let prev = Number(w.current?.level);
+  let prevDegrees = w.current?.degrees;
+  for (const f of [...w.forecast].sort((x: any, y: any) => Number(x?.atTicks) - Number(y?.atTicks))) {
+    if (typeof f?.level !== "number" || typeof f.weeksFromNow !== "number" || typeof f.atTicks !== "number") continue;
+    const from = prev;
+    const fromDegrees = prevDegrees;
+    prev = f.level;
+    prevDegrees = f.degrees;
+    if (!Number.isFinite(from) || f.level <= from || f.weeksFromNow > WEATHER_WARN_WEEKS) continue;
+    const key = `drop@${f.atTicks}:${f.level}`;
+    if (warned.has(key)) continue;
+    warned.set(key, { at: f.atTicks, seenAt: now });
+    ev.push({ kind: "weather.forecastDrop", detail: { level: f.level, from, inWeeks: f.weeksFromNow, degrees: f.degrees, fromDegrees, whiteout: f.whiteout ?? false } });
+  }
+  const wo = w.whiteout;
+  if (wo?.known && !wo.active && typeof wo.startsInWeeks === "number" && typeof wo.startsAtTicks === "number") {
+    const key = `whiteout@${wo.startsAtTicks}`;
+    if (!warned.has(key)) {
+      warned.set(key, { at: wo.startsAtTicks, seenAt: now });
+      ev.push({ kind: "whiteout.incoming", detail: { startsInWeeks: wo.startsInWeeks, endsInWeeks: wo.endsInWeeks, currentLevel: w.current?.level, currentDegrees: w.current?.degrees } });
+    }
+  }
+  if (ev.length || warned.size !== size) saveWarned(warned);
+  return ev;
+}
+
 function city(s: Snap, key: string) {
   const v = s?.[key];
   return Array.isArray(v) ? v[0] : undefined;
@@ -147,6 +204,8 @@ export function facts(s: Snap): Map<string, string> {
   if (soc?.deathToll !== undefined) put("deaths.toll", soc.deathToll);
   for (const c of soc?.communities ?? []) put(`standing.${c.community}`, band(c.standing ?? 0));
   put("temperature", pop?.temperatureLevel ?? null);
+  // Only when the extractor found a whiteout field; whiteout.started / whiteout.ended come from this fact.
+  if (s.weather?.whiteout?.known) put("whiteout.active", Boolean(s.weather.whiteout.active));
 
   for (const q of Array.isArray(s.quests) ? s.quests : []) {
     if (q.name === "silent stat quest") continue;
@@ -231,6 +290,12 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         if (b !== undefined && rank(to) < rank(from ?? "ok")) ev.push({ kind: "deposit.depleting", detail: { ...depositInfo.get(k.slice(8)), weeksLeftUnder: to } });
         break;
       }
+      case "whiteout":
+        if (a !== undefined && b !== undefined && from !== to) {
+          const w = s.weather ?? {};
+          ev.push({ kind: to ? "whiteout.started" : "whiteout.ended", detail: { level: w.current?.level, degrees: w.current?.degrees, endsInWeeks: w.whiteout?.endsInWeeks } });
+        }
+        break;
       case "deaths":
         ev.push({ kind: "deaths.increased", detail: { from, to, byCause: city(s, "society")?.deathsByCause } });
         break;
@@ -270,10 +335,11 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         ev.push({ kind: `${k}.changed`, detail: { from, to } });
     }
   }
+  ev.push(...weatherEvents(s));
   return ev;
 }
 
-const CRITICAL = new Set(["district.deactivated", "deposit.depleting", "dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
+const CRITICAL = new Set(["whiteout.incoming", "whiteout.started", "weather.forecastDrop", "district.deactivated", "deposit.depleting","dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
 const TICKS_PER_WEEK = 1680;
 

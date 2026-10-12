@@ -36,6 +36,7 @@ marked `inState`. `fp2 snapshot` is a separate bridge command that builds the HU
 | `icons` | yes | visible `PXTrackerPanel` widgets | `kind` (widget class without `WBP_`/`_C`), `target`, `location`, `screen` (client pixel), `district`, `ref`. `all=true` includes hidden. Click one through the game with `open_icon ref=...`. |
 | `districts` | no | `districtHolder.Districts` | Per city: `districts` with `ref` and `type`; `limit=100`. The richer view is the `districts` command. |
 | `deposits` | no | every `PXDepositComponent` | Sorted by distance to the main city. `type`, `amount`, `location`, `distance`, `screen`. Args: `limit=30`, `type`, `maxDistance`. |
+| `weather` | no (in `snapshot`) | `PXTemperatureComponent.CurrentTemperatureLevel` and `.PredictionInterval`, `PXTemperatureUtils.GetTemperatureTimeline(ctx, Target, From, To)`, `PXWeatherUtils.GetCityWeatherLevel` | `current` (`id`, `level`, `degrees`), `predictionWeeks`, `horizonWeeks` (prediction interval, capped at 26 or `weeks=`), `forecast` [`atTicks`, `weeksFromNow`, `level`, `levelId`, `degrees`, `whiteout`, `derivedLevel`], `whiteout` {`known`, `active`, `startsInWeeks`, `startsAtTicks`, `endsInWeeks`}, `storm`, `nowTicks`; `timelineError` when the call was refused. Level numbers rise as it gets colder. Unverified (static only): Target class and entry fields are read by reflection at run time; whiteout is matched by field name `/whiteout/i` (`known=false` when no such field exists). `debug=true` adds `targetClass`, `entryStruct`, `entrySchema`, `entries`. Not yet compared with the HUD forecast strip. |
 
 ## `snapshot` command
 
@@ -55,6 +56,7 @@ that section only.
 | `districts` | `type`, `id`, `buildings`, `underConstruction` per district |
 
 The snapshot carries `districtDeposits` (extractor `districtDeposits`: `district` label, deposit `ref`, `type`, `amount` for each deposit a deposit-requiring district works, via `PXDepositUtils.GetDepositsUsedByDistrict`; inferred, not yet compared with the HUD) for `deposit.depleting`.
+The snapshot carries `weather` (extractor `weather`, see above) for `weather.forecastDrop` and the whiteout events.
 The snapshot has no `time` or `session` sections; use `date` and `pauseReasons`, or `extract name=time`.
 
 ## Turn events
@@ -63,7 +65,8 @@ The snapshot has no `time` or `session` sections; use `date` and `pauseReasons`,
 appended to `.runtime/watch.jsonl`. Stop kinds by default: `dialog.opened`, `dialog.ackFailed`, `deaths.increased`,
 `need.deficit`, `stock.runway` (10 weeks or less), `research.finished`, `construction.finished`,
 `council.sessionAvailable.changed` (session opens), `exploration.finished`, `temperature.changed`,
-`building.unlocked`, `ability.available`, `district.deactivated`, `deposit.depleting` (10 weeks or less), `homeless.changed`. Noise kinds (`icons.changed`,
+`building.unlocked`, `ability.available`, `district.deactivated`, `deposit.depleting` (10 weeks or less),
+`weather.forecastDrop` (a drop of 2+ levels or to level 3 or colder), `whiteout.incoming`, `homeless.changed`. Noise kinds (`icons.changed`,
 `game.paused`, `game.resumed`, `ui.pauseReasons.changed`, `stock.recovered`, `dialog.closed`, `stat.falling`,
 `exploration.progress`, `construction.state`) are only counted in `dropped`.
 
@@ -87,6 +90,8 @@ appended to `.runtime/watch.jsonl`. Stop kinds by default: `dialog.opened`, `dia
 | `homeless.changed`, `temperature.changed`, `districts.changed`, `research.active.changed` | State flag changed | Re-read the relevant section |
 | `district.deactivated` / `district.activated` | A district went off or on; `detail.reasons` (`NoDeposit`: deposit exhausted, `PlayerChoice`) | `NoDeposit`: expand onto a new deposit or build elsewhere before stocks run out |
 | `deposit.depleting` | A deposit worked by a district (Extraction, ...) will run out soon: remaining weeks fell under 20, 10 or 5. `detail` has `district`, `type`, `amount`, `weeksLeft`, `weeksLeftUnder`. Weeks left = amount / amount lost per week between snapshots (samples persist in `.runtime/deposit-samples.json`; needs about half a week of data). Stops the turn at 10 or less | Expand onto a new deposit now: at 0 the district goes `NoDeposit`, its materials drop to 0 and every dependent Industry district goes `UnmetDemand` |
+| `weather.forecastDrop` | The forecast shows a colder level than the one before it within 10 weeks; `detail` has `level`, `from`, `inWeeks`, `degrees`, `fromDegrees`, `whiteout`. Once per forecast entry (`.runtime/weather-warned.json`; a load to an earlier time re-arms it) | Add a due-dated goal; prepare heat before `inWeeks` (see GAMEPLAY.md Whiteout preparation) |
+| `whiteout.incoming` / `whiteout.started` / `whiteout.ended` | A whiteout is forecast (`startsInWeeks`, `endsInWeeks`; once per whiteout), began or ended. Only when `weather.whiteout.known` | Shed non-essential heated districts, keep the fuel runway, generator Housing support |
 | `building.unlocked`, `ability.available` | A building type or ability became available; `detail` has name, description, effects | Weigh it against the goal stack |
 | `bridge.error` | A bridge call failed | `fp2 status`, then `fp2 recover` |
 

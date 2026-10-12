@@ -583,6 +583,7 @@ def("snapshot", {
         end)
         out.generator = try(function() return actions.generator(args) end)
         out.districtDeposits = try(function() return extractors.run("districtDeposits", args) end)
+        out.weather = try(function() return extractors.run("weather", {}) end)
         out.exploration = try(function() return actions.explorationSummary(args) end)
         out.unlocks = try(function() return actions.unlocks(args) end)
         out.districts = try(function()
