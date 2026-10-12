@@ -6,6 +6,16 @@ label (measured / inferred / guessed), and what to do differently. Durable rules
 
 ## Gameplay
 
+- 2026-10-11, wk 253-254: coal crisis. Extraction#8 depleted wk 252; its replacement Extraction#17 (96K coal, frostbroken
+  to cell 383) gave the same supply 162/day, so net stayed -114 (measured). Coal users measured by toggling while
+  paused: Production#10 (goods) 36/day + 100 materials, Production#6 (prefabs) 24/day; Emergency Shifts on a coal
+  district +40 supply (measured). A replacement district only holds the line: start the next coal source before the
+  old one is under 10 weeks. Check `building_types district=Extraction` for already-unlocked boosters
+  (Blasting Coal Mine +210, 40 prefabs, no Core) before planning research (measured: Coal Mines was researched and unused).
+- wk 254: Deep Melting Drill needs 1 Core; with 0 Cores the deep coal plan was dead on arrival (measured). Read a
+  building's full cost (`place_building dryRun=true`) before committing research to it.
+- wk 248: Biowaste Hothouse took food -100 -> +22/day; Housing Block in Production#6 took Shelter -19 -> -11 (measured).
+
 - 2026-10-11, wk 232: research was idle (`anyInProgress` false) for an unknown number of weeks after the whiteout,
   and no alert said so (measured). Check `fp2 research` at every re-plan; a CLI alert is being added.
 - wk 232: Housing Block refused in all three housing districts with 257 prefabs and 2,464 heatstamps in stock
