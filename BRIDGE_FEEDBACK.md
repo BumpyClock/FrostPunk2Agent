@@ -23,6 +23,7 @@ maintainer reads this between sessions, fixes the bridge, and removes handled en
 - Tried: `fp2 place_building type=E_DeepProspector_Progress district=Extraction#8 dryRun=true` returned `blockers` ["no free building slot in this district (0/1 used)", "short 1 CoresResource"] with `buildingsUsed` 0, `freeSlots` 1, `thisDistrictHasFreeSlot` false (measured). The slot blocker contradicts the counts; the real blocker is the Core. Extraction#8 is deactivated (NoDeposit), which may be the cause.
 - Workaround: treated the Core as the blocker.
 - Cost: a few tokens; a misleading blocker could send an agent to deconstruct for a slot.
+- wk 338 update: same blocker ("no free building slot (0/1 used)") on Production#10 and LogisticsDistrict#22; a real `place_building type=X_HousingBloc_Base district=LogisticsDistrict#22` then succeeded (construction started, prefabs 56 -> 6, measured). With 0 used of 1, the slot blocker is a false positive. `districtsWithFreeSlot` was empty at the same time.
 
 ## 2026-10-11 wk 253 | resources | gap
 - Wanted: which districts consume coal, to cut demand in a coal crisis.
@@ -60,3 +61,10 @@ maintainer reads this between sessions, fixes the bridge, and removes handled en
 - Tried: `fp2 explorations` gives difficulty `TerritoryDifficulty_2Hard`, weeks and possible resources; `explore dryRun=true` gives no casualty risk (measured). The expedition ended with the HUD notification "272 died during exploration" (death toll 148 -> 420, measured). The `deaths.increased` event reported `byCause {Cold: 148}`, so the 272 have no cause in the bridge (measured). Afterwards `frost_sites territory=Kneeache` listed no site although `sites` is 2, and `charted` stayed false (measured).
 - Workaround: none.
 - Cost: 272 lives, 27 weeks of 25 teams, and still no Core.
+
+## 2026-10-11 wk 341 | heat_adjust, health | doc + gap
+- Wanted: fix a Warmth deficit (-110) that was killing people (54 cold deaths at temperature level 2).
+- Tried: `heat_distribute` with auto on: 36-42 unallocated batches stayed unused and Warmth stayed -110/-130 (measured). `heat_auto active=false`, then `heat_adjust district=Housing#9 adjustment=1` LOWERED it from 2 to 1: `adjustment` is the absolute level, while the help text says "adjustment above/below its need" (measured). `health` rated Warmth only "act", and `heat_levels` showed no bad level throughout.
+- Workaround: set housing levels to need+1 by hand.
+- Cost: 54 deaths; the help text sent me the wrong way once.
+- Also: `extract name=population` returns `population` 1032 and per-community sizes in the hundreds while `extract name=society` returns 15,492 (measured). One of them is a different measure under the same name.

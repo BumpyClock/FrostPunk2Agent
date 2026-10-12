@@ -6,6 +6,12 @@ label (measured / inferred / guessed), and what to do differently. Durable rules
 
 ## Gameplay
 
+- 2026-10-11, wk 327-341: I called a Warmth deficit (-70, later -130) harmless because no district showed a bad heat
+  level and Cold read 0. At wk 341 Cold reached 16 (target 14) and 54 people died of cold at temperature level 2
+  (measured). A Warmth deficit raises Cold with a lag; treat it as a death risk. Auto heat allocation left 36 heat
+  batches unused while Warmth was short; turning auto off and setting housing heat one level above need moved
+  Warmth -110 -> +60 at 54% generator load (measured). `heat_adjust adjustment=N` sets the level to N, not +N
+  (measured: Housing#9 went 2 -> 1).
 - 2026-10-11, wk 300-327: a Hard expedition (Kneeache Climbs, 25 teams, 25 weeks) killed 272 people ("272 died
   during exploration", toll 148 -> 420, measured) and revealed no site that `frost_sites` lists; Cores stayed 0.
   Nothing I read before sending it mentioned a death risk; I treated difficulty as time and team cost only. Treat
