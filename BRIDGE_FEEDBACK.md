@@ -54,3 +54,9 @@ maintainer reads this between sessions, fixes the bridge, and removes handled en
 - Tried: `fp2 pick_cells count=6 type=Extraction deposit=Wood` returned 250,289,213,260,194,245; I placed an Extraction district there (150 prefabs, 4 weeks). It finished with `NoDeposit`: all four wood deposits read 0 in `extract name=districtDeposits` (measured). `pick_cells type=Food_Supply deposit=soil` then proposed 140/150, whose soil deposits also read 0 (measured). `cells deposit=X` lists cells without amounts.
 - Workaround: matched `extract name=deposits` amounts to `cells` by distance by hand; frostbroke to live deposits.
 - Cost: 150 prefabs (~6.5 weeks of prefab output), 4 weeks, and a materials crisis (stock 30K -> 15K).
+
+## 2026-10-11 wk 327 | explore / explorations | gap
+- Wanted: the risk of an expedition before sending people (deciding between Kneeache Climbs, Hard, and other Core sources).
+- Tried: `fp2 explorations` gives difficulty `TerritoryDifficulty_2Hard`, weeks and possible resources; `explore dryRun=true` gives no casualty risk (measured). The expedition ended with the HUD notification "272 died during exploration" (death toll 148 -> 420, measured). The `deaths.increased` event reported `byCause {Cold: 148}`, so the 272 have no cause in the bridge (measured). Afterwards `frost_sites territory=Kneeache` listed no site although `sites` is 2, and `charted` stayed false (measured).
+- Workaround: none.
+- Cost: 272 lives, 27 weeks of 25 teams, and still no Core.

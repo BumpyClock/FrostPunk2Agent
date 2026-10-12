@@ -6,6 +6,13 @@ label (measured / inferred / guessed), and what to do differently. Durable rules
 
 ## Gameplay
 
+- 2026-10-11, wk 300-327: a Hard expedition (Kneeache Climbs, 25 teams, 25 weeks) killed 272 people ("272 died
+  during exploration", toll 148 -> 420, measured) and revealed no site that `frost_sites` lists; Cores stayed 0.
+  Nothing I read before sending it mentioned a death risk; I treated difficulty as time and team cost only. Treat
+  Hard territory as a human cost, and ask what else gives the resource first (Utopia nodes, research, trade).
+- wk 308-325: `pick_cells deposit=X` and the `cells` listing ignore deposit amounts: a wood district (150
+  prefabs, 4 weeks) landed on four empty deposits, and the soil pick was also empty (measured). Before placing a
+  resource district, match `extract name=deposits` amounts to the cells.
 - 2026-10-11, wk 300-304: `change` for prefabs and heatstamps is per WEEK, for coal, food and materials per DAY
   (measured: prefabs 97 -> 120 in one week at "+23"; coal 68.7K -> 80.8K in 3 weeks at "+576"). Prefabs were the
   real bottleneck for every build plan; I had planned at 7x the true rate. Switching Production#10 from goods to
