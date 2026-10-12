@@ -7,6 +7,8 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `recover name=<save>` loads the save in place when a game is already loaded (it used to only pause and keep the current state; measured).
+
 - Bridge extension modules (`mod/FP2AgentBridge/Scripts/<name>.lua`, listed in `extensions.txt`). Status is from the
   2026-10-11 live session on one Sandbox / Utopia save unless marked untested:
   - `colony_actions`: `cities`, `colony_sites`, `trade_routes` (reads, measured); `colony_build` (founded a colony

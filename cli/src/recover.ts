@@ -204,7 +204,7 @@ type Attempt = { ok: true; time: unknown } | { ok: false; crashed: boolean; quie
 // period ends (LOAD_QUIET_MS in bridge.ts): polling during a load crashed the game in Wwise (measured).
 // Reports a crash when the game process exits, a new crash report appears, the crash reporter starts, or the
 // heartbeat stops for LOAD_HEARTBEAT_STALE_MS.
-async function loadOnce(save: string, timeoutMs: number, steps: string[]): Promise<Attempt> {
+async function loadOnce(save: string, timeoutMs: number, steps: string[], inGame = false): Promise<Attempt> {
   const before = crashDirs();
   let lastAlive = Date.now();
   const crashed = async (): Promise<string | undefined> => {
@@ -227,8 +227,10 @@ async function loadOnce(save: string, timeoutMs: number, steps: string[]): Promi
   // Council scene left the game at the main menu, and recover waited out its full timeout).
   // Only recorded when no city is loaded, so a save on the same map as a loaded game is not taken for the menu.
   const menuMap = (await isReady()).ready ? undefined : (await session())?.map;
-  await sendKeys(["enter"], true); // "press any key" title screen (harmless in the menu)
-  steps.push("title dismissed");
+  if (!inGame) {
+    await sendKeys(["enter"], true); // "press any key" title screen (harmless in the menu)
+    steps.push("title dismissed");
+  }
   const loadDeadline = Date.now() + 60_000;
   for (;;) {
     const err = await call("load", { name: save }).then(() => undefined, (e) => String(e));
@@ -334,7 +336,8 @@ export function resolveSaveName(name: string): string {
 }
 
 /**
- * Session start and crash recovery in one call. In a loaded game it only pauses. Otherwise it launches the
+ * Session start and crash recovery in one call. In a loaded game it loads `name` in place, or only pauses when
+ * no name is given. Otherwise it launches the
  * game if needed and loads `name` (or the newest recovery candidate). When a load crashes the game, the game is
  * killed and another load is tried, up to `maxAttempts` loads. A crash during the quiet phase (no game-thread
  * calls) marks the save bad in .runtime/bad-saves.json and moves to the next candidate; a crash after it does
@@ -347,8 +350,17 @@ export async function recover(name: string | undefined, timeoutMs: number, maxAt
     const fixed: { stuck: boolean; unstuck?: boolean } = await unstick(steps);
     if (fixed.stuck && !fixed.unstuck) throw new BridgeError(`in a loaded game, but the shader-compilation screen is stuck and unstick failed: ${steps.join("; ")}`);
     if (fixed.stuck) await dismissLoadingScreen(steps);
+    if (name) {
+      // A named save in a loaded game: load it in place (LoadGame works in the world; measured). The old behaviour
+      // only paused and left the current state, which silently skipped the requested reset (measured 2026-10-11).
+      const save = resolveSaveName(name);
+      steps.push(`in a loaded game: loading ${save}`);
+      const r = await loadOnce(save, timeoutMs, steps, true);
+      if (r.ok) return { recovered: true, save, attempts: 1, inGameLoad: true, steps, time: r.time, brief: await brief() };
+      throw new BridgeError(`recover: loading ${save} from the running game failed: ${r.reason}${r.crashed ? " (game crashed; run fp2 recover again to relaunch)" : ""}`);
+    }
     const t = await setPaused(true);
-    return { recovered: false, reason: "already in a loaded game", ...(fixed.stuck ? { unstuck: true } : {}), steps, time: t, brief: await brief() };
+    return { recovered: false, reason: "already in a loaded game (pass name=<save> to load one)", ...(fixed.stuck ? { unstuck: true } : {}), steps, time: t, brief: await brief() };
   }
   const failed: { save: string; crashed: boolean; markedBad: boolean; reason: string }[] = [];
   const tried = new Set<string>();

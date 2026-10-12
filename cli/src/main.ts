@@ -29,7 +29,7 @@ const HELP = `fp2 <subcommand> [key=value ...] [--compact] [--fields a.b,c[0].d]
 Play loop:
   recover [name=X] [attempts=3]
                          relaunch if the bridge is dead, load X or the newest agent-rolling-*, agent-*, AutoSave*
-                         save from the main menu, wait until ready, pause; in a loaded game it only pauses. A load
+                         save from the main menu, wait until ready, pause; in a loaded game, load X in place (else only pause). A load
                          that crashes the game marks the save bad (.runtime/bad-saves.json) and tries the next one
   turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]
                          resume, run until a stop event or weeks pass, pause; returns {turn, events, dropped,
