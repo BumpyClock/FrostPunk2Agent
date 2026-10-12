@@ -1,0 +1,338 @@
+{
+  "chain": [
+    "PXOutpostUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXOutpostUtils",
+  "functions": [
+    {
+      "name": "UpgradeOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "UpgradedOutpostType:Object",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "SpawnOutpostNearby",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "position:Struct<Vector>",
+        "Type:Object",
+        "innerRadiusInCells:Int",
+        "outerRadiusInCells:Int",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "SpawnOutpostAtSiteSlot",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "siteSlot:Object",
+        "Type:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "SpawnOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Transform:Struct<Transform>",
+        "Type:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ReplaceWithOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Site:Object",
+        "Type:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "IsPermamentOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsOutpostDepleted",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetSettlementUpgradeTooltipInfo",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "currentOutpostType:Object",
+        "UpgradedOutpostType:Object",
+        "tooltipInfo:Struct<PXOutpostConstructionCostData>!text"
+      ]
+    },
+    {
+      "name": "GetOutpostUpgradeProgress",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetOutpostTypeGameplayDescription",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Nation:Object",
+        "OutpostType:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetOutpostTypeDepositCategories",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "OutpostType:Object",
+        "ReturnValue:Set"
+      ]
+    },
+    {
+      "name": "GetOutpostTimeToFinishExtraction",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetOutpostTerritory",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetOutpostOfType",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Type:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetOutpostMainResource",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetOutpostGameplayDescription",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetOutpostDepositType",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetOutpostDeposits",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Map"
+      ]
+    },
+    {
+      "name": "GetOutpostCurrentDepositAmount",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetOutpostConstructionCost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Type:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetOutpostConnectedCity",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetAllOutpostsWithTag",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Query:Struct<GameplayTagQuery>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllOutposts",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllConstructedOutposts",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllConnectedCitiesToOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Outpost:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "ExecuteOutpostAction",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "Action:Object",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "DestroyOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "Outpost:Object"
+      ]
+    },
+    {
+      "name": "ConstructOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "Outpost:Object",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "ConnectOutpostToCity",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "City:Object"
+      ]
+    },
+    {
+      "name": "CanUpgradeOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "UpgradedOutpostType:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanShowOutpostUpgrade",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "Nation:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanExecuteOutpostAction",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "Action:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanConstructOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "City:Object",
+        "Outpost:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanConnectOutpostToCity",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "City:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanActivateOutpost",
+      "owner": "PXOutpostUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Outpost:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

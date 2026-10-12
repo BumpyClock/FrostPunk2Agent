@@ -1,0 +1,187 @@
+{
+  "class": "WBP_Parliament_MainScreen_C",
+  "props": {
+    "BlockAnalogNavigation": false,
+    "BlockControllerNavigationToDisabledWidget": false,
+    "BlockOpeningWithContexts": false,
+    "BlockParentClosingAnimation": false,
+    "BlockRenderAsDisabled": false,
+    "CategoryList": {
+      "class": "WBP_Parliament_LawCategoryList_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.CategoryList"
+    },
+    "ChangeProposalButton": {
+      "class": "WBP_TechNavigationButton_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.ChangeProposalButton"
+    },
+    "CloseFinalizer": {
+      "$null": true
+    },
+    "CloseWithParent": true,
+    "CooldownProgressbarWidget": {
+      "class": "WBP_ParliamentCooldownBar_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.CooldownProgressbarWidget"
+    },
+    "CurrentPolicyInAgenda": {
+      "class": "WBP_ParliamentActivePolicy_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.CurrentPolicyInAgenda"
+    },
+    "CurrentlyInForce": {
+      "class": "WBP_CurrentlyInForceWidget_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.CurrentlyInForce"
+    },
+    "DefaultPhaseTimer": {
+      "class": "WBP_Parliament_CurrentPhaseTimer_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.DefaultPhaseTimer"
+    },
+    "DefaultWidgetsLayout": {
+      "class": "PXDynamicLayout",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.DefaultWidgetsLayout"
+    },
+    "DelayedFocusRequestTimerRate": 0.10000000149012,
+    "DelegateSelectionPanel": {
+      "class": "WBP_DelegateSelectionPanel_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.DelegateSelectionPanel"
+    },
+    "DesiredFocusTargetWidget": {
+      "$struct": "WidgetChild",
+      "WidgetName": "None"
+    },
+    "ExploreLawsButton": {
+      "class": "WBP_TechNavigationButton_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.ExploreLawsButton"
+    },
+    "FocusBehaviour": {
+      "name": "EPXFocusRecipientBehaviour::IgnoreFocus",
+      "value": 0
+    },
+    "HintAnimation": {
+      "class": "WidgetAnimation",
+      "ref": "/Game/UI/UiWidgets/KBM_Widgets/ParliamentPanel/Panels/WBP_Parliament_MainScreen.WBP_Parliament_MainScreen_C:HintAnimation_INST"
+    },
+    "HintTextWidget": {
+      "class": "WBP_HintTextParliament_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.HintTextWidget"
+    },
+    "HoldAltText": {
+      "class": "PXRichTextBlock",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.HoldAltText"
+    },
+    "HoveredCommunityIndicatorPanel": {
+      "class": "WBP_HoveredCommunityIndicator_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.HoveredCommunityIndicatorPanel"
+    },
+    "IgnoreFocusBehaviourOnOpen": false,
+    "IsCloseFinalizerRequired": false,
+    "LogEventsToAnalytics": false,
+    "MainScreenElementsCanvasContainer": {
+      "class": "CanvasPanel",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.MainScreenElementsCanvasContainer"
+    },
+    "NavigationWidget": {
+      "class": "WBP_DelegatesNavigation_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.NavigationWidget"
+    },
+    "Navigation_MenuLayout": {
+      "class": "PXDynamicLayout",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.Navigation_MenuLayout"
+    },
+    "NegotiateButton": {
+      "class": "WBP_SmallOpenTextButton_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.NegotiateButton"
+    },
+    "NegotiationsPhaseTimerWidget": {
+      "class": "WBP_Parliament_CurrentPhaseTimer_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.NegotiationsPhaseTimerWidget"
+    },
+    "NegotiationsWidgetsLayout": {
+      "class": "PXDynamicLayout",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.NegotiationsWidgetsLayout"
+    },
+    "OnDelegateList": {
+      "class": "WidgetAnimation",
+      "ref": "/Game/UI/UiWidgets/KBM_Widgets/ParliamentPanel/Panels/WBP_Parliament_MainScreen.WBP_Parliament_MainScreen_C:OnDelegateList_INST"
+    },
+    "OnWidgetVisibilityChangedEvent": {
+      "delegate": "MulticastInlineDelegateProperty"
+    },
+    "OpenedFromStart": false,
+    "OrText": {
+      "class": "PXRichTextBlock",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.OrText"
+    },
+    "OverrideBlockAnalogNavigation": false,
+    "ParliamentCommunityLorePanel": {
+      "class": "WBP_ParliamentCommunityLorePanel_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.ParliamentCommunityLorePanel"
+    },
+    "PauseGameWhenVisible": false,
+    "PolicyAgenda_Layout": {
+      "class": "PXDynamicLayout",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.PolicyAgenda_Layout"
+    },
+    "PredictionBar": {
+      "class": "WBP_Parliament_VotingPredictionBar_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.PredictionBar"
+    },
+    "PredictionBarSizeBox": {
+      "class": "SizeBox",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.PredictionBarSizeBox"
+    },
+    "RecessWidgetsCanvasContainer": {
+      "class": "CanvasPanel",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.RecessWidgetsCanvasContainer"
+    },
+    "ReturnFocusToPreviousPanelOnClose": false,
+    "ShowEditorPreview": true,
+    "ShowHideElements": {
+      "class": "WidgetAnimation",
+      "ref": "/Game/UI/UiWidgets/KBM_Widgets/ParliamentPanel/Panels/WBP_Parliament_MainScreen.WBP_Parliament_MainScreen_C:ShowHideElements_INST"
+    },
+    "ShowSwayingButtonsButton": {
+      "class": "WBP_ON_OFF_SwitchWithTextTag_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.ShowSwayingButtonsButton"
+    },
+    "StartTwitchRaffleButton": {
+      "class": "WBP_SmallOpenTextButton_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.StartTwitchRaffleButton"
+    },
+    "SwayAnimation": {
+      "class": "WidgetAnimation",
+      "ref": "/Game/UI/UiWidgets/KBM_Widgets/ParliamentPanel/Panels/WBP_Parliament_MainScreen.WBP_Parliament_MainScreen_C:SwayAnimation_INST"
+    },
+    "SwayDirectionButton": {
+      "class": "WBP_ON_OFF_SwitchWithTextTag_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.SwayDirectionButton"
+    },
+    "SwayLayout": {
+      "class": "PXDynamicLayout",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.SwayLayout"
+    },
+    "TopRightCorner": {
+      "class": "WBP_Parliament_TopRightCorner_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.TopRightCorner"
+    },
+    "TrustProgressbar": {
+      "class": "WBP_Parliament_TrustProgressBar_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.TrustProgressbar"
+    },
+    "UIGroup": {
+      "class": "PXUIGroup",
+      "ref": "/Game/UI/Utilities/UIGroups/DA_ParliamentLobbyUIGroup.DA_ParliamentLobbyUIGroup"
+    },
+    "UIPanelTriggeredBehaviour": [],
+    "UberGraphFrame": {
+      "$struct": "PointerToUberGraphFrame"
+    },
+    "VoteButton": {
+      "class": "WBP_SmallOpenTextButton_C",
+      "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel.WidgetTree_2147435123.VoteButton"
+    },
+    "VotingStarted": {
+      "delegate": "MulticastInlineDelegateProperty"
+    },
+    "darkModeFlag": false
+  },
+  "ref": "/Engine/Transient.GameEngine_2147482632:BP_MainGameInstance_C_2147482556.WBP_KBM_GameplayScreen_C_2147438747.WidgetTree_2147438746.HouseOfDelegates_Hub_Widget.WidgetTree_2147435124.LobbyScreenPanel"
+}

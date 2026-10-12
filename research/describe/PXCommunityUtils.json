@@ -1,0 +1,506 @@
+{
+  "chain": [
+    "PXCommunityUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXCommunityUtils",
+  "functions": [
+    {
+      "name": "TransferSizeProportionallyToCommunitiesByPercent",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "sourceCommunity:Object",
+        "targetCommunities:Array",
+        "percentTransfer:Int",
+        "Params:Struct<PXPopulationTransferParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "TransferSizeProportionallyToCommunities",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "sourceCommunity:Object",
+        "targetCommunities:Array",
+        "sizeTransfer:Int",
+        "Params:Struct<PXPopulationTransferParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "TransferSizeProportionallyFromCommunitiesByPercent",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "sourceCommunities:Array",
+        "targetCommunity:Object",
+        "percentTransfer:Int",
+        "Params:Struct<PXPopulationTransferParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "TransferSizeProportionallyFromCommunities",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "sourceCommunities:Array",
+        "targetCommunity:Object",
+        "sizeTransfer:Int",
+        "Params:Struct<PXPopulationTransferParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "TransferCommunitySizeByPercent",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "sourceCommunityType:Object",
+        "targetCommunityType:Object",
+        "percentTransfer:Int",
+        "Params:Struct<PXPopulationTransferParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "TransferCommunitySize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "sourceCommunityType:Object",
+        "targetCommunityType:Object",
+        "sizeTransfer:Int",
+        "Params:Struct<PXPopulationTransferParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "StopPendingSizeChange",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "communityType:Object",
+        "ChangeID:Int"
+      ]
+    },
+    {
+      "name": "StopAllPendingSizeChanges",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "communityType:Object"
+      ]
+    },
+    {
+      "name": "SplitCommunitiesBySizeAndFaction",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Communities:Array",
+        "outFirstCommunities:Array",
+        "outFirstCommunitiesSize:Int",
+        "outSecondCommunities:Array",
+        "outSecondCommunitiesSize:Int"
+      ]
+    },
+    {
+      "name": "SortCommunitiesFromConfigOrder",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Communities:Array",
+        "outFirstCommunities:Array",
+        "outFirstCommunitiesSize:Int",
+        "outSecondCommunities:Array",
+        "outSecondCommunitiesSize:Int"
+      ]
+    },
+    {
+      "name": "ShouldHideCommunityRelationsWidgets",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "communityComponent:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "RemoveImprint",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "imprint:Object"
+      ]
+    },
+    {
+      "name": "IsThereAnyCommunityWithImprint",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "imprint:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsCommunityExcludedFromRelocation",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Community:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasCommunityTag",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Community:Object",
+        "Tag:Struct<GameplayTag>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasCommunityContainedImprint",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "communityComponent:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetUniqueFactionsFromNation",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetScaledCityPopulationSize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetRandomizedCommunitiesSetup",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "coreCommunities:Array",
+        "wildcardCommunities:Array",
+        "additionalCommunities:Array",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetNationCommunitiesSize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetIndependentsTypeFromAffinity",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "affinity:Struct<PXAffinityEntry>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetImprintsInLevelingGroup",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "levelingGroup:Struct<PXImprintLevellingGroupEntry>",
+        "ReturnValue:Map"
+      ]
+    },
+    {
+      "name": "GetExcludedFromRelocationCommunitiesSize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetDominantCommunityInDistrict",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetDistrictsWithDominantCommunity",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Community:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCommunityTypesFromCity",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCommunityTagComponent",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Community:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCommunitySize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "communityType:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCommunityPercentOfPopulation",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "communityType:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetCommunityPendingSizeChangePerTick",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "communityType:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCommunityPendingSizeChange",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "communityType:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCommunityOfCommunityType",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "OptionalCity:Object",
+        "outFound:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCommunityGameplayDescription",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Community:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCommunityCoreAffinities",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Community:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCommunitiesWithTags",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "Query:Struct<GameplayTagQuery>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCommunitiesSortedBySize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCommunitiesFromCityWithImprint",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "imprint:Object",
+        "City:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCityCommunitiesSizeForPopulationChange",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityCommunitiesSize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetAllValidCommunityTypes",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllImprints",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllCommunitiesWithImprint",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "imprint:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllCommunitiesFromNation",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllCommunities",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "ChangePopulationSizeByPercent",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "percentChange:Int",
+        "Params:Struct<PXPopulationChangeParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "ChangePopulationSize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "SizeChange:Int",
+        "Params:Struct<PXPopulationChangeParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "ChangeCommunitySizeByPercent",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "percentChange:Int",
+        "Params:Struct<PXCommunitySizeChangeParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "ChangeCommunitySize",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "SizeChange:Int",
+        "Params:Struct<PXCommunitySizeChangeParameters>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "AddTimelineEntry",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "Description:Text"
+      ]
+    },
+    {
+      "name": "AddNextLevelImprintFromGroup",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "groupEntry:Struct<PXImprintLevellingGroupEntry>"
+      ]
+    },
+    {
+      "name": "AddMinorTimelineEntry",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "Description:Text"
+      ]
+    },
+    {
+      "name": "AddImprint",
+      "owner": "PXCommunityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "imprint:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

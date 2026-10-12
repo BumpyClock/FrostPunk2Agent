@@ -1,0 +1,2642 @@
+{
+  "chain": [
+    "WBP_ParliamentAdditionalPolicy_C",
+    "PXButtonUserWidget",
+    "PXBaseUserWidget",
+    "UserWidget",
+    "Widget",
+    "Visual",
+    "Object"
+  ],
+  "class": "/Game/UI/UiWidgets/KBM_Widgets/ParliamentPanel/Widgets/WBP_ParliamentAdditionalPolicy.WBP_ParliamentAdditionalPolicy_C",
+  "functions": [
+    {
+      "name": "SetCornerstoneImages",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "PolicyForCornerstoneIcon:Object<PXPolicyType>",
+        "LawType:Object<PXLawType>",
+        "CallFunc_IsValid_ReturnValue:Bool",
+        "CallFunc_GetPolicyAffinityEntries_ReturnValue:Array",
+        "CallFunc_Sort_Affinity_Entries_on_Axis_SortedEntries:Array",
+        "CallFunc_Array_IsEmpty_ReturnValue:Bool",
+        "CallFunc_Array_Length_ReturnValue:Int",
+        "CallFunc_Not_PreBool_ReturnValue:Bool",
+        "CallFunc_Not_PreBool_ReturnValue_1:Bool",
+        "CallFunc_BooleanOR_ReturnValue:Bool",
+        "CallFunc_CreateEntryWidget_ReturnValue:Object<WBP_IconWidget_C>",
+        "CallFunc_CreateEntryWidget_ReturnValue_1:Object<WBP_IconWidget_C>",
+        "Temp_int_Array_Index_Variable:Int",
+        "CallFunc_Array_Get_Item:Struct<PXAffinityEntry>",
+        "CallFunc_Get_Cornerstone_for_Affinity_Cornerstone:Object<PXCornerstone>",
+        "CallFunc_IsValid_ReturnValue_1:Bool",
+        "Temp_int_Loop_Counter_Variable:Int",
+        "CallFunc_Less_IntInt_ReturnValue:Bool",
+        "CallFunc_Add_IntInt_ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "CheckForDisplayingIcons",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "Temp_bool_Variable:Bool",
+        "CallFunc_HasAnyVisibleOnUIQuestObjectiveFor_ReturnValue:Bool",
+        "CallFunc_IsPolicyAgainstEmbracedCornerstone_ReturnValue:Bool",
+        "CallFunc_HasQuestInParliamentObject_isPromisedQuest:Bool",
+        "CallFunc_HasQuestInParliamentObject_outPromisedCommunity:Object<PXCommunityComponent>",
+        "CallFunc_HasQuestInParliamentObject_ReturnValue:Bool",
+        "CallFunc_GetPolicyState_result:Enum<EPXPolicyNotificationState>",
+        "K2Node_SwitchEnum_CmpSuccess:Bool",
+        "K2Node_Select_Default:Object<Widget>"
+      ]
+    },
+    {
+      "name": "RefreshButtonStatus",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "Temp_bool_Variable:Bool",
+        "CallFunc_GetCurrentParliamentPhase_ReturnValue:Enum<EPXSessionPhase>",
+        "CallFunc_IsCurrentSessionForced_ReturnValue:Bool",
+        "CallFunc_EqualEqual_ByteByte_ReturnValue:Bool",
+        "CallFunc_Not_PreBool_ReturnValue:Bool",
+        "CallFunc_EqualEqual_ByteByte_ReturnValue_1:Bool",
+        "CallFunc_IsCurrentSessionForced_ReturnValue_1:Bool",
+        "CallFunc_BooleanOR_ReturnValue:Bool",
+        "CallFunc_BooleanAND_ReturnValue:Bool",
+        "CallFunc_MakeLiteralText_ReturnValue:Text",
+        "CallFunc_MakeLiteralText_ReturnValue_1:Text",
+        "K2Node_Select_Default:Text",
+        "CallFunc_GetCurrentParliamentPhase_ReturnValue_1:Enum<EPXSessionPhase>",
+        "CallFunc_EqualEqual_ByteByte_ReturnValue_2:Bool",
+        "CallFunc_Conv_BoolToInt_ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "Initialize Additional Policy",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "Policy:Object<PXPolicyType>",
+        "LawType:Object<PXLawType>",
+        "LocalFactionTypeRequiringPolicy:Object<PXFactionType>",
+        "ProposedByCommunityType:Object<PXCommunityType>",
+        "Temp_int_Array_Index_Variable:Int",
+        "CallFunc_IsValid_ReturnValue:Bool",
+        "CallFunc_GetCurrentCity_ReturnValue:Object<PXCityComponent>",
+        "CallFunc_GetCityNation_ReturnValue:Object<PXNationComponent>",
+        "CallFunc_GetFactionTypesRequiringPolicy_ReturnValue:Array",
+        "CallFunc_Array_Get_Item:Object<PXFactionType>",
+        "Temp_int_Loop_Counter_Variable:Int",
+        "Temp_int_Loop_Counter_Variable_1:Int",
+        "CallFunc_Add_IntInt_ReturnValue:Int",
+        "CallFunc_Add_IntInt_ReturnValue_1:Int",
+        "CallFunc_IsValid_ReturnValue_1:Bool",
+        "CallFunc_GetPlayerNation_ReturnValue:Object<PXNationComponent>",
+        "CallFunc_GetPlayerNation_ReturnValue_1:Object<PXNationComponent>",
+        "CallFunc_GetPolicyAffinityEntries_ReturnValue:Array",
+        "CallFunc_MatchFactions_ReturnValue:Array",
+        "CallFunc_Array_Get_Item_1:Object<PXFactionType>",
+        "CallFunc_IsValid_ReturnValue_2:Bool",
+        "CallFunc_GetCommunityTypeFromFaction_ReturnValue:Object<PXCommunityType>",
+        "CallFunc_MakeLiteralText_ReturnValue:Text",
+        "CallFunc_GetPlayerNation_ReturnValue_2:Object<PXNationComponent>",
+        "Temp_int_Array_Index_Variable_1:Int",
+        "CallFunc_Get_current_parliament_and_subsystem_Subsystem:Object<PXParliamentSubsystem>",
+        "CallFunc_Get_current_parliament_and_subsystem_Parliament:Object<PXParliamentComponent>",
+        "CallFunc_GetChildWidgets_ReturnValue:Array",
+        "CallFunc_GetChildWidgetsNum_ReturnValue:Int",
+        "CallFunc_Array_Get_Item_2:Object<Widget>",
+        "CallFunc_EqualEqual_IntInt_ReturnValue:Bool",
+        "K2Node_DynamicCast_AsWBP_Parliament_Support_Widget:Object<WBP_Parliament_Support_Widget_C>",
+        "K2Node_DynamicCast_bSuccess:Bool",
+        "CallFunc_GreaterEqual_IntInt_ReturnValue:Bool",
+        "CallFunc_Array_Length_ReturnValue:Int",
+        "CallFunc_Less_IntInt_ReturnValue:Bool",
+        "CallFunc_GetPolicyAffinitiesIncreaseDescription_ReturnValue:Text",
+        "CallFunc_IsEmpty_ReturnValue:Bool",
+        "Temp_bool_Variable:Bool",
+        "CallFunc_TextIsEmptyOrBlankOnPurpose_IsEmpty:Bool",
+        "CallFunc_Not_PreBool_ReturnValue:Bool",
+        "K2Node_Select_Default:Text",
+        "CallFunc_BooleanAND_ReturnValue:Bool",
+        "CallFunc_Not_PreBool_ReturnValue_1:Bool",
+        "CallFunc_PredictVote_perCommunityResult:Map",
+        "CallFunc_PredictVote_ReturnValue:Struct<PXVoteResultData>",
+        "CallFunc_Map_Keys_Keys:Array",
+        "CallFunc_Greater_IntInt_ReturnValue:Bool",
+        "CallFunc_Array_Get_Item_3:Object<PXCommunityType>",
+        "CallFunc_Array_Length_ReturnValue_1:Int",
+        "CallFunc_NotEqual_ObjectObject_ReturnValue:Bool",
+        "CallFunc_Less_IntInt_ReturnValue_1:Bool",
+        "CallFunc_IsCommunitySupportingPolicy_ReturnValue:Bool",
+        "CallFunc_GetPolicyTypeGameplayDescription_ReturnValue:Struct<PXGameplayDescription>!text",
+        "CallFunc_CreateEntryWidget_ReturnValue:Object<WBP_Parliament_Support_Widget_C>"
+      ]
+    },
+    {
+      "name": "Completed_A16853CD4D023BDB6345BF9A7CAC3C9F",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "selectedChoiceIndex:Byte"
+      ]
+    },
+    {
+      "name": "SFX_ui_tab_hover",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": []
+    },
+    {
+      "name": "OnInitialized",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": []
+    },
+    {
+      "name": "BndEvt__WBP_HODAdditionalPolicy_ProposeButtonWidget_K2Node_ComponentBoundEvent_9_PXButtonEvent__DelegateSignature",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "Button:Object<PXButtonUserWidget>"
+      ]
+    },
+    {
+      "name": "OnMouseLeave",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "MouseEvent:Struct<PointerEvent>"
+      ]
+    },
+    {
+      "name": "OnMouseEnter",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph_WBP_ParliamentAdditionalPolicy",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "EntryPoint:Int",
+        "K2Node_CustomEvent_selectedChoiceIndex:Byte",
+        "CallFunc_GetObjectClass_ReturnValue:Class<Class>",
+        "Temp_byte_Variable:Byte",
+        "CallFunc_EqualEqual_ByteByte_ReturnValue:Bool",
+        "CallFunc_GetCurrentParliamentPhase_ReturnValue:Enum<EPXSessionPhase>",
+        "K2Node_CreateDelegate_OutputDelegate:Delegate",
+        "CallFunc_EqualEqual_ByteByte_ReturnValue_1:Bool",
+        "CallFunc_EqualEqual_ByteByte_ReturnValue_2:Bool",
+        "CallFunc_IsCurrentSessionForced_ReturnValue:Bool",
+        "CallFunc_BooleanOR_ReturnValue:Bool",
+        "CallFunc_Not_PreBool_ReturnValue:Bool",
+        "CallFunc_BooleanAND_ReturnValue:Bool",
+        "CallFunc_GetObjectClass_ReturnValue_1:Class<Class>",
+        "K2Node_ComponentBoundEvent_Button:Object<PXButtonUserWidget>",
+        "CallFunc_GetPlannedPromises_ReturnValue:Map",
+        "CallFunc_Map_IsNotEmpty_ReturnValue:Bool",
+        "K2Node_Event_MouseEvent_1:Struct<PointerEvent>",
+        "K2Node_Event_MyGeometry:Struct<Geometry>",
+        "K2Node_Event_MouseEvent:Struct<PointerEvent>",
+        "CallFunc_PlayAnimationForward_ReturnValue:Object<UMGSequencePlayer>",
+        "CallFunc_PlayAnimationReverse_ReturnValue:Object<UMGSequencePlayer>",
+        "CallFunc_GetPanelOfClass_ReturnValue:Object<WBP_ParliamentHub_C>",
+        "CallFunc_AsyncAction_OpenModal_ReturnValue:Object<PXAsyncOpenModal>",
+        "CallFunc_IsValid_ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "OnUnhoverChangeSwitcher__DelegateSignature",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": []
+    },
+    {
+      "name": "OnHoverChangeSwitcher__DelegateSignature",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "params": [
+        "Policy:Object<PXPolicyType>"
+      ]
+    },
+    {
+      "name": "SetIsFocusable",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "inIsFocusable:Bool"
+      ]
+    },
+    {
+      "name": "SetChecked",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "checked:Bool",
+        "Force:Bool"
+      ]
+    },
+    {
+      "name": "SetCheckable",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "inCheckable:Bool"
+      ]
+    },
+    {
+      "name": "SetActive",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "Active:Bool",
+        "Force:Bool"
+      ]
+    },
+    {
+      "name": "OnButtonUnselected",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnButtonUnhovered",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnButtonSelected",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnButtonReleased",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnButtonPressed",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnButtonHovered",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnButtonDoubleClicked",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnButtonClicked",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "NativeOnUnchecked",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "NativeOnStateTransition",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "State:Enum<EPXButtonState>",
+        "Transition:Enum<EPXButtonStateTransition>"
+      ]
+    },
+    {
+      "name": "NativeOnDeactivated",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "NativeOnChecked",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "NativeOnActivated",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "IsChecked",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsActive",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetIsSelected",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanPlayTransitionAnimation",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "WidgetAnimation:Object<WidgetAnimation>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CallGetCustomTooltipWidgetDelegate",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "ReturnValue:Object<Widget>"
+      ]
+    },
+    {
+      "name": "BP_OnUnselected",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnUnhovered",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnStateTransition",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "State:Enum<EPXButtonState>",
+        "Transition:Enum<EPXButtonStateTransition>"
+      ]
+    },
+    {
+      "name": "BP_OnSelected",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnReleased",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnPressed",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnHovered",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnDoubleClicked",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnDeactivated",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnClicked",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnCheckStateChanged",
+      "owner": "PXButtonUserWidget",
+      "params": [
+        "IsChecked:Bool"
+      ]
+    },
+    {
+      "name": "BP_OnButtonNavigationRightHandled",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnButtonNavigationLeftHandled",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnActivated",
+      "owner": "PXButtonUserWidget",
+      "params": []
+    },
+    {
+      "name": "SetIgnoreParentEnabledStateOnPaint",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "inIgnoreParentEnabledStateOnPaint:Bool"
+      ]
+    },
+    {
+      "name": "PlayOpenAnimation",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>",
+        "StartAtTime:Float",
+        "NumLoopsToPlay:Int",
+        "PlayMode:Byte",
+        "PlaybackSpeed:Float",
+        "RestoreState:Bool",
+        "ReturnValue:Object<UMGSequencePlayer>"
+      ]
+    },
+    {
+      "name": "PlayCloseAnimation",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "StartAtTime:Float",
+        "NumLoopsToPlay:Int",
+        "PlayMode:Byte",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool",
+        "ReturnValue:Object<UMGSequencePlayer>"
+      ]
+    },
+    {
+      "name": "OnWidgetCloseFinalizerFinishedEvent",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "Result:Enum<EPXWidgetCloseFinalizationResult>"
+      ]
+    },
+    {
+      "name": "OnParentUserWidgetVisibilityChanged",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "UserWidget:Object<PXBaseUserWidget>",
+        "isVisibile:Bool"
+      ]
+    },
+    {
+      "name": "OnOpenEvent",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnOpenAnimationFinished",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "OnCloseEvent",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "NativeGetDesiredFocusTargetWidget",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "ReturnValue:Object<Widget>"
+      ]
+    },
+    {
+      "name": "InitializeEditorPreview",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "GetWasOpenAnimationFinished",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetSupportsFocus",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetRecentControllerNavigationDirection",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "ReturnValue:Enum<EPXUINavigationDirection>"
+      ]
+    },
+    {
+      "name": "GetOpenWithParent",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetIsWidgetInFocusPath",
+      "owner": "PXBaseUserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "DeinitializeEditorPreview",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "ClearOpenWithParentFlag",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnOpenAnimationFinished",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnFocusReceived",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "BP_OnFocusLost",
+      "owner": "PXBaseUserWidget",
+      "params": []
+    },
+    {
+      "name": "UnregisterInputComponent",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "UnbindFromAnimationStarted",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>",
+        "Delegate:Delegate"
+      ]
+    },
+    {
+      "name": "UnbindFromAnimationFinished",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>",
+        "Delegate:Delegate"
+      ]
+    },
+    {
+      "name": "UnbindAllFromAnimationStarted",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>"
+      ]
+    },
+    {
+      "name": "UnbindAllFromAnimationFinished",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>"
+      ]
+    },
+    {
+      "name": "Tick",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InDeltaTime:Float"
+      ]
+    },
+    {
+      "name": "StopListeningForInputAction",
+      "owner": "UserWidget",
+      "params": [
+        "ActionName:Name",
+        "EventType:Byte"
+      ]
+    },
+    {
+      "name": "StopListeningForAllInputActions",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "StopAnimationsAndLatentActions",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "StopAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>"
+      ]
+    },
+    {
+      "name": "StopAllAnimations",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "SetPositionInViewport",
+      "owner": "UserWidget",
+      "params": [
+        "position:Struct<Vector2D>",
+        "bRemoveDPIScale:Bool"
+      ]
+    },
+    {
+      "name": "SetPlaybackSpeed",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "PlaybackSpeed:Float"
+      ]
+    },
+    {
+      "name": "SetPadding",
+      "owner": "UserWidget",
+      "params": [
+        "InPadding:Struct<Margin>"
+      ]
+    },
+    {
+      "name": "SetOwningPlayer",
+      "owner": "UserWidget",
+      "params": [
+        "LocalPlayerController:Object<PlayerController>"
+      ]
+    },
+    {
+      "name": "SetNumLoopsToPlay",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "NumLoopsToPlay:Int"
+      ]
+    },
+    {
+      "name": "SetInputActionPriority",
+      "owner": "UserWidget",
+      "params": [
+        "NewPriority:Int"
+      ]
+    },
+    {
+      "name": "SetInputActionBlocking",
+      "owner": "UserWidget",
+      "params": [
+        "bShouldBlock:Bool"
+      ]
+    },
+    {
+      "name": "SetForegroundColor",
+      "owner": "UserWidget",
+      "params": [
+        "InForegroundColor:Struct<SlateColor>"
+      ]
+    },
+    {
+      "name": "SetDesiredSizeInViewport",
+      "owner": "UserWidget",
+      "params": [
+        "Size:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "SetColorAndOpacity",
+      "owner": "UserWidget",
+      "params": [
+        "InColorAndOpacity:Struct<LinearColor>"
+      ]
+    },
+    {
+      "name": "SetAnimationCurrentTime",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "InTime:Float"
+      ]
+    },
+    {
+      "name": "SetAnchorsInViewport",
+      "owner": "UserWidget",
+      "params": [
+        "Anchors:Struct<Anchors>"
+      ]
+    },
+    {
+      "name": "SetAlignmentInViewport",
+      "owner": "UserWidget",
+      "params": [
+        "Alignment:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "ReverseAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>"
+      ]
+    },
+    {
+      "name": "RemoveFromViewport",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "RemoveExtensions",
+      "owner": "UserWidget",
+      "params": [
+        "InExtensionType:Class<Class>"
+      ]
+    },
+    {
+      "name": "RemoveExtension",
+      "owner": "UserWidget",
+      "params": [
+        "InExtension:Object<UserWidgetExtension>"
+      ]
+    },
+    {
+      "name": "RegisterInputComponent",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "QueueStopAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>"
+      ]
+    },
+    {
+      "name": "QueueStopAllAnimations",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "QueuePlayAnimationTimeRange",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "StartAtTime:Float",
+        "EndAtTime:Float",
+        "NumLoopsToPlay:Int",
+        "PlayMode:Byte",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool"
+      ]
+    },
+    {
+      "name": "QueuePlayAnimationReverse",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool"
+      ]
+    },
+    {
+      "name": "QueuePlayAnimationForward",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool"
+      ]
+    },
+    {
+      "name": "QueuePlayAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "StartAtTime:Float",
+        "NumLoopsToPlay:Int",
+        "PlayMode:Byte",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool"
+      ]
+    },
+    {
+      "name": "QueuePauseAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "PreConstruct",
+      "owner": "UserWidget",
+      "params": [
+        "IsDesignTime:Bool"
+      ]
+    },
+    {
+      "name": "PlaySound",
+      "owner": "UserWidget",
+      "params": [
+        "SoundToPlay:Object<SoundBase>"
+      ]
+    },
+    {
+      "name": "PlayAnimationTimeRange",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "StartAtTime:Float",
+        "EndAtTime:Float",
+        "NumLoopsToPlay:Int",
+        "PlayMode:Byte",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool",
+        "ReturnValue:Object<UMGSequencePlayer>"
+      ]
+    },
+    {
+      "name": "PlayAnimationReverse",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool",
+        "ReturnValue:Object<UMGSequencePlayer>"
+      ]
+    },
+    {
+      "name": "PlayAnimationForward",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool",
+        "ReturnValue:Object<UMGSequencePlayer>"
+      ]
+    },
+    {
+      "name": "PlayAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "StartAtTime:Float",
+        "NumLoopsToPlay:Int",
+        "PlayMode:Byte",
+        "PlaybackSpeed:Float",
+        "bRestoreState:Bool",
+        "ReturnValue:Object<UMGSequencePlayer>"
+      ]
+    },
+    {
+      "name": "PauseAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "OnTouchStarted",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InTouchEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnTouchMoved",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InTouchEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnTouchGesture",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "GestureEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnTouchForceChanged",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InTouchEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnTouchEnded",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InTouchEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnRemovedFromFocusPath",
+      "owner": "UserWidget",
+      "params": [
+        "InFocusEvent:Struct<FocusEvent>"
+      ]
+    },
+    {
+      "name": "OnPreviewMouseButtonDown",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnPreviewKeyDown",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InKeyEvent:Struct<KeyEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnPaint",
+      "owner": "UserWidget",
+      "params": [
+        "Context:Struct<PaintContext>"
+      ]
+    },
+    {
+      "name": "OnMouseWheel",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnMouseMove",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnMouseLeave",
+      "owner": "UserWidget",
+      "params": [
+        "MouseEvent:Struct<PointerEvent>"
+      ]
+    },
+    {
+      "name": "OnMouseEnter",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>"
+      ]
+    },
+    {
+      "name": "OnMouseCaptureLost",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "OnMouseButtonUp",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnMouseButtonDown",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnMouseButtonDoubleClick",
+      "owner": "UserWidget",
+      "params": [
+        "InMyGeometry:Struct<Geometry>",
+        "InMouseEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnMotionDetected",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InMotionEvent:Struct<MotionEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnKeyUp",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InKeyEvent:Struct<KeyEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnKeyDown",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InKeyEvent:Struct<KeyEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnKeyChar",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InCharacterEvent:Struct<CharacterEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnInitialized",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "OnFocusReceived",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InFocusEvent:Struct<FocusEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnFocusLost",
+      "owner": "UserWidget",
+      "params": [
+        "InFocusEvent:Struct<FocusEvent>"
+      ]
+    },
+    {
+      "name": "OnDrop",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "PointerEvent:Struct<PointerEvent>",
+        "Operation:Object<DragDropOperation>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "OnDragOver",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "PointerEvent:Struct<PointerEvent>",
+        "Operation:Object<DragDropOperation>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "OnDragLeave",
+      "owner": "UserWidget",
+      "params": [
+        "PointerEvent:Struct<PointerEvent>",
+        "Operation:Object<DragDropOperation>"
+      ]
+    },
+    {
+      "name": "OnDragEnter",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "PointerEvent:Struct<PointerEvent>",
+        "Operation:Object<DragDropOperation>"
+      ]
+    },
+    {
+      "name": "OnDragDetected",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "PointerEvent:Struct<PointerEvent>",
+        "Operation:Object<DragDropOperation>"
+      ]
+    },
+    {
+      "name": "OnDragCancelled",
+      "owner": "UserWidget",
+      "params": [
+        "PointerEvent:Struct<PointerEvent>",
+        "Operation:Object<DragDropOperation>"
+      ]
+    },
+    {
+      "name": "OnAnimationStarted",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>"
+      ]
+    },
+    {
+      "name": "OnAnimationFinished",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>"
+      ]
+    },
+    {
+      "name": "OnAnalogValueChanged",
+      "owner": "UserWidget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "InAnalogInputEvent:Struct<AnalogInputEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnAddedToFocusPath",
+      "owner": "UserWidget",
+      "params": [
+        "InFocusEvent:Struct<FocusEvent>"
+      ]
+    },
+    {
+      "name": "ListenForInputAction",
+      "owner": "UserWidget",
+      "params": [
+        "ActionName:Name",
+        "EventType:Byte",
+        "bConsume:Bool",
+        "Callback:Delegate"
+      ]
+    },
+    {
+      "name": "IsPlayingAnimation",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsListeningForInputAction",
+      "owner": "UserWidget",
+      "params": [
+        "ActionName:Name",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsInteractable",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAnyAnimationPlaying",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAnimationPlayingForward",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAnimationPlaying",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetOwningPlayerPawn",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Object<Pawn>"
+      ]
+    },
+    {
+      "name": "GetOwningPlayerCameraManager",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Object<PlayerCameraManager>"
+      ]
+    },
+    {
+      "name": "GetIsVisible",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetExtensions",
+      "owner": "UserWidget",
+      "params": [
+        "ExtensionType:Class<Class>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetExtension",
+      "owner": "UserWidget",
+      "params": [
+        "ExtensionType:Class<Class>",
+        "ReturnValue:Object<UserWidgetExtension>"
+      ]
+    },
+    {
+      "name": "GetAnimationCurrentTime",
+      "owner": "UserWidget",
+      "params": [
+        "InAnimation:Object<WidgetAnimation>",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetAnchorsInViewport",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Struct<Anchors>"
+      ]
+    },
+    {
+      "name": "GetAlignmentInViewport",
+      "owner": "UserWidget",
+      "params": [
+        "ReturnValue:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "FlushAnimations",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "Destruct",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "Construct",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "CancelLatentActions",
+      "owner": "UserWidget",
+      "params": []
+    },
+    {
+      "name": "BindToAnimationStarted",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>",
+        "Delegate:Delegate"
+      ]
+    },
+    {
+      "name": "BindToAnimationFinished",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>",
+        "Delegate:Delegate"
+      ]
+    },
+    {
+      "name": "BindToAnimationEvent",
+      "owner": "UserWidget",
+      "params": [
+        "Animation:Object<WidgetAnimation>",
+        "Delegate:Delegate",
+        "AnimationEvent:Enum<EWidgetAnimationEvent>",
+        "UserTag:Name"
+      ]
+    },
+    {
+      "name": "AddToViewport",
+      "owner": "UserWidget",
+      "params": [
+        "ZOrder:Int"
+      ]
+    },
+    {
+      "name": "AddToPlayerScreen",
+      "owner": "UserWidget",
+      "params": [
+        "ZOrder:Int",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "AddExtension",
+      "owner": "UserWidget",
+      "params": [
+        "InExtensionType:Class<Class>",
+        "ReturnValue:Object<UserWidgetExtension>"
+      ]
+    },
+    {
+      "name": "SetVisible",
+      "owner": "Widget",
+      "params": [
+        "bInVisible:Bool"
+      ]
+    },
+    {
+      "name": "SetVisibility",
+      "owner": "Widget",
+      "params": [
+        "InVisibility:Enum<ESlateVisibility>"
+      ]
+    },
+    {
+      "name": "SetUseStaticToolTip",
+      "owner": "Widget",
+      "params": [
+        "bInValue:Bool"
+      ]
+    },
+    {
+      "name": "SetUserFocus",
+      "owner": "Widget",
+      "params": [
+        "PlayerController:Object<PlayerController>"
+      ]
+    },
+    {
+      "name": "SetToolTipText",
+      "owner": "Widget",
+      "params": [
+        "InToolTipText:Text"
+      ]
+    },
+    {
+      "name": "SetToolTip",
+      "owner": "Widget",
+      "params": [
+        "Widget:Object<Widget>"
+      ]
+    },
+    {
+      "name": "SetStaticTooltipPivot",
+      "owner": "Widget",
+      "params": [
+        "InPivot:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "SetRenderTranslation",
+      "owner": "Widget",
+      "params": [
+        "Translation:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "SetRenderTransformPivot",
+      "owner": "Widget",
+      "params": [
+        "Pivot:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "SetRenderTransformAngle",
+      "owner": "Widget",
+      "params": [
+        "Angle:Float"
+      ]
+    },
+    {
+      "name": "SetRenderTransform",
+      "owner": "Widget",
+      "params": [
+        "InTransform:Struct<WidgetTransform>"
+      ]
+    },
+    {
+      "name": "SetRenderShear",
+      "owner": "Widget",
+      "params": [
+        "Shear:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "SetRenderScale",
+      "owner": "Widget",
+      "params": [
+        "Scale:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "SetRenderOpacity",
+      "owner": "Widget",
+      "params": [
+        "InOpacity:Float"
+      ]
+    },
+    {
+      "name": "SetNavigationRuleExplicit",
+      "owner": "Widget",
+      "params": [
+        "Direction:Enum<EUINavigation>",
+        "InWidget:Object<Widget>"
+      ]
+    },
+    {
+      "name": "SetNavigationRuleCustomBoundary",
+      "owner": "Widget",
+      "params": [
+        "Direction:Enum<EUINavigation>",
+        "InCustomDelegate:Delegate"
+      ]
+    },
+    {
+      "name": "SetNavigationRuleCustom",
+      "owner": "Widget",
+      "params": [
+        "Direction:Enum<EUINavigation>",
+        "InCustomDelegate:Delegate"
+      ]
+    },
+    {
+      "name": "SetNavigationRuleBase",
+      "owner": "Widget",
+      "params": [
+        "Direction:Enum<EUINavigation>",
+        "Rule:Enum<EUINavigationRule>"
+      ]
+    },
+    {
+      "name": "SetNavigationRule",
+      "owner": "Widget",
+      "params": [
+        "Direction:Enum<EUINavigation>",
+        "Rule:Enum<EUINavigationRule>",
+        "WidgetToFocus:Name"
+      ]
+    },
+    {
+      "name": "SetKeyboardFocus",
+      "owner": "Widget",
+      "params": []
+    },
+    {
+      "name": "SetIsEnabled",
+      "owner": "Widget",
+      "params": [
+        "bInIsEnabled:Bool"
+      ]
+    },
+    {
+      "name": "SetFocus",
+      "owner": "Widget",
+      "params": []
+    },
+    {
+      "name": "SetCursor",
+      "owner": "Widget",
+      "params": [
+        "InCursor:Byte"
+      ]
+    },
+    {
+      "name": "SetClipping",
+      "owner": "Widget",
+      "params": [
+        "InClipping:Enum<EWidgetClipping>"
+      ]
+    },
+    {
+      "name": "SetBlockHitTestsForChildren",
+      "owner": "Widget",
+      "params": [
+        "bInBlockHitTestsForChildren:Bool"
+      ]
+    },
+    {
+      "name": "SetBlockHitTests",
+      "owner": "Widget",
+      "params": [
+        "bInBlockHitTests:Bool"
+      ]
+    },
+    {
+      "name": "SetAlwaysOccupyLayouts",
+      "owner": "Widget",
+      "params": [
+        "bInAlwaysOccupyLayouts:Bool"
+      ]
+    },
+    {
+      "name": "SetAllNavigationRules",
+      "owner": "Widget",
+      "params": [
+        "Rule:Enum<EUINavigationRule>",
+        "WidgetToFocus:Name"
+      ]
+    },
+    {
+      "name": "ResetCursor",
+      "owner": "Widget",
+      "params": []
+    },
+    {
+      "name": "RemoveFromParent",
+      "owner": "Widget",
+      "params": []
+    },
+    {
+      "name": "OnTooltipVisibilityChanged",
+      "owner": "Widget",
+      "params": [
+        "bIsVisible:Bool"
+      ]
+    },
+    {
+      "name": "OnReply__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "OnPointerEvent__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "MyGeometry:Struct<Geometry>",
+        "MouseEvent:Struct<PointerEvent>",
+        "ReturnValue:Struct<EventReply>"
+      ]
+    },
+    {
+      "name": "K2_RemoveFieldValueChangedDelegate",
+      "owner": "Widget",
+      "params": [
+        "FieldId:Struct<FieldNotificationId>",
+        "Delegate:Delegate"
+      ]
+    },
+    {
+      "name": "K2_BroadcastFieldValueChanged",
+      "owner": "Widget",
+      "params": [
+        "FieldId:Struct<FieldNotificationId>"
+      ]
+    },
+    {
+      "name": "K2_AddFieldValueChangedDelegate",
+      "owner": "Widget",
+      "params": [
+        "FieldId:Struct<FieldNotificationId>",
+        "Delegate:Delegate"
+      ]
+    },
+    {
+      "name": "IsVisible",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsRendered",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsInViewport",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsHovered",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "InvalidateLayoutAndVolatility",
+      "owner": "Widget",
+      "params": []
+    },
+    {
+      "name": "HasUserFocusedDescendants",
+      "owner": "Widget",
+      "params": [
+        "PlayerController:Object<PlayerController>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasUserFocus",
+      "owner": "Widget",
+      "params": [
+        "PlayerController:Object<PlayerController>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasMouseCaptureByUser",
+      "owner": "Widget",
+      "params": [
+        "UserIndex:Int",
+        "PointerIndex:Int",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasMouseCapture",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasKeyboardFocus",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasFocusedDescendants",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyUserFocus",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetWidget__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Object<Widget>"
+      ]
+    },
+    {
+      "name": "GetVisibility",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Enum<ESlateVisibility>"
+      ]
+    },
+    {
+      "name": "GetUseStaticToolTip",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetTickSpaceGeometry",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<Geometry>"
+      ]
+    },
+    {
+      "name": "GetText__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetStaticTooltipPivot",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "GetSlateVisibility__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Enum<ESlateVisibility>"
+      ]
+    },
+    {
+      "name": "GetSlateColor__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<SlateColor>"
+      ]
+    },
+    {
+      "name": "GetSlateBrush__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<SlateBrush>"
+      ]
+    },
+    {
+      "name": "GetRenderTransformAngle",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetRenderOpacity",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetParent",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Object<PanelWidget>"
+      ]
+    },
+    {
+      "name": "GetPaintSpaceGeometry",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<Geometry>"
+      ]
+    },
+    {
+      "name": "GetOwningPlayer",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Object<PlayerController>"
+      ]
+    },
+    {
+      "name": "GetOwningLocalPlayer",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Object<LocalPlayer>"
+      ]
+    },
+    {
+      "name": "GetMouseCursor__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Byte"
+      ]
+    },
+    {
+      "name": "GetLinearColor__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<LinearColor>"
+      ]
+    },
+    {
+      "name": "GetIsEnabled",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetInt32__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetGameInstance",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Object<GameInstance>"
+      ]
+    },
+    {
+      "name": "GetFloat__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetDesiredSize",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<Vector2D>"
+      ]
+    },
+    {
+      "name": "GetClipping",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Enum<EWidgetClipping>"
+      ]
+    },
+    {
+      "name": "GetCheckBoxState__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Enum<ECheckBoxState>"
+      ]
+    },
+    {
+      "name": "GetCachedGeometry",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Struct<Geometry>"
+      ]
+    },
+    {
+      "name": "GetBool__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetBlockHitTestsForChildren",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetBlockHitTests",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetAlwaysOccupyLayouts",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetAccessibleText",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetAccessibleSummaryText",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GenerateWidgetForString__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "Item:Str",
+        "ReturnValue:Object<Widget>"
+      ]
+    },
+    {
+      "name": "GenerateWidgetForObject__DelegateSignature",
+      "owner": "Widget",
+      "params": [
+        "Item:Object<Object>",
+        "ReturnValue:Object<Widget>"
+      ]
+    },
+    {
+      "name": "ForceVolatile",
+      "owner": "Widget",
+      "params": [
+        "bForce:Bool"
+      ]
+    },
+    {
+      "name": "ForceLayoutPrepass",
+      "owner": "Widget",
+      "params": []
+    },
+    {
+      "name": "CreateDefaultTooltip",
+      "owner": "Widget",
+      "params": [
+        "ReturnValue:Object<Widget>"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "UberGraphFrame",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "StructProperty"
+    },
+    {
+      "name": "DifferendAdditionalPolicyIsHovered",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "OnPolicyHover",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AdditionalLawBottomSeparatorImage",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AdditionalLawBottomSeparatorImageExtremeLaw",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AdditionalPolicyDescriptionText",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AdditionalPolicyEffectEconomicLayout",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AdditionalPolicyNameText",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CooldownProgressbar",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CornerstoneElementsContainerLayout",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CornerstoneIconWidgetTemplate",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CornerstoneIconWidgetTemplate_1",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CornerstoneIconWidgetTemplate_2",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CustomGameplayEffectText",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "DarkenGradientbg2",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "FactionLawLayout",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "FactionLawMarker",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "FactionLawTxtLayout",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "FactionName",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "FactionOrCommunitySupportContainer",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "FactionPolicyTitleText",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "FactionPolicyTitleTextContainer",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "LockedBlur",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "NewFactionLawMarkerContainer",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "NewPolicyMarkerWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "OnCooldownActiveContentSwitcher",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "OnHoverElementsContainerLayout",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "OnHoverPolicyButton",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "PolicyIconSwitcher",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "PolicySupportBarWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ProposalNegotiateContainerLayout",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ProposeButtonWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ProposedStatusLabelText",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ProposingFactionWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "QuestMarkerWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "SupportingFactionsListLayout",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "SupportingFactionWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "SupportStatusLabelText",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "WarningPolicyWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "Policy",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "Law",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "OnHoverChangeSwitcher",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "RichTextBlockClass",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "OnUnhoverChangeSwitcher",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "SupportingFactionElementClass",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "SuportingGroupIconDisplayTreshold",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "IntProperty"
+    },
+    {
+      "name": "IsOnWidget",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "ParlimentHubDialog",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CornerstoneIconWidgetClass",
+      "owner": "WBP_ParliamentAdditionalPolicy_C",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "Checkable",
+      "owner": "PXButtonUserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "OverrideChildButtonNavigation",
+      "owner": "PXButtonUserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "ButtonClickedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonDoubleClickedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonHoveredEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonUnhoveredEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonPressedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonReleasedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonCheckedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonUncheckedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonCheckedStateChangedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonActivatedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonDeactivatedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonStateTransitionEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonSelectedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ButtonUnselectedEvent",
+      "owner": "PXButtonUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "AnimationOnHovered",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnUnhovered",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnPressed",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnReleased",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnSelected",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnUnselected",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnChecked",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnUnchecked",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnActivated",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "AnimationOnDeactivated",
+      "owner": "PXButtonUserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "TutorialAnimations",
+      "owner": "PXButtonUserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "UIButtonTriggeredBehaviour",
+      "owner": "PXButtonUserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "ChildButton",
+      "owner": "PXButtonUserWidget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "OnWidgetVisibilityChangedEvent",
+      "owner": "PXBaseUserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ShowEditorPreview",
+      "owner": "PXBaseUserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "BlockParentClosingAnimation",
+      "owner": "PXBaseUserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "BlockControllerNavigationToDisabledWidget",
+      "owner": "PXBaseUserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "BlockRenderAsDisabled",
+      "owner": "PXBaseUserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "CloseFinalizer",
+      "owner": "PXBaseUserWidget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "IsCloseFinalizerRequired",
+      "owner": "PXBaseUserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "ColorAndOpacity",
+      "owner": "UserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "ColorAndOpacityDelegate",
+      "owner": "UserWidget",
+      "type": "DelegateProperty"
+    },
+    {
+      "name": "ForegroundColor",
+      "owner": "UserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "ForegroundColorDelegate",
+      "owner": "UserWidget",
+      "type": "DelegateProperty"
+    },
+    {
+      "name": "OnVisibilityChanged",
+      "owner": "UserWidget",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "Padding",
+      "owner": "UserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "Priority",
+      "owner": "UserWidget",
+      "type": "IntProperty"
+    },
+    {
+      "name": "bIsFocusable",
+      "owner": "UserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bStopAction",
+      "owner": "UserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "QueuedWidgetAnimationTransitions",
+      "owner": "UserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "ActiveSequencePlayers",
+      "owner": "UserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "AnimationTickManager",
+      "owner": "UserWidget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "StoppedSequencePlayers",
+      "owner": "UserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "NamedSlotBindings",
+      "owner": "UserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "Extensions",
+      "owner": "UserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "WidgetTree",
+      "owner": "UserWidget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "bHasScriptImplementedTick",
+      "owner": "UserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bHasScriptImplementedPaint",
+      "owner": "UserWidget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "TickFrequency",
+      "owner": "UserWidget",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "DesiredFocusWidget",
+      "owner": "UserWidget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "InputComponent",
+      "owner": "UserWidget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AnimationCallbacks",
+      "owner": "UserWidget",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "Slot",
+      "owner": "Widget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "bIsEnabledDelegate",
+      "owner": "Widget",
+      "type": "DelegateProperty"
+    },
+    {
+      "name": "ToolTipText",
+      "owner": "Widget",
+      "type": "TextProperty"
+    },
+    {
+      "name": "ToolTipTextDelegate",
+      "owner": "Widget",
+      "type": "DelegateProperty"
+    },
+    {
+      "name": "ToolTipWidget",
+      "owner": "Widget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ToolTipWidgetDelegate",
+      "owner": "Widget",
+      "type": "DelegateProperty"
+    },
+    {
+      "name": "VisibilityDelegate",
+      "owner": "Widget",
+      "type": "DelegateProperty"
+    },
+    {
+      "name": "bUseStaticToolTip",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "StaticTooltipPivot",
+      "owner": "Widget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "RenderTransform",
+      "owner": "Widget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "RenderTransformPivot",
+      "owner": "Widget",
+      "type": "StructProperty"
+    },
+    {
+      "name": "FlowDirectionPreference",
+      "owner": "Widget",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "bIsVariable",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bCreatedByConstructionScript",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bIsEnabled",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bOverride_Cursor",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bIsVolatile",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "Cursor",
+      "owner": "Widget",
+      "type": "ByteProperty"
+    },
+    {
+      "name": "Clipping",
+      "owner": "Widget",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "bVisible",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bBlockHitTests",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bBlockHitTestsForChildren",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bAlwaysOccupyLayouts",
+      "owner": "Widget",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "Visibility",
+      "owner": "Widget",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "RenderOpacity",
+      "owner": "Widget",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "PixelSnapping",
+      "owner": "Widget",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "AccessibleWidgetData",
+      "owner": "Widget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "Navigation",
+      "owner": "Widget",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "NativeBindings",
+      "owner": "Widget",
+      "type": "ArrayProperty"
+    }
+  ]
+}
+

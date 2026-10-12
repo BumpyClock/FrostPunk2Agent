@@ -1,0 +1,205 @@
+{
+  "chain": [
+    "PXOutpostType",
+    "DataAsset",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXOutpostType",
+  "functions": [
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "IngameName",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Description",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Subtitle",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Icon",
+      "owner": "PXOutpostType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "DepletedIngameName",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "DepletedDescription",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "DepletedIcon",
+      "owner": "PXOutpostType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "CustomBlueprint",
+      "owner": "PXOutpostType",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "Tags",
+      "owner": "PXOutpostType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "Requirements",
+      "owner": "PXOutpostType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "RequiresTrailConnection",
+      "owner": "PXOutpostType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "CanBeModifiedByTrails",
+      "owner": "PXOutpostType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "SiteType",
+      "owner": "PXOutpostType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "BlockageSetup",
+      "owner": "PXOutpostType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "EconomySetup",
+      "owner": "PXOutpostType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "needs",
+      "owner": "PXOutpostType",
+      "type": "MapProperty"
+    },
+    {
+      "name": "Workforce",
+      "owner": "PXOutpostType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "RequiredCommunitySize",
+      "owner": "PXOutpostType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "InitialCommunitySize",
+      "owner": "PXOutpostType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "communityType",
+      "owner": "PXOutpostType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "depositType",
+      "owner": "PXOutpostType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ExtractionSetup",
+      "owner": "PXOutpostType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "ModifierProducerSetup",
+      "owner": "PXOutpostType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "ConstructionSetup",
+      "owner": "PXOutpostType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "PrioritySetup",
+      "owner": "PXOutpostType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "UpgradedOutpostType",
+      "owner": "PXOutpostType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "UpgradedButtonText",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "UpgradedButtonDescriptionText",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "OutpostGameplayEffectText",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "UpgradedOutpostGameplayEffectsText",
+      "owner": "PXOutpostType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "LeftSettlementImage",
+      "owner": "PXOutpostType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "RightSettlementImage",
+      "owner": "PXOutpostType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "UpgradeVisibilityRequirements",
+      "owner": "PXOutpostType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "CartographyDecalMaterialsOverride",
+      "owner": "PXOutpostType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "DebugName",
+      "owner": "PXOutpostType",
+      "type": "StrProperty"
+    },
+    {
+      "name": "NativeClass",
+      "owner": "DataAsset",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "ElbDrmData",
+      "owner": "DataAsset",
+      "type": "ArrayProperty"
+    }
+  ]
+}
+

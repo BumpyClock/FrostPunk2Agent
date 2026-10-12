@@ -1,0 +1,98 @@
+{
+  "chain": [
+    "PXUtopiaToolsUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXUtopiaToolsUtils",
+  "functions": [
+    {
+      "name": "HasPointToAssign",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolComponent:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetUtopiaToolGameplayDescription",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaTool:Object",
+        "nodeInstance:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetUtopiaToolConfigSetup",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetUtopiaToolComponent",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "Community:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetUtopiaName",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetNodeInstance",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolComponent:Object",
+        "NodeTag:Struct<GameplayTag>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetDominantUtopiaTool",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCommunityComponent",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "utopiaTool:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddUtopiaToolBonusPoint",
+      "owner": "PXUtopiaToolsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "targetCommunity:Object",
+        "pointsNum:Int",
+        "Reason:Text"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

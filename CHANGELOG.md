@@ -7,6 +7,48 @@ The project has no tagged releases yet.
 
 ### Added
 
+- Bridge extension modules (`mod/FP2AgentBridge/Scripts/<name>.lua`, listed in `extensions.txt`). Status is from the
+  2026-10-11 live session on one Sandbox / Utopia save unless marked untested:
+  - `colony_actions`: `cities`, `colony_sites`, `trade_routes` (reads, measured); `colony_build` (founded a colony
+    instantly, 3000 people moved, no cost charged: open question); `transfer_people` (relocation unit, measured; the
+    v1 direct transfer was instant and free and was removed); `colony_exchange` (unrest and component count only; its
+    v1 crashed the game); `trade_route`, `city_abandon`, `recolonize` (refusals measured, real calls untested; trading
+    is locked on the test save).
+  - `frostland_actions`: `frost_teams`, `explorations`, `outposts`, `trails`, `trail_plan` (reads, measured);
+    `explore_stop` (recalls an expedition and returns the teams, measured); `outpost_active` (measured);
+    `outpost_upgrade` (the game refused silently); `build_outpost2` (dryRun measured); `outpost_action` (unproven, no
+    action list); `trail_build` (gated, trail cell format unresolved); `trail_tool` (untested, no trail type on the
+    test save).
+  - `society_actions`: `factions`, `vote_predict`, `community_actions`, `sway` (reads, measured);
+    `community_action` (FundProjects_CA measured: -154 heatstamps, +0.1 standing, 20-week cooldown); `council_ui`
+    (full chain measured: laws, law, select, negotiate, community, side, terms/term, accept, vote; LAW PASSED 55 For /
+    51 required); `negotiate` (status measured, cancel untested); `promise`; `promise_abandon` (default
+    `path=quest` measured working; `path=abandon` crashed the game once and needs `force=true`).
+  - `economy_actions`: `health` (one-call verdict with reasons, measured), `stock_caps` (stock vs limit, depot hubs
+    that raise it, measured), `heat_levels` (per-district heat level names, measured), `utopia_v2` (points, score,
+    assignable nodes, measured on the Venturers tree).
+- CLI daemon and recovery hardening:
+  - `fp2 daemon status|start|stop [--force]`. `fp2` starts a background daemon on first use
+    (`.runtime/fp2-daemon.exe`, a copy of `fp2.exe`) and runs commands in it. One process owns the file bridge and
+    queues every call, including the detached watcher's. One long command (`turn`, `advance`, `overdrive-cycle`,
+    `wait-for`, `wait-ready`) runs at a time. Ctrl-C or a dropped client stops it; `turn`, `advance` and
+    `overdrive-cycle` also pause the game. After a rebuild, the daemon restarts once it has been idle for 10 s; it
+    exits after 6 h idle. `--no-daemon` or `FP2_NO_DAEMON=1` keeps the direct file path. The daemon does not cut
+    latency (measured: `date` 114-131 ms through the daemon, 112-149 ms direct). Both paths start faster because
+    FFI loads on first use, and see responses sooner through `fs.watch` on the bridge folder: `brief` went from
+    355-407 ms to 264-305 ms.
+  - `fp2 unstick [dryRun=true]` clears a stuck "COMPILING SHADERS N/743" screen. The bug: a load during startup
+    shader compilation destroyed `BP_ShaderCompilerActor_C`, so the screen never closed (measured twice). It acts
+    only when all of these hold: the game is in a level, no compiler actor exists, the overlay shows (opacity
+    above 0), and its counter has not changed for 10 s. It prints the evidence it used. `launch` and `recover`
+    wait for the compiler actor to go before they load. `load` refuses while the compiler actor exists; `--force`
+    overrides.
+  - `recover` fails at once with "save did not load" when the game drops a load and stays at the main menu (before
+    this fix it waited 240 s). A save that opens on a story modal now counts as loaded. Ready means: in the
+    world, gameplay begun, no compiler actor, no compile overlay.
+  - `save` warns when the Council is open: a save made in the Council did not load (measured).
+  - `council-open` presses C once and waits up to 15 s; pressing again while the Council opens could close it.
+  - `keys` accepts `keepFocus=true`.
 - `research.idle` turn and watch event (default stop) and a "research idle" alert in `fp2 brief`: research sat idle for
   weeks with nothing flagging it. `brief` now carries a `research` summary.
 - `place_building` dryRun and refusal report `check`: district building limit and used slots, buildings present,
@@ -105,6 +147,16 @@ The project has no tagged releases yet.
 
 ### Changed
 
+- Extension loader: `Scripts/extensions.txt` lists extension modules, one per line; `fp2 reload` loads them after
+  `actions.lua` and before `commands.lua`, so a new module needs no UE4SS restart. The bridge request poll runs every
+  10 ms (was 50 ms; measured 30-100 ms per round trip, mostly poll latency).
+- `propose` refuses while the Council hub lobby is visible (`force=true` overrides): a `propose` run through the
+  bridge while the UI was on its lobby desynced the Council and a later click crashed the game (measured). Use
+  `council_ui` steps.
+- Play skill policy: the bridge and CLI are read-only for play agents (no edits to `mod/` or `cli/`, no `fp2 reload`,
+  no reflection commands). Gaps, bugs and crashes go to `BRIDGE_FEEDBACK.md`, which the maintainer reads between
+  sessions. The skill now lists the new Council, Frostland, colony and economy commands and runs `fp2 health` at
+  session start and at each re-plan.
 - `overdrive-cycle` switches off when the predicted wear at the next poll reaches `maxWear` (polling every 120 ms)
   instead of after an overshoot; at whiteout demand wear went 0.05 to 0.69 inside one 250 ms poll and the old loop
   stopped on "overshot" before switching off (measured, twice). Reports `overshoots`.

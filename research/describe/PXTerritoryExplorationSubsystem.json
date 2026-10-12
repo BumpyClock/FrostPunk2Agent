@@ -1,0 +1,187 @@
+{
+  "chain": [
+    "PXTerritoryExplorationSubsystem",
+    "PXWorldSubsystem",
+    "WorldSubsystem",
+    "Subsystem",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXTerritoryExplorationSubsystem",
+  "functions": [
+    {
+      "name": "TerritoryUpdatedEvent__DelegateSignature",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": [
+        "exploration:Object",
+        "State:Enum<EPXTerritoryState>",
+        "previousState:Enum<EPXTerritoryState>"
+      ]
+    },
+    {
+      "name": "TerritoryExplorationUpdatedEvent__DelegateSignature",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": [
+        "exploration:Object"
+      ]
+    },
+    {
+      "name": "OnWeatherLevelChangedEvent",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": [
+        "weatherTarget:Object",
+        "oldWeatherLevel:Object",
+        "newWeatherLevel:Object"
+      ]
+    },
+    {
+      "name": "OnUnitOrderCanceled",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": [
+        "unit:Object",
+        "order:Object",
+        "contextActor:Object"
+      ]
+    },
+    {
+      "name": "OnSiteChangedEvent",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": [
+        "Site:Object"
+      ]
+    },
+    {
+      "name": "OnFrostlandDetailsReset",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": []
+    },
+    {
+      "name": "OnEconomyChanged",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": [
+        "economy:Object"
+      ]
+    },
+    {
+      "name": "OnActivityChangedEvent",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "params": [
+        "Activity:Object"
+      ]
+    },
+    {
+      "name": "SetTickGroup",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "NewTickGroup:Byte"
+      ]
+    },
+    {
+      "name": "SetTickableWhenPaused",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "tickableWhenPaused:Bool"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickIntervalAndCooldown",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickInterval",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickEnabled",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "Enabled:Bool"
+      ]
+    },
+    {
+      "name": "RemoveTickPrerequisiteSubsystem",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "prerequisiteSubsystem:Object"
+      ]
+    },
+    {
+      "name": "ReceiveTick",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "DeltaSeconds:Float"
+      ]
+    },
+    {
+      "name": "IsSubsystemTickEnabled",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetSubsystemTickInterval",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "AddTickPrerequisiteSubsystem",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "prerequisiteSubsystem:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "TerritoryStateChangedEvent",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "TerritoryExplorationStateChangedEvent",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "TerritoryExplorationProgressedEvent",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "TerritoryExplorationTimeChangedEvent",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "RandomStream",
+      "owner": "PXTerritoryExplorationSubsystem",
+      "type": "StructProperty"
+    },
+    {
+      "name": "PrimarySubsystemTick",
+      "owner": "PXWorldSubsystem",
+      "type": "StructProperty"
+    },
+    {
+      "name": "SubsystemsAdded",
+      "owner": "PXWorldSubsystem",
+      "type": "BoolProperty"
+    }
+  ]
+}
+

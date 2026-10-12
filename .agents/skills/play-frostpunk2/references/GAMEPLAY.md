@@ -1,5 +1,8 @@
 # Gameplay notes
 
+See [MECHANICS.md](MECHANICS.md) for the rules behind these notes (resources, heat levels, society, Frostland,
+timers, health thresholds). This file keeps play-tested procedures.
+
 Each note carries its evidence. "Observed" means seen in this repo's play. "General" means general
 Frostpunk 2 knowledge; verify before relying on it.
 
@@ -45,6 +48,12 @@ Frostpunk 2 knowledge; verify before relying on it.
 - Switching districts off (`district_active`) is the fast lever to stretch a shrinking stock while the fix
   builds; switch them back one at a time and measure each step. (observed)
 - Districts next to Housing add Squalor. Housing next to the generator ring gets +1 temperature. (observed)
+- Stock caps are raised by hub districts, not by buildings: `FuelDepotHub` (+50,000 coal and oil) and the
+  Materials, Goods and Food depot hubs (+50,000 each). Each costs 80 Heatstamps and 50 Prefabs, takes 2 weeks and
+  100 workforce. Build the hub for a resource that sits at its cap ("surplus wasted") or that a whiteout will
+  drain. (measured)
+- Each district has its own heat level (Freezing, Very Cold, Cold, Chilly, Livable, Warm). A switched-off district
+  reads `HeatLevel_0_NotActive`; the district's `insulated` flag is readable. (measured)
 
 ## Heat
 
@@ -106,8 +115,8 @@ Preparation, from the warning to the arrival (general unless marked):
 1. **Reorder the stack.** `fp2 goals add horizon=threat priority=1 due=<arrival week> expect=".."`, and defer
    colonies, outposts, Utopia and long research in the goal texts or priorities. Keep `turn` at 1 to 2 weeks when
    the arrival is under 10 weeks away, and 1 week during the whiteout (the default does this).
-2. **Fuel.** Fill coal to the stock limit and raise the limit if a building or law allows it (not yet read; see
-   MOD_GAPS). Budget: whiteout weeks x 7 x coal per day at full heating, plus margin. Hold the coal mines on until
+2. **Fuel.** Fill coal to the stock limit and raise the limit with a `FuelDepotHub` district (+50,000 coal and oil,
+   80 Heatstamps, 50 Prefabs, 2 weeks; measured). Budget: whiteout weeks x 7 x coal per day at full heating, plus margin. Hold the coal mines on until
    the stock is full, then decide what to shed.
 3. **Food.** Fill the food stock; hothouses lose output in the storm. Budget the same way. Prefer food districts that
    do not depend on light if the tree offers them.
@@ -132,6 +141,19 @@ city's safety margin is short-term pain that can become collapse in the next col
 expanding early can be right when the base has slack. Revisit the verdict after each temperature drop or population jump, and include
 lead times (research weeks, construction weeks, weeks before a law's effect shows). (observed: at 92% generator load and negative food,
 the run paused colonies and built the generator upgrade first)
+
+## Colonies, Frostland and society (measured 2026-10-11, Sandbox save, weeks 247 to 257)
+
+- Colony founding (`colony_build site=Loch`) was instant and moved 3,000 people out of the main city (11,998 to
+  8,998). It charged no Prefabs, Cores or Heatstamps and was accepted with 0 free teams and 0 Cores. Do not assume
+  campaign colonies are free: guides list Cores, teams, Prefabs and weeks. Read stocks before and after.
+- Frostland teams are the `LogisticsUnits` supply: 15 per active Logistics district. Exploring Chilton Pass took 10
+  (`explore_stop` returns them). An outpost with no free teams sits inactive with `UnmetDemand`. `outpost_upgrade`
+  was refused with no change and no cost.
+- `FundProjects_CA` on the Merchants community cost 154 Heatstamps, raised standing 0.2 to 0.3, and set a 20-week
+  cooldown; a second call was refused. Standing 0.2 reads Favourable, 0 to 0.1 Neutral, -0.3 Opposing, -0.5 Hostile.
+- Before `propose`, get the Council hub UI past its lobby; a bridge `propose` over the lobby desynced the UI and a
+  later click crashed the game. Use laws from `fp2 laws` (proposable), not `laws all=true`.
 
 ## Priorities early (general)
 

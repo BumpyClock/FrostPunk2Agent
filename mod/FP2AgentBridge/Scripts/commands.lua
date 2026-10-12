@@ -671,6 +671,31 @@ def("load", {
     end,
 })
 
+-- Extension modules (one per line in Scripts/extensions.txt) register their own commands.
+-- Each module returns a table with register(def, env). Loaded by main.lua's reload in that order.
+local function loadExtensions()
+    local dir = (debug.getinfo(1, "S").source or ""):match("^@(.+)[\\/][^\\/]+$") or "."
+    local f = io.open(dir .. "\\extensions.txt", "r")
+    if not f then return end
+    local env = { def = def, actions = actions, reflect = reflect, extractors = extractors, geo = geo, json = json,
+        num = num, lower = lower, findClass = findClass, requireObject = requireObject, h = actions.h }
+    for line in f:lines() do
+        local m = line:gsub("%s+$", ""):gsub("^%s+", "")
+        if m ~= "" and m:sub(1, 2) ~= "--" then
+            local mod = package.loaded[m]
+            if type(mod) ~= "table" then
+                local chunk, err = loadfile(dir .. "\\" .. m .. ".lua")
+                if not chunk then error("extension " .. m .. ": " .. tostring(err), 0) end
+                mod = chunk(m)
+                package.loaded[m] = mod
+            end
+            if type(mod) == "table" and type(mod.register) == "function" then mod.register(def, env) end
+        end
+    end
+    f:close()
+end
+loadExtensions()
+
 function commands.dispatch(name, args)
     local spec = registry[name]
     if not spec then error("unknown command: " .. tostring(name) .. " (try help)", 0) end

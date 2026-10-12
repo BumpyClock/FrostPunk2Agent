@@ -1,0 +1,138 @@
+{
+  "chain": [
+    "PXStatisticUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXStatisticUtils",
+  "functions": [
+    {
+      "name": "IsStatisticSupported",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Statistic:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsStatisticAlwaysHidden",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "Statistic:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasStatisticVisibilityRequirementPassed",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Statistic:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetVisibleStatistics",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetTargetStatisticValue",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Statistic:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetSupportedStatistics",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetStatisticsOverThreshold",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Threshold:Float",
+        "excludedStatistics:Array",
+        "excludeHiddenStatistics:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetStatisticProgress",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Statistic:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetModifiedStatisticRate",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Statistic:Object",
+        "IncreaseRate:Struct<PXChangeRate>",
+        "DecreaseRate:Struct<PXChangeRate>"
+      ]
+    },
+    {
+      "name": "GetMaxCurrentStatistic",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "excludedStatistics:Array",
+        "excludeHiddenStatistics:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCurrentStatisticValue",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Statistic:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetCurrentStatisticOverThreshold",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "City:Object",
+        "Threshold:Float",
+        "excludedStatistics:Array",
+        "excludeHiddenStatistics:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCityFromStatisticHolder",
+      "owner": "PXStatisticUtils",
+      "params": [
+        "holder:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

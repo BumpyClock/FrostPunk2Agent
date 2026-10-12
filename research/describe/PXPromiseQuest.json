@@ -1,0 +1,331 @@
+{
+  "chain": [
+    "PXPromiseQuest",
+    "PXQuest",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXPromiseQuest",
+  "functions": [
+    {
+      "name": "ReceivePromiseInitialized",
+      "owner": "PXPromiseQuest",
+      "params": []
+    },
+    {
+      "name": "GetCommunityType",
+      "owner": "PXPromiseQuest",
+      "params": [
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetAllDesires",
+      "owner": "PXPromiseQuest",
+      "params": [
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "SetQuestDuration",
+      "owner": "PXQuest",
+      "params": [
+        "NewDuration:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "SetQuestCategoryTag",
+      "owner": "PXQuest",
+      "params": [
+        "newTag:Struct<GameplayTag>"
+      ]
+    },
+    {
+      "name": "SetEndlessDuration",
+      "owner": "PXQuest",
+      "params": []
+    },
+    {
+      "name": "ReceiveTimeoutQuest",
+      "owner": "PXQuest",
+      "params": []
+    },
+    {
+      "name": "ReceiveStartQuest",
+      "owner": "PXQuest",
+      "params": []
+    },
+    {
+      "name": "ReceivePostLoad",
+      "owner": "PXQuest",
+      "params": []
+    },
+    {
+      "name": "ReceiveObjectiveFinished",
+      "owner": "PXQuest",
+      "params": [
+        "Objective:Object"
+      ]
+    },
+    {
+      "name": "ReceiveFinishQuest",
+      "owner": "PXQuest",
+      "params": [
+        "bSuccess:Bool"
+      ]
+    },
+    {
+      "name": "ReceiveDismissQuest",
+      "owner": "PXQuest",
+      "params": []
+    },
+    {
+      "name": "IsQuestFinished",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAfterPostLoad",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasEndlessDuration",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetQuestStartTime",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetQuestResult",
+      "owner": "PXQuest",
+      "params": [
+        "failedOptionlObjectives:Array",
+        "ReturnValue:Enum<EPXQuestResult>"
+      ]
+    },
+    {
+      "name": "GetQuestObjectives",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetQuestName",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetQuestDuration",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetQuestDescription",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetQuestDebugName",
+      "owner": "PXQuest",
+      "params": [
+        "ReturnValue:Str"
+      ]
+    },
+    {
+      "name": "FinishQuest",
+      "owner": "PXQuest",
+      "params": [
+        "bSuccess:Bool"
+      ]
+    },
+    {
+      "name": "DismissQuest",
+      "owner": "PXQuest",
+      "params": []
+    },
+    {
+      "name": "AddQuestObjective",
+      "owner": "PXQuest",
+      "params": [
+        "Name:Text",
+        "Description:Text",
+        "Progress:Int",
+        "MaxProgress:Int",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "DebugName:Str",
+        "HideObjectiveProgressOnUI:Bool",
+        "ObjectiveCategoryTag:Struct<GameplayTag>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "Desire",
+      "owner": "PXPromiseQuest",
+      "type": "StructProperty"
+    },
+    {
+      "name": "communityType",
+      "owner": "PXPromiseQuest",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "OptionalAdditionalDesires",
+      "owner": "PXPromiseQuest",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "CustomOnFinishBehaviour",
+      "owner": "PXPromiseQuest",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "Name",
+      "owner": "PXQuest",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Description",
+      "owner": "PXQuest",
+      "type": "TextProperty"
+    },
+    {
+      "name": "EndlessDuration",
+      "owner": "PXQuest",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "CustomQuestWidgetClass",
+      "owner": "PXQuest",
+      "type": "SoftClassProperty"
+    },
+    {
+      "name": "IllustrationSprite",
+      "owner": "PXQuest",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "questType",
+      "owner": "PXQuest",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "PanelShowDelay",
+      "owner": "PXQuest",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "VisibleOnUI",
+      "owner": "PXQuest",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "Duration",
+      "owner": "PXQuest",
+      "type": "StructProperty"
+    },
+    {
+      "name": "FinishMode",
+      "owner": "PXQuest",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "QuestChain",
+      "owner": "PXQuest",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "Objectives",
+      "owner": "PXQuest",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "StartTime",
+      "owner": "PXQuest",
+      "type": "StructProperty"
+    },
+    {
+      "name": "finishTime",
+      "owner": "PXQuest",
+      "type": "StructProperty"
+    },
+    {
+      "name": "QuestState",
+      "owner": "PXQuest",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "Result",
+      "owner": "PXQuest",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "ParentQuest",
+      "owner": "PXQuest",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ObjectivesOrderType",
+      "owner": "PXQuest",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "DebugName",
+      "owner": "PXQuest",
+      "type": "StrProperty"
+    },
+    {
+      "name": "AlwaysDisplayWidgetBelowQuestClass",
+      "owner": "PXQuest",
+      "type": "SoftClassProperty"
+    },
+    {
+      "name": "QuestCategoryTag",
+      "owner": "PXQuest",
+      "type": "StructProperty"
+    },
+    {
+      "name": "IsDismissable",
+      "owner": "PXQuest",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "CanBeDismissed",
+      "owner": "PXQuest",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "OnDismissGameplayActions",
+      "owner": "PXQuest",
+      "type": "ArrayProperty"
+    }
+  ]
+}
+

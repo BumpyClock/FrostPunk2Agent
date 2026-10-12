@@ -1,0 +1,273 @@
+{
+  "chain": [
+    "PXStockpileExchangeUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXStockpileExchangeUtils",
+  "functions": [
+    {
+      "name": "SetColonyStockpileExchangeAcceptMultiplier",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "Reason:Struct<GameplayTag>",
+        "Multiplier:Float"
+      ]
+    },
+    {
+      "name": "SetColonyResourceInterestValue",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "StockpileExchange:Object",
+        "Resource:Object",
+        "Value:Float",
+        "Operation:Enum<EPXStockpileExchangeTarget>"
+      ]
+    },
+    {
+      "name": "RequestStockpileExchangeOffer",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Exchange:Object",
+        "offerDelay:Struct<PXGameTime>",
+        "tiersToBuyByColony:Int"
+      ]
+    },
+    {
+      "name": "RemoveResourceFromStockpileExchange",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "StockpileExchange:Object",
+        "Resource:Object"
+      ]
+    },
+    {
+      "name": "ProposeOffer",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Exchange:Object",
+        "youSell:Map",
+        "youBuy:Map",
+        "ColonySellActions:Array",
+        "ColonyBuyActions:Array"
+      ]
+    },
+    {
+      "name": "PostponePlayerAccept",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object"
+      ]
+    },
+    {
+      "name": "MarkOfferAcceptedByPlayer",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Exchange:Object"
+      ]
+    },
+    {
+      "name": "IsStockpileExchangeActionAvailable",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "Exchange:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDefianceThresholdValidForNegotiations",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasResourceToDeliver",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetStockpileExchangeTierValue",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "tier:Int",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetStockpileExchangeTiersNum",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetStockpileExchangeByCityType",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "colony:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetStockpileActionsForColonySell",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Exchange:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetStockpileActionsForColonyBuy",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Exchange:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetResponseTimeAndProgress",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "outProgress:Float",
+        "outTime:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetLastOffer",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "youSell:Map",
+        "youBuy:Map",
+        "stockpileValues:Map",
+        "ColonySellActions:Array",
+        "ColonyBuyActions:Array"
+      ]
+    },
+    {
+      "name": "GetColonyResourceInterestValue",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "StockpileExchange:Object",
+        "Resource:Object",
+        "Operation:Enum<EPXStockpileExchangeTarget>",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GenerateStockpileExchangeActionUIData",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "actionToDescribe:Object",
+        "selectedActions:Array",
+        "ReturnValue:Struct<PXStockpileExchangeActionUIData>!text"
+      ]
+    },
+    {
+      "name": "GenerateGameplayDescriptionForCurrentOffer",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "youSellDescription:Struct<PXGameplayDescription>!text",
+        "youBuyDescription:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GenerateBaseUIData",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "ReturnValue:Struct<PXStockpileExchangeBaseUIData>!text"
+      ]
+    },
+    {
+      "name": "DiscardStockpileExchange",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object"
+      ]
+    },
+    {
+      "name": "DeliverResources",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "ConvertStockpileExchangeResourceToTier",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Resources:Int",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "CalculateNegotiationChance",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object",
+        "youSell:Map",
+        "youBuy:Map",
+        "ColonySellActions:Array",
+        "ColonyBuyActions:Array",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "BreakNegotiationsByPlayer",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object"
+      ]
+    },
+    {
+      "name": "BreakNegotiationsByColony",
+      "owner": "PXStockpileExchangeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "StockpileExchange:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

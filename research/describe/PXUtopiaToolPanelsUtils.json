@@ -1,0 +1,136 @@
+{
+  "chain": [
+    "PXUtopiaToolPanelsUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXUtopiaToolPanelsUtils",
+  "functions": [
+    {
+      "name": "OpenUtopiaToolPanel",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "optionalCommunityToSelect:Object"
+      ]
+    },
+    {
+      "name": "OpenUtopiaFactionPanel",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "optionalCommunityToSelect:Object"
+      ]
+    },
+    {
+      "name": "HandleNodeUnselected",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "HandleNodeSelected",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolComponent:Object",
+        "NodeTag:Struct<GameplayTag>"
+      ]
+    },
+    {
+      "name": "GetUtopiaNodeToNavigate",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "startWidget:Object",
+        "Direction:Struct<Vector2D>",
+        "angleCheck:Float",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetScoreUIData",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "optionaUtopiaTool:Object",
+        "ReturnValue:Struct<PXUtopiaToolScoreUIData>"
+      ]
+    },
+    {
+      "name": "GetNodeUIData",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "optionaUtopiaTool:Object",
+        "NodeTag:Struct<GameplayTag>",
+        "ReturnValue:Struct<PXUtopiaToolNodeUIData>!text"
+      ]
+    },
+    {
+      "name": "GetNodesUIData",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "optionaUtopiaTool:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetNodeDetailsUIData",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Struct<PXUtopiaToolNodeDetailsUIData>!text"
+      ]
+    },
+    {
+      "name": "GetCurrentUtopiaTool",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCurrentCommunity",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CloseUtopiaToolPanel",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "CloseUtopiaFactionPanel",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "ChangeUtopiaToolCommunity",
+      "owner": "PXUtopiaToolPanelsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityToSelect:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

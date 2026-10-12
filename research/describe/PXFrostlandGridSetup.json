@@ -1,0 +1,40 @@
+{
+  "chain": [
+    "PXFrostlandGridSetup",
+    "DataAsset",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXFrostlandGridSetup",
+  "functions": [
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "Size",
+      "owner": "PXFrostlandGridSetup",
+      "type": "StructProperty"
+    },
+    {
+      "name": "Tiles",
+      "owner": "PXFrostlandGridSetup",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "NativeClass",
+      "owner": "DataAsset",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "ElbDrmData",
+      "owner": "DataAsset",
+      "type": "ArrayProperty"
+    }
+  ]
+}
+

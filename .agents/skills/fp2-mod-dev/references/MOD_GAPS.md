@@ -4,20 +4,21 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 
 ## Not covered yet
 
-- Whiteout preparation actions: no bridge path to recall an expedition (exploration in progress; the storm cuts
-  off territories and outposts under it) or to raise a resource stock limit (`resources.limits`; coal sat at
-  50,000 "surplus wasted" before the whiteout, measured). Candidates: `PXTerritoryUtils`/`PXExplorationUtils`
-  cancel functions (`fp2 describe class=PXTerritoryExplorationSubsystem`), and whichever building or law raises
-  `StockLimits` (search `research/fp2_functions.txt` for `StockLimit`). Until then: Frostland view (V) in the UI.
-- Council negotiation and promises (`InstructNegotiate`, `PXDesireUtils.MakePromise`).
 - Proximity magnitudes: `layout_preview` matches giver/taker types but not effect sizes. Sizes live in
   `/Game/Scenarios/Shared/Configs/CellProximity/Rules/DA_CellProximityRule_*` and
   `PXCellProximityHolderComponent.SupportedCellProximities` (not read yet).
-- Trails: `connect_outpost` (InstructConnectOutpostToCity) does nothing without a trail (measured). Available trail
-  types: `PXTrailUtils.GetAvailableTrailTypes(@ctx, nation)` returned `ConnectionLvl1` before Skyways. Building one
-  needs `PXInstructionUtils.BuildTrail(World, ownerCityId:FName, trailType, ActionOrigin, trailCells:Array,
-  chunksCount)`; the `trailCells` format is unknown. Candidates: `PXTrailUtils.GetNearestTrailpointVector`,
-  `GetTrailCost` (out-param struct), or the UI (Frostland view V, select the outpost, connect).
+- Trails: `connect_outpost` (InstructConnectOutpostToCity) does nothing without a trail (measured). `trails`,
+  `trail_plan`, `trail_build` and `trail_tool` exist; none has built a trail. The test save has no available trail
+  type (`GetAvailableTrailTypes` empty, measured), so `trail_tool` is untested and `trail_build` stays gated.
+  `BuildTrail.trailCells` is `Array<Int>` (measured), but the ints are not `PXCityCellComponent` indices (1632 cells,
+  614 duplicate indices, none equal the outpost's `CellIndex` 17787). Inferred from dumps: Frostland dot indices of
+  `PXFrostlandDetailsSubsystem` (`GridCellSize` 9000, `WorldSize` 2016000 x 2016000, 224 columns; `*ByDot` maps).
+  The outpost dot did not calibrate consistently as row-major or column-major, so `candidateCells` is unproven.
+  `PXTrailUtils.GetNearestTrailpointVector` returns a denormal garbage Vector (X 4e-316, measured): do not use. Next
+  step: a save where Trails (ConnectionLvl1) is researched; build one trail in the UI, read its `PXTrailComponent`
+  `Path`, and compare it with `candidateCells`. Painter chain for `trail_tool` (from dumps): `ActivateTrailInputTool`
+  -> `GetActiveInputTool` (`PXPaintTrailInputTool`) -> `TryStartPainting(worldPos, true)` -> clicks per chunk ->
+  `CanBuildTrail` / `GetChuncksCount` -> `BuildTrail()`; `DeactivateCurrentInputTool` cancels.
 - Deconstructions are not listed in `construction`/`brief` (measured); read progress with
   `PXDeconstructionUtils.GetDeconstructionProgress(actor)`.
 - Ability cost and refusal reason: `fp2 ability` reports `activeNow:false` with no reason when the game refuses
@@ -36,10 +37,14 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - Utopia Tree node unlocks: no non-UI command path. `utopia_assign` drives the panel's own handlers
   (`PXUtopiaToolNodesPanel.HandleUtopiaToolNodeClicked`, then `PXUtopiaNodeDetailsPanel.AssignPoint`) while the
   panel is open; the CLI `utopia-assign` opens and closes it with U (measured: Goods Emporium Open -> Unlocked).
-- Total population as the HUD shows it. `population.population` sums unassigned community sizes only;
-  `society.population` is the candidate but is not compared to the HUD.
-- Frostland beyond exploration: expeditions, colonies, trails (`BuildTrail`). `build_outpost` works on a coal
-  outpost (`CoalPermamentOutpost`, Infinite Steppes: built instantly, Operational, measured).
+  `utopia_v2` reads points, score and assignable nodes. No reflected assign function exists (searched
+  `fp2_functions.txt`: only `PXUtopiaNodeDetailsPanel.AssignPoint`, the debug panel `HandleUnlockClicked` /
+  `UnlockAllNodes` and the cheat `AddUtopiaToolBonusPoint`); `HandleNodeSelected` only selects. Where the
+  "lesser faction agenda" thresholds live is open (read `scoreTracker`, `score`, `config`).
+- Frostland: expeditions (`explorations`, `explore_stop`), outposts (`outposts`, `outpost_active`, `build_outpost2`)
+  and colonies (`colony_build`, `cities`, `transfer_people`) have commands. Still open: trails (above), outpost
+  actions and the upgrade requirement, the colony cost (below). `build_outpost` works on a coal outpost
+  (`CoalPermamentOutpost`, Infinite Steppes: built instantly, Operational, measured).
 - Food-herd outposts are unbuilt via the bridge: `build_outpost territory=Faebait` on `FoodLargeOutpost_LargeHerd`
   (site `FoodOutpostSite`, Faebait Gorge) crashed the game twice (access violation reading 0x18 in UE4SS
   `UObject::HasAnyInternalFlags`, measured), both about 16 s after "Faebait Gorge explored". Both crash stacks show
@@ -52,8 +57,10 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
   live verification: save, `build_outpost territory=Faebait dryRun=true`, then without dryRun, then `frost_sites
   territory=Faebait`. If it still crashes, build the herd outpost from the UI and record the outcome here. No
   game-side check is used: `PXOutpostUtils.CanConstructOutpost` returns a requirement struct (FText class).
-- Heat: `heat_adjust` sets a district's adjustment level, but the relation between adjustment, allocation
-  and the HUD heat bars is unmeasured.
+  `build_outpost2` (target by ref or `GetSites` -> `TryGetOutpostFromSite`, no `FindAllOf` walk) resolved the Huge Herd
+  at Faebait in a dryRun (measured); the real call is untested.
+- Heat: `heat_levels` reads each district's level (measured: `HeatLevel_5_Livable`, `HeatLevel_0_NotActive`,
+  insulated flag). The relation between `heat_adjust` / allocation and the level still needs one measured before/after.
 - Other ability and city actions beyond the toggle in `fp2 ability` (`PXAbilityUtils.ActivateActorAbility`).
 - Logistics district placement needs a Logistics deposit inside the build area. Frostbreak toward it first.
 - `place_building` refusal reasons come from scalar reads (`GetBuildingLimit`, `GetBuildings`,
@@ -63,6 +70,52 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 - Cost checks for area expanders and construction return FText structs, which the crash guard blocks.
   `dryRun` on `expand` reports the error in `check`, `cost` and `duration`; the real call still runs and the
   game validates it.
+
+- Colony cost and checks. `colony_build` (`InstructBuildCity`, `sendUnit=true`) founded the Loch Food Colony
+  instantly on the Sandbox save: 3000 people (`StartCommunitySize`) left the main city (11998 -> 8998) and no
+  prefabs, cores or heatstamps were charged; it was accepted with 0 cores, 0 free teams and a deactivated Logistics
+  District (measured). The only listed cost is `LogisticsUnitsResource -20` plus the 3000 people. Open question:
+  does `InstructBuildCity` skip the team and cost check, or are Sandbox colonies free? Verify on a campaign save
+  where a colony costs cores, prefabs and weeks (for example Windward Moor: 1 Core, 10 teams, 400 prefabs, 5 weeks):
+  read stocks before and after. If the check is bypassed, gate `colony_build` on stocks and teams read from
+  `PXCityType.ConstructionSetup` (`colony_sites details=true`). `CanCreateCity`, `CanAbandonCity`,
+  `CanRecolonizeCity` and `CanTransferCommunity` return `PXCheckResult`; `GetCityConstructionCost`,
+  `GetCityRecolonizationCost` and `GetTransferCommunityCost` return `PXGameplayDescription`. Both hold FText, so no
+  dryRun shows the game's verdict. Recolonization and transfer costs are unread. The real `city_abandon` and
+  `recolonize` calls are untested.
+- Trade routes. The game creates an empty `PXTradeComponent` route per city pair when a colony is founded
+  (measured). Trading is locked on the test save (`tradingUnlocked` false, `routeCountLimit` 0), so `trade_route`
+  refuses. From Lua, `GetKeyProp` / `GetValueProp` on the `InstructUpdateTradeRoute.Resources` MapProperty resolve
+  nothing (measured: `mapSignature.ok` false), so a TMap built from a Lua table is unproven. Open: the trade map
+  key and value types, and what unlocks trading. Fallback: the `PXColonyResourceTradePanel` handlers
+  (`InitializeResourcePanel(colony)`, `UpdateMainCityResource` / `UpdateColonyResource(Resource, Amount)`,
+  `CreateTradeRoute`); the finalize handler is unknown.
+- Colony exchange (independent-colony offers and negotiation) is not readable: the v1 read crashed the game (see
+  Crashes and stalls). `colony_exchange` returns unrest and the component count only.
+- Expedition teams cost has no getter. `explorations teams=true` found no teams cost on the exploration component
+  or its economy maps (measured). The cost shows only as the `frost_teams` delta (10 teams for Chilton Pass, Easy).
+- Outposts: `outpost_upgrade` was refused silently by the game on an outpost with `canShowUpgrade` true (no change,
+  no cost). The reason is unreadable because `CanUpgradeOutpost` returns FText and the type holds a
+  `PXBlueprintRequirement`. `PXOutpostType` has no action list, so `outpost_action` is unproven and may be removed.
+  `CanExecuteOutpostAction`, `CanActivateOutpost`, `CanConnectOutpostToCity` and `GetSettlementUpgradeTooltipInfo`
+  return FText structs. `PXOutpostUtils.DestroyOutpost(Outpost)` takes no ActionOrigin (raw removal): no command;
+  use `outpost_active active=false`. `PXInstructionUtils.StopTerritoryExploration(World, territoryId:Name)` is unused
+  because the territory FName id property is unknown.
+- Promises. Current faction demands outside a negotiation are not readable (FText desire getters); in the Council,
+  `council_ui step=terms` lists them from the option widgets' visible text. Sway availability (`IsSwayAvailable`)
+  and `IsNegotiationAvailable` return `PXCheckResult`. A story-dialog promise (for example "Unfair Stigma", a
+  hospital in 40 weeks) is a quest, not a community promise (`factions.hasPromises` stayed false).
+  `vote_predict detail=promised` (the `TryGetPromisedPoliciesForCommunity` out-param) returned nothing and was
+  removed. Struct arrays returned by getters (`GetCommunityCoreAffinities`, `GetLastVotingHistoryItems`) come back
+  as copies whose fields cannot be read: read the owning property.
+- Stock limit raisers: `stock_caps` reads them (district hubs). Placing a depot hub with `place_district
+  type=FuelDepotHub` is untested (a one-tile hub may need `pick_cells`). Other raisers (laws, outposts, research)
+  show only when active.
+- Economy tiers: the trust and tension tier bands and the wear, load and whiteout bands in `health` are guesses
+  (`TH.*` constants in `economy_actions.lua`). Replace them with HUD-measured values. `health.population.total` is
+  `society.population`; it was not compared with the HUD counter.
+- `GetUtopiaToolGameplayDescription`, `GetNodeUIData`, `GetNodesUIData` and `GetNodeDetailsUIData` return FText
+  structs: never called.
 
 ## Measured caveats
 
@@ -90,7 +143,50 @@ through `DoesSaveGameExists`, not file names. Do not delete or overwrite the use
 - `council-open` presses C and skips the chamber intro cutscene before returning. Council UI input during
   that cutscene left the UI unresponsive (measured).
 - Sessions reopened about 10 weeks after each vote (observed). The watcher emits
-  `council.sessionAvailable.changed` when the phase is 1 or `minTicksToNextSession` is 0 or less.
+  `council.sessionAvailable.changed` when the phase is 1 or `minTicksToNextSession` is 0 or less. Phase 1 with
+  `minTicksToNextSession` 16800 constant means a session is available (measured; the recess length is config).
+- Lobby desync crash (measured 2026-10-11): `propose` ran through the bridge while the hub UI was still on its
+  lobby (pauseReasons `UserPaused`, `WBP_Tutorial_New_C`, `WBP_ParliamentHub_C`). The phase moved to Negotiations
+  and a pixel click on "PROPOSE A LAW" crashed the game in UI rendering (`nsvgRasterizeFull`, AntiLag2; no Lua
+  frames). Inferred: the UI desynced from the bridge-driven proposal. `propose` now refuses while the lobby is
+  visible (`force=true` overrides). Drive the hub with `council_ui` steps: the widgets' own bound button events kept
+  the UI in sync through propose, negotiate, accept and vote (measured: LAW PASSED 55 For / 51 required). Pixel
+  clicks on the lobby did nothing and a Space keypress did not advance it.
+- A save written inside the Council scene (`agent-society-proposed`) did not load: the game stayed at the main
+  menu (measured). Save before opening the Council; `fp2 save` warns.
+- `council-open` failed twice ("Council did not open") while `fp2 keys c keepFocus=true` opened it. Inferred: the
+  key press restores the previous foreground window at once and the key is lost.
+- The "?" `WBP_Tutorial_New_C` widget inside each hub panel is a hint button, not a modal (measured).
+- `propose` needs a law from `fp2 laws` (the proposable list), not `laws all=true`. After it the phase is 2
+  (Negotiations).
+
+### Crashes and stalls (2026-10-11)
+
+- `colony_exchange` v1 crashed the game: access violation reading 0x150, stack Wwise `AK::WriteBytesMem::SetCount`
+  <- UE4SS `FAnsiString::operator=` <- `process_lua_function` (measured). Not bisected. Candidates, ranked
+  (inferred): `PXStockpileExchangeUtils.GetStockpileExchangeTiersNum()` and `GetStockpileExchangeTierValue(i)`
+  (static, no world context, and the only exchange calls that run with no component); then
+  `GetResponseTimeAndProgress` with table out-params; then `IsDefianceThresholdValidForNegotiations` and
+  `HasResourceToDeliver`; member getters last. The command now reads unrest and the component count only (one
+  `PXStockpileExchangeComponent` exists on the main city). To read exchange state, use `fp2 object` on a component
+  ref and read properties, not the Utils functions.
+- `promise_abandon` with `PXDesireUtils.AbandonPromise(ctx, quest)` crashed the game once: access violation reading
+  0x0, the same Wwise / `FAnsiString::operator=` stack, with a valid `PXPromiseQuest` element of
+  `GetCommunityPromises` (measured). Default `path=quest` (`PXQuestUtils.FinishQuest(ctx, quest, false)`) works
+  (measured). `path=abandon` needs `force=true`. The game has no UI to abandon a promise (observed).
+- This Wwise / `FAnsiString::operator=` / `process_lua_function` stack has now appeared three times (world-context
+  guess, `colony_exchange`, `AbandonPromise`). Read it as a bad argument to a static Utils function (inferred), not
+  as an audio fault.
+- Shader-compile overlay: `fp2 recover` loaded a save while the main-menu shader compile
+  (`BP_ShaderCompilerActor_C`) ran. The load destroys the actor, so `WBP_InitializationLoadingScreen_C` never
+  receives `OnShaderCompilationFinished` and stays on "COMPILING SHADERS N/743" with input blocked (measured twice:
+  243/743, 559/743). The bridge works underneath. Manual fix: `call ref=<widget> fn=OnShaderCompilationFinished
+  mutate=true`, wait 12 s, `fp2 keys space`. The CLI now handles it: `fp2 unstick`, and `recover` / `launch` wait for
+  the compiler actor to vanish before loading.
+- `recover`'s ready check failed on a save that opens on a story modal. Fixed in the CLI (ready = in the world, no
+  compile overlay).
+- `fp2 keys` and `click` from another process hung while the CLI rebuilt and restarted the daemon (measured). Wait
+  for the rebuild to finish.
 
 ### Hotkeys
 

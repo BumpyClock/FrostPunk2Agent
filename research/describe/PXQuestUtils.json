@@ -1,0 +1,774 @@
+{
+  "chain": [
+    "PXQuestUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXQuestUtils",
+  "functions": [
+    {
+      "name": "StartQuestInPlace",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Name:Text",
+        "Description:Text",
+        "Duration:Struct<PXGameTime>",
+        "questType:Enum<EPXQuestType>",
+        "DebugName:Str",
+        "bFinishAutomatically:Bool",
+        "EndlessDuration:Bool",
+        "PanelShowDelay:Float",
+        "isVisibleOnUI:Bool",
+        "QuestCategoryTag:Struct<GameplayTag>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "StartQuest",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Class",
+        "PanelShowDelay:Float",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "StartCustomWidgetQuestInPlace",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Name:Text",
+        "Description:Text",
+        "Duration:Struct<PXGameTime>",
+        "CustomQuestWidgetClass:SoftClass",
+        "DebugName:Str",
+        "bFinishAutomatically:Bool",
+        "EndlessDuration:Bool",
+        "PanelShowDelay:Float",
+        "isVisibleOnUI:Bool",
+        "QuestCategoryTag:Struct<GameplayTag>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "IsQuestOfClass",
+      "owner": "PXQuestUtils",
+      "params": [
+        "Quest:Object",
+        "QuestClass:Class",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsObjectiveInQuestOfClass",
+      "owner": "PXQuestUtils",
+      "params": [
+        "Objective:Object",
+        "QuestClass:Class",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAnyQuestOfTypeFinished",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "questType:Class",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAnyQuestOfTypeActive",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "questType:Class",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyVisibleOnUIQuestObjectiveFor",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Building:Object",
+        "ResearchTopic:Object",
+        "Policy:Object",
+        "ResearchOutcome:Object",
+        "researchSubcategory:Object",
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyQuestForResearch",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyQuestForPolicy",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyQuestForDistrict",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyQuestForBuilding",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveWithTag",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Tag:Struct<GameplayTag>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveForResearch",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveForPolicy",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveForHubDistrict",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveForDistrictExpansion",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "District:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveForDistrict",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "includeHubs:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveForBuilding",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "visibleOnUIOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyActiveQuestObjectiveFor",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "optionalBuilding:Object",
+        "optionalResearchTopic:Object",
+        "optionalResearchOutcome:Object",
+        "optionalPolicy:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetQuestTimeLeftAsFraction",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetQuestTimeLeft",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetFinishedQuests",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetActiveQuests",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetActiveQuestOfType",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "questType:Class",
+        "Found:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "FinishQuest",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "Success:Bool"
+      ]
+    },
+    {
+      "name": "FinishObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Objective:Object"
+      ]
+    },
+    {
+      "name": "DismissQuest",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object"
+      ]
+    },
+    {
+      "name": "CombineResearchOutcomeQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXResearchOutcomeObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "CombinePolicyQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXPolicyObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "CombineNeedQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXNeedObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "CombineDistrictWithTagsQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXDistrictWithTagsObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "CombineDistrictQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXDistrictCombineObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "CombineBuildingWithTagsQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXBuildingWithTagsObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "CombineBuildingQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXBuildingObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "CombineAbilityQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "existingObjective:Object",
+        "Params:Struct<PXAbilityObjectiveParameters>"
+      ]
+    },
+    {
+      "name": "ChangeQuestName",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "NewName:Text"
+      ]
+    },
+    {
+      "name": "AddTrustQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "OptionalCommunity:Object",
+        "trustTrait:Object",
+        "questType:Enum<EPXSTrustQuestObjectiveType>",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddTimedRefugeesQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "startingPoI:Object",
+        "unitType:Object",
+        "TargetCity:Object",
+        "unitsToSpawn:Int",
+        "movementDuration:Struct<PXGameTime>",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddTerritoryQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "MaxProgress:Int",
+        "IsOptional:Bool",
+        "optionalTerritoryType:Object",
+        "optionalSiteType:Object",
+        "Nation:Object",
+        "optionalProgressWhenSitesClicked:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddTagQueryQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "TagQuery:Struct<GameplayTagQuery>",
+        "IsOptional:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddStockpileQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "Resource:Object",
+        "TargetStockpile:Int",
+        "IsOptional:Bool",
+        "OptionalCity:Object",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddStatisticQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "City:Object",
+        "trait:Object",
+        "questType:Enum<EPXStatisticQuestObjectiveType>",
+        "IsOptional:Bool",
+        "optionalTraits:Array",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddResourceQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "City:Object",
+        "Resource:Object",
+        "TargetSupply:Int",
+        "IsOptional:Bool",
+        "ObjectiveType:Enum<EPXResourceQuestObjectiveType>",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddResearchQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "ResearchTopic:Object",
+        "IsOptional:Bool",
+        "optionalCommunityType:Object",
+        "optionalOutcome:Object",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddResearchOutcomeQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXResearchOutcomeObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddRefugeesQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "startingPoI:Object",
+        "unitType:Object",
+        "TargetCity:Object",
+        "unitsToSpawn:Int",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddPopulationSizeQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "City:Object",
+        "maxPopulation:Int",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddPolicyQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXPolicyObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddOutpostQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "OutpostType:Object",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddNeedQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXNeedObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddHeatLevelQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "targetTags:Struct<GameplayTagContainer>",
+        "HeatLevel:Object",
+        "ComparisionType:Enum<EPXComparisonType>",
+        "requiresActiveDistricts:Bool",
+        "RequiresInhabitedDistricts:Bool",
+        "OptionalCity:Object",
+        "IsOptional:Bool",
+        "optionalIco:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddGameplayActionChoiceQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "GameplayAction:Object",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddFervorTraitQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "communityType:Object",
+        "influenceTrait:Object",
+        "questType:Enum<EPXFervorQuestObjectiveType>",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddExtractionTimerObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "ObjectiveNameWhenProgressPaused:Text",
+        "objectiveDescription:Text",
+        "City:Object",
+        "DepositCategory:Object",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddDistrictWithTagsQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXDistrictWithTagsObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddDistrictQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXDistrictObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddDistrictExpandQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXDistrictExpandObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddDilemmaQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "DilemmaType:Object",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddCommunitySizeQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "communityType:Object",
+        "City:Object",
+        "maxPopulation:Int",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddCommunityActionQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "CommunityAction:Object",
+        "OptionalCommunity:Object",
+        "CheckIfEverWasExecuted:Bool",
+        "IsOptional:Bool",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddColonyQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Quest:Object",
+        "objectiveName:Text",
+        "objectiveDescription:Text",
+        "dilemaType:Object",
+        "CityAreaType:Object",
+        "CityType:Object",
+        "IsOptional:Bool",
+        "isPopulationObjective:Bool",
+        "desiredColonySize:Int",
+        "OptionalIcon:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddBuildingWithTagsQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXBuildingWithTagsObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddBuildingQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXBuildingObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "AddAbilityQuestObjective",
+      "owner": "PXQuestUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "genericParams:Struct<PXObjectiveParameters>!text",
+        "Params:Struct<PXAbilityObjectiveParameters>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

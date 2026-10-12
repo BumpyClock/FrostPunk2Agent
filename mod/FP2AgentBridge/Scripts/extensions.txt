@@ -1,0 +1,5 @@
+-- One extension module per line (Scripts/<name>.lua exporting register(def, env)).
+colony_actions
+society_actions
+frostland_actions
+economy_actions

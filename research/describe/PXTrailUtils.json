@@ -1,0 +1,173 @@
+{
+  "chain": [
+    "PXTrailUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXTrailUtils",
+  "functions": [
+    {
+      "name": "RemoveConnectionsFromTerritory",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "territory:Object"
+      ]
+    },
+    {
+      "name": "IsTrailTypeAvailable",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "trailType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyConnection",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetTrailTypeConstructionDuration",
+      "owner": "PXTrailUtils",
+      "params": [
+        "Type:Object",
+        "chunksCount:Int",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetTrailTypeConstructionCost",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Type:Object",
+        "chunksCount:Int",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetTrailTypeCapacity",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "trailType:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetTrailTrackerPosition",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "trail:Object",
+        "ReturnValue:Struct<Vector>"
+      ]
+    },
+    {
+      "name": "GetTrailCost",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "Type:Object",
+        "chunksCount:Int",
+        "trailCost:Struct<PXTrailCost>!text"
+      ]
+    },
+    {
+      "name": "GetNearestTrailpointVector",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Source:Object",
+        "Target:Object",
+        "ReturnValue:Struct<Vector>"
+      ]
+    },
+    {
+      "name": "GetAvailableTrailTypes",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllTrailConstructing",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetActorsConnectedTrailType",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Source:Object",
+        "Target:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ConnectActorsWithTrailImmediately",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Type:Object",
+        "ActionOrigin:Object",
+        "Source:Object",
+        "Target:Object",
+        "endpointsActive:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanStartTrailPaintingFromActorPosition",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Actor:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanCityAffordTrailCreation",
+      "owner": "PXTrailUtils",
+      "params": [
+        "City:Object",
+        "Type:Object",
+        "chunksCount:Int",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "AreActorsConnectedWithTrail",
+      "owner": "PXTrailUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Source:Object",
+        "Target:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

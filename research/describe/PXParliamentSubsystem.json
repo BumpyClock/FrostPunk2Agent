@@ -1,0 +1,494 @@
+{
+  "chain": [
+    "PXParliamentSubsystem",
+    "PXWorldSubsystem",
+    "WorldSubsystem",
+    "Subsystem",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXParliamentSubsystem",
+  "functions": [
+    {
+      "name": "SetVotingDataLogging",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "shouldTurnOn:Bool"
+      ]
+    },
+    {
+      "name": "PXVoteFinished__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "affectedPolicy:Object",
+        "Results:Struct<PXVoteResultData>"
+      ]
+    },
+    {
+      "name": "PXVoteBypassed__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "communityType:Object",
+        "affectedPolicy:Object"
+      ]
+    },
+    {
+      "name": "PXSwayedVotes__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "swayMode:Enum<EPXSwayMode>",
+        "Policy:Object"
+      ]
+    },
+    {
+      "name": "PXResetRepresentative__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "representative:Object"
+      ]
+    },
+    {
+      "name": "PXRecountVoteFinished__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "Previous:Struct<PXVotingHistoryItem>",
+        "current:Struct<PXVotingHistoryItem>"
+      ]
+    },
+    {
+      "name": "PXPromiseMade__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "communityType:Object",
+        "bypassData:Struct<PXVoteBypassData>!text",
+        "affectedPolicy:Object"
+      ]
+    },
+    {
+      "name": "PXPredictionAndVoteFinished__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "affectedPolicy:Object",
+        "Results:Struct<PXVoteResultData>",
+        "predictions:Struct<PXVoteResultData>"
+      ]
+    },
+    {
+      "name": "PXParliamentEvent__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object"
+      ]
+    },
+    {
+      "name": "PXParliamentContextChanged__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "contextType:Object",
+        "IsActive:Bool"
+      ]
+    },
+    {
+      "name": "PXDelegatesPressured__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": []
+    },
+    {
+      "name": "PredictVote",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "Policy:Object",
+        "perCommunityResult:Map",
+        "ReturnValue:Struct<PXVoteResultData>"
+      ]
+    },
+    {
+      "name": "ParliamentPhaseChanged__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "newPhase:Enum<EPXSessionPhase>"
+      ]
+    },
+    {
+      "name": "ParliamentAgendaAdded__DelegateSignature",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "Policy:Object"
+      ]
+    },
+    {
+      "name": "OnUnlockChangedEvent",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "unlockComponent:Object",
+        "Unlock:Object",
+        "Unlocked:Bool"
+      ]
+    },
+    {
+      "name": "OnSceneViewChanged",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "sceneViewType:Enum<EPXVisibleInViewType>"
+      ]
+    },
+    {
+      "name": "OnQuestFinished",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "Quest:Object",
+        "bSuccess:Bool"
+      ]
+    },
+    {
+      "name": "OnParliamentStateChanged",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "stateComponent:Object",
+        "Entry:Struct<PXStateEntry>",
+        "Activate:Bool"
+      ]
+    },
+    {
+      "name": "OnLogicTick",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "deltaGameTime:Struct<PXGameTime>",
+        "currentGameTime:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "OnContextActivationChanged",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "contextType:Object",
+        "IsActive:Bool"
+      ]
+    },
+    {
+      "name": "OnCommunityTagsChanged",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "Community:Object",
+        "tagsAdded:Bool"
+      ]
+    },
+    {
+      "name": "OnCommunityEvent",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "Params:Struct<PXCommunitySizeChangedEventParameters>!text"
+      ]
+    },
+    {
+      "name": "OnCityCreatedEvent",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "City:Object"
+      ]
+    },
+    {
+      "name": "IsVoteResultPositive",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "inResults:Struct<PXVoteResultData>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsPolicyPromisedInCurrentParliament",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "Policy:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetRequiredVotesNumber",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "Policy:Object",
+        "parliament:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetAgenda",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "outAgenda:Map"
+      ]
+    },
+    {
+      "name": "FixTheNextHoDVote",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "votes:Int"
+      ]
+    },
+    {
+      "name": "CanNegotiateWithCommunity",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "communityType:Object",
+        "Policy:Object",
+        "outReason:Enum<EPXNegotationNotAllowReason>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanBypassVoteForCommunity",
+      "owner": "PXParliamentSubsystem",
+      "params": [
+        "parliament:Object",
+        "communityType:Object",
+        "Policy:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "SetTickGroup",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "NewTickGroup:Byte"
+      ]
+    },
+    {
+      "name": "SetTickableWhenPaused",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "tickableWhenPaused:Bool"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickIntervalAndCooldown",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickInterval",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickEnabled",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "Enabled:Bool"
+      ]
+    },
+    {
+      "name": "RemoveTickPrerequisiteSubsystem",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "prerequisiteSubsystem:Object"
+      ]
+    },
+    {
+      "name": "ReceiveTick",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "DeltaSeconds:Float"
+      ]
+    },
+    {
+      "name": "IsSubsystemTickEnabled",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetSubsystemTickInterval",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "AddTickPrerequisiteSubsystem",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "prerequisiteSubsystem:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "ParliamentEnterEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentExitEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentEnterEvent_VisualOnly",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentExitEvent_VisualOnly",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentOpenForFirstTime",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentOpenForFirstTimeAfterLoad",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentPreAssigningRepresentatives",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentPostAssigningRepresentatives",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentStateChanged",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentContextChanged_VisualOnly",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentPhaseChangedEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentPhaseChangedEvent_VisualOnly",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentAgendaAddedEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "PromiseMadeEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "VoteBypassedEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "VoteFinishedEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "PredictionAndVoteFinishedEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "VisibleVoteStarted",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "RecountedVoteFinishedEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "SwayedVotesEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "DelegatesPressuredEvent",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "ParliamentPreresetRepresentative",
+      "owner": "PXParliamentSubsystem",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "UseRecountVotes",
+      "owner": "PXParliamentSubsystem",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "VotingDataLogging",
+      "owner": "PXParliamentSubsystem",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "IsVoteRiggedForTrailer",
+      "owner": "PXParliamentSubsystem",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "InstantPolicyPassingCheat",
+      "owner": "PXParliamentSubsystem",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "RepresentativesPool",
+      "owner": "PXParliamentSubsystem",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "RandomStream",
+      "owner": "PXParliamentSubsystem",
+      "type": "StructProperty"
+    },
+    {
+      "name": "ReassignRepresentatives",
+      "owner": "PXParliamentSubsystem",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "PrimarySubsystemTick",
+      "owner": "PXWorldSubsystem",
+      "type": "StructProperty"
+    },
+    {
+      "name": "SubsystemsAdded",
+      "owner": "PXWorldSubsystem",
+      "type": "BoolProperty"
+    }
+  ]
+}
+

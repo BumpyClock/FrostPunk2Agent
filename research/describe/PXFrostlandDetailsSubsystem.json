@@ -1,0 +1,174 @@
+{
+  "chain": [
+    "PXFrostlandDetailsSubsystem",
+    "PXWorldSubsystem",
+    "WorldSubsystem",
+    "Subsystem",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXFrostlandDetailsSubsystem",
+  "functions": [
+    {
+      "name": "SnapToCeil",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "params": [
+        "worldPos:Struct<Vector>",
+        "ReturnValue:Struct<Vector>"
+      ]
+    },
+    {
+      "name": "FrostlandDetailsStateUpdatedEvent__DelegateSignature",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "params": [
+        "idx:Int",
+        "updatedDetail:Struct<PXFrostlandDetails>",
+        "oldState:Enum<EPXTerritoryState>"
+      ]
+    },
+    {
+      "name": "SetTickGroup",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "NewTickGroup:Byte"
+      ]
+    },
+    {
+      "name": "SetTickableWhenPaused",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "tickableWhenPaused:Bool"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickIntervalAndCooldown",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickInterval",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetSubsystemTickEnabled",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "Enabled:Bool"
+      ]
+    },
+    {
+      "name": "RemoveTickPrerequisiteSubsystem",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "prerequisiteSubsystem:Object"
+      ]
+    },
+    {
+      "name": "ReceiveTick",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "DeltaSeconds:Float"
+      ]
+    },
+    {
+      "name": "IsSubsystemTickEnabled",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetSubsystemTickInterval",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "AddTickPrerequisiteSubsystem",
+      "owner": "PXWorldSubsystem",
+      "params": [
+        "prerequisiteSubsystem:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "DebugVisualization",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "SimplifiedCartoMesh",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "Details",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "CityToCellMap",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "MapProperty"
+    },
+    {
+      "name": "SiteByDot",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "MapProperty"
+    },
+    {
+      "name": "OutpostByDot",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "MapProperty"
+    },
+    {
+      "name": "CityAreaSpawnerByDot",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "MapProperty"
+    },
+    {
+      "name": "DilemmaByDot",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "MapProperty"
+    },
+    {
+      "name": "DetailsByDot",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "MapProperty"
+    },
+    {
+      "name": "GridCellSize",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "IntProperty"
+    },
+    {
+      "name": "WorldSize",
+      "owner": "PXFrostlandDetailsSubsystem",
+      "type": "StructProperty"
+    },
+    {
+      "name": "PrimarySubsystemTick",
+      "owner": "PXWorldSubsystem",
+      "type": "StructProperty"
+    },
+    {
+      "name": "SubsystemsAdded",
+      "owner": "PXWorldSubsystem",
+      "type": "BoolProperty"
+    }
+  ]
+}
+

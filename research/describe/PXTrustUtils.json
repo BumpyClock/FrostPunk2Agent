@@ -1,0 +1,143 @@
+{
+  "chain": [
+    "PXTrustUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXTrustUtils",
+  "functions": [
+    {
+      "name": "GetTrustFactorGroups",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetTraitTypeByTrustValue",
+      "owner": "PXTrustUtils",
+      "params": [
+        "Trust:Object",
+        "trustValue:Float",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetTotalTrust",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetFactionTrust",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Faction:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetCommunityTrustFactorGroups",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityStandingTrustFactorsRecord",
+      "owner": "PXTrustUtils",
+      "params": [
+        "Record:Struct<PXCommunityStandingTrustFactors>!text",
+        "ReturnValue:Struct<PXCommunityStandingTrustFactors>!text"
+      ]
+    },
+    {
+      "name": "GetCommunityStandingTrustFactors",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "TrustType:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityStandingByType",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Community:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetCommunityStanding",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Community:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "CompareCommunityStandingWithTrait",
+      "owner": "PXTrustUtils",
+      "params": [
+        "Community:Object",
+        "Trust:Object",
+        "StandingTrait:Object",
+        "Comparision:Enum<EPXComparisonType>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "ChangeTotalTrust",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Change:Float"
+      ]
+    },
+    {
+      "name": "ChangeFactionTrust",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Faction:Object",
+        "Change:Float"
+      ]
+    },
+    {
+      "name": "ChangeCommunityStanding",
+      "owner": "PXTrustUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Community:Object",
+        "Change:Float"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

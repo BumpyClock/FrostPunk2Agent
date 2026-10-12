@@ -1,0 +1,91 @@
+{
+  "chain": [
+    "PXFrostlandGridTile",
+    "PXFrostlandTileType",
+    "DataAsset",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXFrostlandGridTile",
+  "functions": [
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "CustomTitle",
+      "owner": "PXFrostlandTileType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Description",
+      "owner": "PXFrostlandTileType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Tags",
+      "owner": "PXFrostlandTileType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "LandscapeLevel",
+      "owner": "PXFrostlandTileType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "VfxLevel",
+      "owner": "PXFrostlandTileType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "GameplayLevel",
+      "owner": "PXFrostlandTileType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "LoadOnDemandLevels",
+      "owner": "PXFrostlandTileType",
+      "type": "MapProperty"
+    },
+    {
+      "name": "RandomizedLevels",
+      "owner": "PXFrostlandTileType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "TileRank",
+      "owner": "PXFrostlandTileType",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "Enabled",
+      "owner": "PXFrostlandTileType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "IsUnique",
+      "owner": "PXFrostlandTileType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "SpawnWeight",
+      "owner": "PXFrostlandTileType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "NativeClass",
+      "owner": "DataAsset",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "ElbDrmData",
+      "owner": "DataAsset",
+      "type": "ArrayProperty"
+    }
+  ]
+}
+

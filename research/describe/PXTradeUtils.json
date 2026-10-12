@@ -1,0 +1,173 @@
+{
+  "chain": [
+    "PXTradeUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXTradeUtils",
+  "functions": [
+    {
+      "name": "UpdateTradeRoute",
+      "owner": "PXTradeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "tradeRoute:Object",
+        "TargetCity:Object",
+        "Resources:Map"
+      ]
+    },
+    {
+      "name": "IsTradingVisible",
+      "owner": "PXTradeUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsTradingUnlocked",
+      "owner": "PXTradeUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsTradeRouteTradingAnyResource",
+      "owner": "PXTradeUtils",
+      "params": [
+        "tradeRoute:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsSourceCitySendingAnythingToTargetCity",
+      "owner": "PXTradeUtils",
+      "params": [
+        "SourceCity:Object",
+        "TargetCity:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasInsufficientResourcesInCityTrade",
+      "owner": "PXTradeUtils",
+      "params": [
+        "SourceCity:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasInsufficientResources",
+      "owner": "PXTradeUtils",
+      "params": [
+        "Trade:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyTradeRoute",
+      "owner": "PXTradeUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetTradeRoutes",
+      "owner": "PXTradeUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetTradeRouteResourceLimit",
+      "owner": "PXTradeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "SourceCity:Object",
+        "TargetCity:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetTradeRouteGameplayDescription",
+      "owner": "PXTradeUtils",
+      "params": [
+        "tradeRoute:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetTradeRouteCities",
+      "owner": "PXTradeUtils",
+      "params": [
+        "tradeRoute:Object",
+        "SourceCity:Object",
+        "TargetCity:Object"
+      ]
+    },
+    {
+      "name": "GetTradedResources",
+      "owner": "PXTradeUtils",
+      "params": [
+        "tradeRoute:Object",
+        "ReturnValue:Map"
+      ]
+    },
+    {
+      "name": "GetTotalAmountOfTradedResources",
+      "owner": "PXTradeUtils",
+      "params": [
+        "tradeRoute:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetNationTradableResources",
+      "owner": "PXTradeUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCityTradeRoute",
+      "owner": "PXTradeUtils",
+      "params": [
+        "SourceCity:Object",
+        "TargetCity:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CreateTradeRoute",
+      "owner": "PXTradeUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "SourceCity:Object",
+        "TargetCity:Object",
+        "Resources:Map",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CanActivateTradeRoute",
+      "owner": "PXTradeUtils",
+      "params": [
+        "tradeRoute:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

@@ -1,0 +1,687 @@
+{
+  "chain": [
+    "PXParliamentUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXParliamentUtils",
+  "functions": [
+    {
+      "name": "UpdateParliamentDecors",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "TryToUnselectDelegate",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "TryToRecountVotes",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object"
+      ]
+    },
+    {
+      "name": "TryToFinishVote",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "TryGetPromisedPoliciesForCommunity",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "outPolicies:Array",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "SkipRecessTime",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "SetSwayMode",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "swayMode:Enum<EPXSwayMode>"
+      ]
+    },
+    {
+      "name": "SetParliamentElementViewed",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliamentObject:Object"
+      ]
+    },
+    {
+      "name": "SetMaterial",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Component:Object",
+        "MaterialSlotName:Name",
+        "Material:Object"
+      ]
+    },
+    {
+      "name": "SetForceParliamentUpdate",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "NewValue:Bool"
+      ]
+    },
+    {
+      "name": "SetExternalVotes",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "allVotesPercentage:Float",
+        "ayeVotesPercentage:Float"
+      ]
+    },
+    {
+      "name": "SetCurrentPhase",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "phase:Enum<EPXSessionPhase>"
+      ]
+    },
+    {
+      "name": "ResetVisibileInView",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "visibleInView:Object",
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "ResetSwayMode",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "ResetSelection",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "ResetNiagaras",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "NiagaraComponents:Array",
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "ResetBypassData",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliament:Object"
+      ]
+    },
+    {
+      "name": "RequestSession",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Forced:Bool",
+        "optionalPolicy:Object",
+        "skipRecess:Bool",
+        "RequestedByCommunity:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "MarkParliamentObjectAsViewed",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliamentObject:Object"
+      ]
+    },
+    {
+      "name": "IsSwayVisibleForPolicy",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "policyType:Object",
+        "Nation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsSwayVisible",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsSwayForced",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsSwayAvailable",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsPolicySwayable",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "policyType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsPolicyLawExplorationVisible",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "policyType:Object",
+        "Nation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsPolicyChangingAgendaVisible",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "policyType:Object",
+        "Nation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsParliamentActive",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsNextSessionRequested",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Requested:Bool",
+        "andForced:Bool",
+        "optionalPolicy:Object"
+      ]
+    },
+    {
+      "name": "IsNegotiationVisible",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "optionalPolicyType:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsNegotiationAvailable",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsInParliament",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsCurrentSessionRequested",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Requested:Bool",
+        "andForced:Bool",
+        "optionalPolicy:Object"
+      ]
+    },
+    {
+      "name": "IsCurrentSessionForced",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsCurrentParliamentPhase",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "phase:Enum<EPXSessionPhase>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsCommunitySupportingPolicy",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "proposedPolicy:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAnimLookAtRotationAllowed",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "anim:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAgendaPolicyBlockingCouncilPanelExit",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasWarningInParliamentObject",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliamentObject:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasQuestInParliamentObject",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliamentObject:Object",
+        "isPromisedQuest:Bool",
+        "outPromisedCommunity:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasPromiseQuestFor",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "BuildingType:Object",
+        "policyType:Object",
+        "ResearchOutcome:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasNewUnlockInParliamentObject",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliamentObject:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetVotingHistory",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliament:Object",
+        "sinceSession:Int",
+        "OptionalPolicies:Array",
+        "passFilter:Enum<EPXVotingHistoryPassFilter>",
+        "promiseFilter:Enum<EPXVotingHistoryPromiseFilter>",
+        "swayFilter:Enum<EPXVotingHistorySwayFilter>",
+        "recountFilter:Enum<EPXVotingHistoryRecountFilter>",
+        "allItems:Array",
+        "hasAnyItem:Bool",
+        "latestItem:Struct<PXVotingHistoryItem>"
+      ]
+    },
+    {
+      "name": "GetTimeToForcedVote",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetSwayModifierCost",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetSwayMode",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Enum<EPXSwayMode>"
+      ]
+    },
+    {
+      "name": "GetRepresentativeTags",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "representative:Object",
+        "ReturnValue:Struct<GameplayTagContainer>"
+      ]
+    },
+    {
+      "name": "GetRepresentativesFromCommunityType",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliament:Object",
+        "communityType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetRepresentativesFromCommunity",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliament:Object",
+        "Community:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetRepresentativesCountFromCommunityType",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliament:Object",
+        "communityType:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetRepresentativeFacts",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "representative:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetRandomizedCharacterMeshes",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "OutMeshData:Map",
+        "communityType:Object",
+        "Tags:Struct<GameplayTagContainer>"
+      ]
+    },
+    {
+      "name": "GetPredictedVoteResultForCommunityType",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliment:Object",
+        "Policy:Object",
+        "communityType:Object",
+        "outAttitude:Enum<EPXVoteAttitude>",
+        "ReturnValue:Struct<PXVoteResultData>"
+      ]
+    },
+    {
+      "name": "GetPredictedSwayEffectivness",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetMinTimeToNextSession",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetMinTimeBetweenSessions",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetLastVotingHistoryItems",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliament:Object",
+        "lastSessions:Int",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetFirstRepresentativeFromCommunityType",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliament:Object",
+        "communityType:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetEnterParliamentButtonTooltipTexts",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "outKeyTag:Str",
+        "outHeaderText:Text",
+        "outStatusText:Text",
+        "outAdditionalDescriptionText:Text",
+        "outNewSlotElementText:Text"
+      ]
+    },
+    {
+      "name": "GetCurrentPolicyFromAgenda",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCurrentParliamentPhaseProgress",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "outSessionPhase:Enum<EPXSessionPhase>",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetCurrentParliamentPhase",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Enum<EPXSessionPhase>"
+      ]
+    },
+    {
+      "name": "GetCurrentParliament",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCommunitySupportToPolicy",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "proposedPolicy:Object",
+        "ReturnValue:Enum<EPXVoteAttitude>"
+      ]
+    },
+    {
+      "name": "GetCityOfParliament",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parliament:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetAttitudeToPolicy",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Policy:Object",
+        "ReturnValue:Enum<EPXCommunityPolicyAttitude>"
+      ]
+    },
+    {
+      "name": "GetAllCommunitiesInParliment",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliment:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllCommunitiesComponentsInParliament",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "parliment:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "ForceRepresentativesSession",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "policyToPropose:Object",
+        "RequestedByCommunity:Object"
+      ]
+    },
+    {
+      "name": "FixTheNextHoDVote",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "votes:Int"
+      ]
+    },
+    {
+      "name": "ChangeDelegateInteractionState",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "NewState:Bool"
+      ]
+    },
+    {
+      "name": "CanRecountVotes",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "didRequirementPass:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CancelNextSessionRequest",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "BypassVote",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "affectedPolicy:Object",
+        "communityType:Object",
+        "bypassData:Struct<PXVoteBypassData>!text"
+      ]
+    },
+    {
+      "name": "AddPolicyToAgenda",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Policy:Object"
+      ]
+    },
+    {
+      "name": "AddEmissionPointToDelegate",
+      "owner": "PXParliamentUtils",
+      "params": [
+        "Actor:Object",
+        "Type:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

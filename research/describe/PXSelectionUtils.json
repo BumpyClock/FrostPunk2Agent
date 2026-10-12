@@ -1,0 +1,170 @@
+{
+  "chain": [
+    "PXSelectionUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXSelectionUtils",
+  "functions": [
+    {
+      "name": "Unselect",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "TrySelectRepresentative",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Actor:Object"
+      ]
+    },
+    {
+      "name": "TrySelectHODCommunity",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object"
+      ]
+    },
+    {
+      "name": "TrySelectDistrict",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "districtComponent:Object"
+      ]
+    },
+    {
+      "name": "TrySelectActor",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Actor:Object"
+      ]
+    },
+    {
+      "name": "SetCurrentCityArea",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "CityArea:Object"
+      ]
+    },
+    {
+      "name": "SetCurrentCity",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedTerritory",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedSite",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedDistrict",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedDeposit",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedDelegate",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedCommunity",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedCityCell",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedCity",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetSelectedAreaExpander",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCurrentCityCells",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Set"
+      ]
+    },
+    {
+      "name": "GetCurrentCityArea",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCurrentCity",
+      "owner": "PXSelectionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

@@ -1,0 +1,100 @@
+{
+  "chain": [
+    "PXWorkforceUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXWorkforceUtils",
+  "functions": [
+    {
+      "name": "TryGetCityFromWorkforceHolder",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "Component:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "TryGetCityFromWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "Component:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCommunityWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "Community:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityWorkingWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityUnemploymentPercentage",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "GetCityTotalWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityRequiredWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityAvailableWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetActorTotalWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "Owner:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "CanCityAffordWorkforce",
+      "owner": "PXWorkforceUtils",
+      "params": [
+        "City:Object",
+        "Workforce:Int",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

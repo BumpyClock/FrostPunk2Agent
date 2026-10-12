@@ -1,6 +1,6 @@
 ---
 name: play-frostpunk2
-description: Play Frostpunk 2 through the FP2AgentBridge UE4SS mod and the `fp2` CLI. Use for a play session. Start with `fp2 recover`, keep a goal stack in `fp2 goals`, and advance with `fp2 turn`, which runs until a stop event or a heartbeat and returns events, due goals and a brief. When play needs a read or action the bridge lacks, switch to the `fp2-mod-dev` skill.
+description: Play Frostpunk 2 through the FP2AgentBridge UE4SS mod and the `fp2` CLI. Use for a play session. Start with `fp2 recover`, keep a goal stack in `fp2 goals`, and advance with `fp2 turn`, which runs until a stop event or a heartbeat and returns events, due goals and a brief. The bridge and CLI are read-only during play: log every missing read, action or bug in BRIDGE_FEEDBACK.md and play on.
 ---
 
 # Play Frostpunk 2
@@ -61,7 +61,7 @@ These habits separated good turns from bad ones in past runs. They do not say wh
    or `AutoSave*`, ends paused; a save that crashes the game on load is marked bad and the next one is tried, up to
    3 loads). After any load, bridge calls wait ~90 s (polling mid-load crashed the game); do not work around it. First install: `./scripts/Install-Bridge.ps1` with the game closed. If `turn` warns about a
    detached watcher, run `fp2 watch-stop`.
-2. `fp2 goals`. If empty, seed it: `long` = the scenario quest (`fp2 snapshot --fields quests`); `short` = one
+2. `fp2 health` (verdict and reasons: act on `critical` and `act` first), then `fp2 goals`. If empty, seed it: `long` = the scenario quest (`fp2 snapshot --fields quests`); `short` = one
    city-problem target, one capacity goal, and the research path from `fp2 research_plan topic=X`. Read
    `goals.focus` (top of the stack) and `goals.threats` (every open threat with `weeksLeft`), and `fp2 brief`
    `weather` before the first turn. Then `fp2 turn`.
@@ -96,7 +96,7 @@ Each turn:
 - When `goals.due` is non-empty, judge each `expect` against the brief, then `fp2 goals done id=N note=".."` or
   `fp2 goals edit id=N due=.. expect=..` with the reason.
 - Re-plan when research finishes, a build completes, a Council session opens, a territory is explored, or the
-  heartbeat fires: re-read `snapshot.quests`, `fp2 research_plan`, `fp2 utopia`, `fp2 frost_sites`, free workforce
+  heartbeat fires: re-read `fp2 health`, `snapshot.quests`, `fp2 research_plan`, `fp2 utopia`, `fp2 frost_sites`, free workforce
   and stocks, and update the `long` and `short` goals.
 - Read only what the decision needs: `fp2 turn --fields turn,events,goals.focus,goals.due,goals.threats,weather,brief.alerts`.
 - Target shape (not yet built): the game keeps running, `fp2 watch-start` streams events to `.runtime/watch.jsonl`,
@@ -130,6 +130,21 @@ validate through the game and charge normal costs; most accept `dryRun=true`.
 | Research | `fp2 research` (`speed` 0 without a Research Institute, observed), `fp2 research_topics [all=true] [solves=Squalor]`, `fp2 research_plan topic=X`, `fp2 research_start topic=<id> community=<type>` |
 | Outposts | `fp2 build_outpost type=Coal territory=Steppes [dryRun=true]` (measured: built instantly, no stockpile cost, state Operational), `fp2 connect_outpost type=X` (needs a trail first; see MOD_GAPS) |
 | Utopia, Frostland | `fp2 utopia`, `fp2 utopia-assign node=X`, `fp2 territories`, `fp2 explore territory=X [dryRun=true]`, `fp2 frost_sites [kind=outpost\|colony]` |
+| Health | `fp2 health` (one call under 3 KB): `verdict` (critical > act > watch > ok) with `reasons`, runway bands (ok >= 20 weeks, watch 10-20, act 5-10, critical < 5), generator load, `caps`, Council open, whiteout, quests. Act on `critical` and `act` reasons first; tier bands are guesses |
+| Stock caps, heat levels | `fp2 stock_caps` (resources at their cap and still gaining, weeks to cap, the depot hub that raises each limit), `fp2 heat_levels [deep=true]` (per-district heat level name, bad levels, insulation, generator headroom; pair with `heat_adjust`/`heat_distribute`) |
+| Utopia detail | `fp2 utopia_v2 [unlocks=true]` (points, score, assignable nodes, what a node grants). Spend only when `hasPoint` is true: `fp2 utopia-assign node=X` |
+| Factions | `fp2 factions [community=X] [detail=tiers]` (size, seats, standing, fervor, promises with `weeksLeft`, tension, trust), `fp2 vote_predict [policy=X] [detail=predict,history]` (required votes, seats For/Against/Hesitant, `margin`; below 0: negotiate or sway), `fp2 sway` (reads mode and cost) |
+| Community actions | `fp2 community_actions community=X`, then `fp2 community_action community=X action=Y [target=Z] [district=D] dryRun=true`, then without `dryRun`. One use per community per cooldown (FundProjects_CA: 20 weeks, -154 heatstamps, +0.1 standing, measured) |
+| Pass a law, UI in sync | Save first, outside the Council. `fp2 keys c keepFocus=true`, then `fp2 council_ui` (`lobbyVisible` true), then `council_ui step=` `laws`, `law policy=X`, `select policy=<exact id>` (phase becomes Negotiations), optional negotiation (next row), `vote` (LAW PASSED), then `fp2 keys escape` on the results screen. `select` needs an id from `fp2 laws` (proposable list) |
+| Negotiate, sway | `council_ui step=negotiate`, `community community=X`, `side side=for`, `terms` (their demands in screen order), `term index=N`, `accept`; the promise starts after the vote. `fp2 negotiate [community=X]` reads status (`cancel=true` untested), `council_ui step=sway mode=SwayAye` untested |
+| Promises | `fp2 factions` lists them. `fp2 promise` only points to the negotiation path. `fp2 promise_abandon community=X [promise=<index\|name>] [dryRun=true]`: default `path=quest` fails the quest (measured working; standing likely drops). `path=abandon` crashed the game once and needs `force=true`: do not use. A story-dialog "promise" is a quest, not a community promise |
+| Frostland teams, expeditions | `fp2 frost_teams` (total/inUse/free; 15 per active Logistics district), `fp2 explorations [state=unexplored\|exploring\|explored] [weather=true]` (weeks, difficulty, resources; teams cost reads only as the `frost_teams` delta), `fp2 explore_stop territory=<name> [dryRun=true]` (recall an expedition before a whiteout; teams return, progress is lost) |
+| Outposts | `fp2 outposts` (deposit left, extraction weeks, teams, active reasons, connection, storm), `fp2 outpost_active type=<id> active=false` (frees teams), `fp2 outpost_upgrade type=<id> [dryRun=true]` (the game may refuse silently), `fp2 build_outpost2 territory=<name> [type=<id>] [dryRun=true]` (safer build path). `outpost_action` lists nothing (unproven) |
+| Trails | `fp2 trails` (types, live trails, `constructing`), `fp2 trail_plan type=<outpost>` (grid facts, candidate cells; unproven). `trail_build` is gated (cell format unresolved). `trail_tool step=start/status/build/cancel` drives the painter; untested, needs an available trail type (V first) |
+| Colonies | `fp2 cities` (index, main/colony, population, workforce, unrest, stock), `fp2 colony_sites [territory=X] [details=true]` (cost, weeks, `canShow`, `built`), `fp2 colony_build site=X [community=Y] [parent=N] [dryRun=true]` (founds a colony: save first; 3000 people leave the main city, other costs unverified) |
+| Trade, people | `fp2 trade_routes [city=N]` (limit per resource, trail capacity; trading is locked until unlocked), `fp2 trade_route to=N resources='{"food":100}' [replace=true] [dryRun=true]` (0 stops a resource; refuses over the limit; mutation untested), `fp2 transfer_people to=N amount=K [community=X] [from=M] [dryRun=true]` (a relocation unit carries them: main city drops at once, colony gains on arrival) |
+| Abandon, recolonize | `fp2 city_abandon city=N confirm=true [dryRun=true]` (never the main city), `fp2 recolonize city=N [community=X] [confirm=true] [dryRun=true]`; real calls untested |
+| Colony unrest | `fp2 colony_exchange`: unrest per city and the count of independent-colony exchange components. The exchange itself is not readable (a full read crashed the game) |
 | Heat, abilities | `fp2 generator` (`wear` 0..1; 1 = malfunction with casualties), `fp2 overdrive-cycle [weeks=1] [maxWear=0.5]` (duty-cycled overdrive under a wear ceiling), `fp2 heat`, `fp2 heat_distribute`, `fp2 heat_auto active=true`, `fp2 heat_adjust district=Housing#1 adjustment=1`, `fp2 overdrive active=true`, `fp2 abilities describe=true`, `fp2 ability owner=Production#N id=<id> active=true` |
 | Dialogs, map icons | `fp2 modals`, `fp2 choose index=N`, `fp2 extract name=icons`, `fp2 open_icon ref=<icon ref>` |
 | Saves, time | `fp2 saves`, `fp2 save name=agent-X [override=true]`, `fp2 new-game`, `fp2 launch`; secondary: `fp2 pause`, `fp2 resume`, `fp2 speed 1\|2\|3`, `fp2 advance [ticks=N]` (1680 ticks = 1 week) |
@@ -153,6 +168,28 @@ alternatives. No law is always right or always wrong. Record the reasoning in th
 `fp2 pass-law policy=<id>` opens the Council, proposes, votes, dismisses the result and returns `active`; check it.
 It refuses when no session is open (`phase` 1) unless `--force`. Sessions reopened ~10 weeks after a vote (observed).
 
+For a law that needs a negotiation, or when the hub shows its lobby, drive the hub with `fp2 council_ui` steps (table
+rows "Pass a law, UI in sync" and "Negotiate, sway"). Check the vote first with `fp2 vote_predict`.
+
+Council UI rules (measured 2026-10-11):
+
+- The UI must leave the lobby before a proposal. `propose` (RequestSession) while the hub still showed its lobby
+  moved the phase to Negotiations with the UI left on the lobby, and a click on "PROPOSE A LAW" then crashed the
+  game. `propose` now refuses while the lobby is visible unless `force=true`. Use the `council_ui` steps above:
+  `council-open` (or `fp2 keys c keepFocus=true`) -> `laws` -> `law` -> `select` -> `negotiate` -> `community` ->
+  `side` -> `terms`/`term` -> `accept` -> `vote`. Each step fires the panel's own button event and kept the UI in
+  sync through propose, negotiate, accept and the vote (LAW PASSED 55 For / 51 required, then Escape).
+- Pixel clicks on the lobby did nothing, and a Space keypress did not advance it. Use the steps.
+- Never save inside the Council scene: a save written there did not load (the game stayed at the main menu).
+  Save before opening it. `fp2 save` warns.
+- `council-open` failed twice ("Council did not open") while `fp2 keys c keepFocus=true` opened it. Cause inferred:
+  the key press restores the previous foreground window at once and the key is lost.
+- The "?" `WBP_Tutorial_New_C` widget in each hub panel is a hint button, not a modal.
+- `phase` 1 (Agenda) with `minTicksToNextSession` 16800 means a session is available; the recess length is config.
+  A law passed with a promise starts a quest ("Promise to Merchants", 40 weeks) that `fp2 factions` lists.
+- `fp2 pass-law` sends the bridge `propose` (CLI code), so the lobby guard refuses it while the hub shows the lobby;
+  not re-run since the guard was added. Prefer the steps above, and they are the only path for a negotiation.
+
 ## Safety rules
 
 - Cutscene guard: `choose`, `vote`, `propose`, `ability`, `overdrive`, and `click`/`rclick`/`hold` without `--force`
@@ -164,11 +201,26 @@ It refuses when no session is open (`phase` 1) unless `--force`. Sessions reopen
 - When a command has no visible effect, read `pauseReasons`, `cutscene`, `modals` and window focus before
   repeating it. A `true` return proves neither effect nor persistence (measured).
 
-## Growing the bridge
+## Bridge and CLI are read-only during play
 
-When a read or action is missing, switch to the `fp2-mod-dev` skill; its detour policy says whether to build it now.
-Log gaps in [MOD_GAPS.md](../fp2-mod-dev/references/MOD_GAPS.md). Reflection commands (`call`, `object`, `get`,
-`describe`, `find_all`, `search`) belong to that skill and its rules.
+Play agents never edit `mod/`, `cli/`, or `fp2.exe`, never run `fp2 reload`, and never use the reflection commands
+(`call`, `object`, `get`, `set`, `describe`, `find_all`, `search`, `functions`, `classes`). Those belong to the
+maintainer, who refines the bridge between sessions from your notes.
+
+When a read or action is missing, wrong, or crashes, append an entry to [BRIDGE_FEEDBACK.md](../../../BRIDGE_FEEDBACK.md)
+(repo root) and continue with what exists (`fp2 screenshot`, `click`, `hold`, `keys` are the UI fallback). One entry
+per gap, newest at the bottom, this shape:
+
+```
+## <date> wk <week> | <command or feature> | <gap|bug|crash|doc>
+- Wanted: <the decision you were making and the read or action you needed>
+- Tried: <exact fp2 commands and what they returned; the HUD value if you read one from a screenshot>
+- Workaround: <what you did instead, or "none; skipped the decision">
+- Cost: <what the gap cost: tokens, weeks of play, a wrong decision, a death wave>
+```
+
+Label values measured (from a command or the HUD) or inferred. Do not propose code. Do not log the same gap twice:
+grep the file for the command name first and add a line under the existing entry instead.
 
 ## References
 

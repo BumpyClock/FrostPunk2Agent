@@ -1,0 +1,246 @@
+{
+  "chain": [
+    "PXHeatManagementUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXHeatManagementUtils",
+  "functions": [
+    {
+      "name": "SetHeatAutoAllocation",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object",
+        "IsActive:Bool"
+      ]
+    },
+    {
+      "name": "SetHeatAllocationAdjustmentLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocation:Object",
+        "adjustment:Int"
+      ]
+    },
+    {
+      "name": "IsWastingHeat",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heat:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsHeatAllocationAvailableDetailed",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IncreaseHeatAllocationLevelsInHolder",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object"
+      ]
+    },
+    {
+      "name": "GetTotalPowerNeeded",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heatAllocationHolder:Object",
+        "skipInactive:Bool",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetTotalPowerAllocated",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heatAllocationHolder:Object",
+        "skipInactive:Bool",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetResourceCostForHeatLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heatAllocationHolder:Object",
+        "ReturnValue:Map"
+      ]
+    },
+    {
+      "name": "GetPowerToHeatLevelRatio",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heatAllocationHolder:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetPowerNeededForActor",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "Actor:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetPowerAllocatedToHeatingNeed",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heatAllocationHolder:Object",
+        "skipInactive:Bool",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetMaxPossibleAllocationLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocation:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetMaxAvailableHeatAllocationLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetHeatToHeatLevelRatio",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heatAllocationHolder:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetHeatNeeded",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heat:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetHeatBalance",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heat:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetHeatAllocationHolderGameplayFactorsUIData",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "heatAllocationHolder:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "DistributeAvailableHeat",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object"
+      ]
+    },
+    {
+      "name": "DecreaseHeatAllocationLevelsInHolder",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object"
+      ]
+    },
+    {
+      "name": "CompareHeatLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "TargetComponent:Object",
+        "ComparisonType:Enum<EPXComparisonType>",
+        "heatLevelType:Object",
+        "IsValid:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanSetHeatAllocationAdjustmentLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocation:Object",
+        "adjustment:Int",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanIncreaseHeatAllocationLevelsInHolder",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanIncreaseHeatAllocationLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanDistributeAvailableHeat",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanDecreaseHeatAllocationLevelsInHolder",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocationHolder:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanDecreaseHeatAllocationLevel",
+      "owner": "PXHeatManagementUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "heatAllocation:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

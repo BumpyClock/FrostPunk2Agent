@@ -1,0 +1,463 @@
+{
+  "chain": [
+    "PXTerritoryComponent",
+    "PXActorComponent",
+    "ActorComponent"
+  ],
+  "class": "/Script/Frostpunk2.PXTerritoryComponent",
+  "functions": [
+    {
+      "name": "TerritoryHighlightChangedEvent__DelegateSignature",
+      "owner": "PXTerritoryComponent",
+      "params": [
+        "HighlightState:Enum<EPXTerritoryHighlightState>"
+      ]
+    },
+    {
+      "name": "TerritoryExplorationStateChangedEvent__DelegateSignature",
+      "owner": "PXTerritoryComponent",
+      "params": [
+        "isExploring:Bool"
+      ]
+    },
+    {
+      "name": "GetSiteSlots",
+      "owner": "PXTerritoryComponent",
+      "params": [
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetSites",
+      "owner": "PXTerritoryComponent",
+      "params": [
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetNeighborTerritories",
+      "owner": "PXTerritoryComponent",
+      "params": [
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetMiddlePosition",
+      "owner": "PXTerritoryComponent",
+      "params": [
+        "ReturnValue:Struct<Vector>"
+      ]
+    },
+    {
+      "name": "GetExplorationComponent",
+      "owner": "PXTerritoryComponent",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "SetComponentEnabled",
+      "owner": "PXActorComponent",
+      "params": [
+        "Enabled:Bool"
+      ]
+    },
+    {
+      "name": "ReceiveComponentStarted",
+      "owner": "PXActorComponent",
+      "params": []
+    },
+    {
+      "name": "IsComponentEnabled",
+      "owner": "PXActorComponent",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "ToggleActive",
+      "owner": "ActorComponent",
+      "params": []
+    },
+    {
+      "name": "SetTickGroup",
+      "owner": "ActorComponent",
+      "params": [
+        "NewTickGroup:Byte"
+      ]
+    },
+    {
+      "name": "SetTickableWhenPaused",
+      "owner": "ActorComponent",
+      "params": [
+        "bTickableWhenPaused:Bool"
+      ]
+    },
+    {
+      "name": "SetIsReplicated",
+      "owner": "ActorComponent",
+      "params": [
+        "ShouldReplicate:Bool"
+      ]
+    },
+    {
+      "name": "SetIsEditorOnly",
+      "owner": "ActorComponent",
+      "params": [
+        "Value:Bool"
+      ]
+    },
+    {
+      "name": "SetComponentTickIntervalAndCooldown",
+      "owner": "ActorComponent",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetComponentTickInterval",
+      "owner": "ActorComponent",
+      "params": [
+        "TickInterval:Float"
+      ]
+    },
+    {
+      "name": "SetComponentTickEnabled",
+      "owner": "ActorComponent",
+      "params": [
+        "bEnabled:Bool"
+      ]
+    },
+    {
+      "name": "SetAutoActivate",
+      "owner": "ActorComponent",
+      "params": [
+        "bNewAutoActivate:Bool"
+      ]
+    },
+    {
+      "name": "SetActive",
+      "owner": "ActorComponent",
+      "params": [
+        "bNewActive:Bool",
+        "bReset:Bool"
+      ]
+    },
+    {
+      "name": "RemoveTickPrerequisiteComponent",
+      "owner": "ActorComponent",
+      "params": [
+        "PrerequisiteComponent:Object"
+      ]
+    },
+    {
+      "name": "RemoveTickPrerequisiteActor",
+      "owner": "ActorComponent",
+      "params": [
+        "PrerequisiteActor:Object"
+      ]
+    },
+    {
+      "name": "ReceiveTick",
+      "owner": "ActorComponent",
+      "params": [
+        "DeltaSeconds:Float"
+      ]
+    },
+    {
+      "name": "ReceiveEndPlay",
+      "owner": "ActorComponent",
+      "params": [
+        "EndPlayReason:Byte"
+      ]
+    },
+    {
+      "name": "ReceiveBeginPlay",
+      "owner": "ActorComponent",
+      "params": []
+    },
+    {
+      "name": "ReceiveAsyncPhysicsTick",
+      "owner": "ActorComponent",
+      "params": [
+        "DeltaSeconds:Float",
+        "SimSeconds:Float"
+      ]
+    },
+    {
+      "name": "OnRep_IsActive",
+      "owner": "ActorComponent",
+      "params": []
+    },
+    {
+      "name": "K2_DestroyComponent",
+      "owner": "ActorComponent",
+      "params": [
+        "Object:Object"
+      ]
+    },
+    {
+      "name": "IsComponentTickEnabled",
+      "owner": "ActorComponent",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsBeingDestroyed",
+      "owner": "ActorComponent",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsActive",
+      "owner": "ActorComponent",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetOwner",
+      "owner": "ActorComponent",
+      "params": [
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetComponentTickInterval",
+      "owner": "ActorComponent",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "Deactivate",
+      "owner": "ActorComponent",
+      "params": []
+    },
+    {
+      "name": "ComponentHasTag",
+      "owner": "ActorComponent",
+      "params": [
+        "Tag:Name",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "AddTickPrerequisiteComponent",
+      "owner": "ActorComponent",
+      "params": [
+        "PrerequisiteComponent:Object"
+      ]
+    },
+    {
+      "name": "AddTickPrerequisiteActor",
+      "owner": "ActorComponent",
+      "params": [
+        "PrerequisiteActor:Object"
+      ]
+    },
+    {
+      "name": "Activate",
+      "owner": "ActorComponent",
+      "params": [
+        "bReset:Bool"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "TerritoryHighlightChangedEvent",
+      "owner": "PXTerritoryComponent",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "TerritoryExplrationStateChangedEvent",
+      "owner": "PXTerritoryComponent",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "UnexploredName",
+      "owner": "PXTerritoryComponent",
+      "type": "TextProperty"
+    },
+    {
+      "name": "ExploredName",
+      "owner": "PXTerritoryComponent",
+      "type": "TextProperty"
+    },
+    {
+      "name": "TerritoryType",
+      "owner": "PXTerritoryComponent",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "InitialTerritory",
+      "owner": "PXTerritoryComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "TerritoryExplorations",
+      "owner": "PXTerritoryComponent",
+      "type": "MapProperty"
+    },
+    {
+      "name": "TerritoryVisualization",
+      "owner": "PXTerritoryComponent",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "BoundingBox",
+      "owner": "PXTerritoryComponent",
+      "type": "StructProperty"
+    },
+    {
+      "name": "MiddlePosition",
+      "owner": "PXTerritoryComponent",
+      "type": "StructProperty"
+    },
+    {
+      "name": "DetailsCount",
+      "owner": "PXTerritoryComponent",
+      "type": "IntProperty"
+    },
+    {
+      "name": "NeighborTerritories",
+      "owner": "PXTerritoryComponent",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "Sites",
+      "owner": "PXTerritoryComponent",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "SiteSlots",
+      "owner": "PXTerritoryComponent",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "InitialState",
+      "owner": "PXTerritoryComponent",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "MaxWeatherLevel",
+      "owner": "PXTerritoryComponent",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "DifficultyUnlocksEffect",
+      "owner": "PXTerritoryComponent",
+      "type": "IntProperty"
+    },
+    {
+      "name": "Indices",
+      "owner": "PXTerritoryComponent",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "Tags",
+      "owner": "PXTerritoryComponent",
+      "type": "StructProperty"
+    },
+    {
+      "name": "WeatherLevelsMap",
+      "owner": "PXTerritoryComponent",
+      "type": "MapProperty"
+    },
+    {
+      "name": "ComponentEnabled",
+      "owner": "PXActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "ComponentAdded",
+      "owner": "PXActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "WasComponentStarted",
+      "owner": "PXActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "PrimaryComponentTick",
+      "owner": "ActorComponent",
+      "type": "StructProperty"
+    },
+    {
+      "name": "ComponentTags",
+      "owner": "ActorComponent",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "AssetUserData",
+      "owner": "ActorComponent",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "UCSSerializationIndex",
+      "owner": "ActorComponent",
+      "type": "IntProperty"
+    },
+    {
+      "name": "bNetAddressable",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bReplicateUsingRegisteredSubObjectList",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bReplicates",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bAutoActivate",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bIsActive",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bEditableWhenInherited",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bCanEverAffectNavigation",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "bIsEditorOnly",
+      "owner": "ActorComponent",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "CreationMethod",
+      "owner": "ActorComponent",
+      "type": "EnumProperty"
+    },
+    {
+      "name": "OnComponentActivated",
+      "owner": "ActorComponent",
+      "type": "MulticastSparseDelegateProperty"
+    },
+    {
+      "name": "OnComponentDeactivated",
+      "owner": "ActorComponent",
+      "type": "MulticastSparseDelegateProperty"
+    }
+  ]
+}
+

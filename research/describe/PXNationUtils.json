@@ -1,0 +1,135 @@
+{
+  "chain": [
+    "PXNationUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXNationUtils",
+  "functions": [
+    {
+      "name": "SetMainCity",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object"
+      ]
+    },
+    {
+      "name": "SetCurrentPlayerNation",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "NationType:Object",
+        "deactivateLogicInPreviousNation:Bool"
+      ]
+    },
+    {
+      "name": "IsMainCityOfNation",
+      "owner": "PXNationUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsCityOwnedByPlayer",
+      "owner": "PXNationUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetPlayerNation",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetPlayerMainCity",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetNationOfType",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "NationType:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetNationMainCity",
+      "owner": "PXNationUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetNationGameplayDescription",
+      "owner": "PXNationUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetNationCities",
+      "owner": "PXNationUtils",
+      "params": [
+        "Nation:Object",
+        "OnlyActive:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCityNation",
+      "owner": "PXNationUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetAllPlayerCityAreas",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllPlayerCities",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "ChangeNationOfCity",
+      "owner": "PXNationUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "NationType:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

@@ -1,0 +1,463 @@
+{
+  "chain": [
+    "PXInstructionUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXInstructionUtils",
+  "functions": [
+    {
+      "name": "Vote",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "Policy:Object",
+        "swayMode:Enum<EPXSwayMode>",
+        "ReturnValue:Struct<PXVoteResultData>"
+      ]
+    },
+    {
+      "name": "UpgradeBuilding",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "BuildingId:Name",
+        "BuildingType:Object",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "UpdateTradeRoute",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "tradeRouteId:Name",
+        "targetCityId:Name",
+        "Resources:Map"
+      ]
+    },
+    {
+      "name": "StopTerritoryExploration",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "territoryId:Name"
+      ]
+    },
+    {
+      "name": "StartTerritoryExploration",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "territoryId:Name",
+        "cityId:Name",
+        "unitCityId:Name"
+      ]
+    },
+    {
+      "name": "StartResearch",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "nationId:Name",
+        "CommunityId:Name",
+        "Topic:Object",
+        "Outcome:Object"
+      ]
+    },
+    {
+      "name": "SetActorAbilityActive",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "ActorId:Name",
+        "Ability:Object",
+        "Active:Bool",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "SelectChoice",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "Channel:Class",
+        "ChoiceIndex:Int",
+        "ClosePanel:Bool"
+      ]
+    },
+    {
+      "name": "ResolveDilemma",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "nationId:Name",
+        "dilemmaId:Name",
+        "choiceId:Int",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "RecountVotes",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "nationId:Name"
+      ]
+    },
+    {
+      "name": "PlaceDistrict",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "cityId:Name",
+        "DistrictType:Object",
+        "cellIndices:Array",
+        "BuildingSlotPositions:Array",
+        "ActionOrigin:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "PlaceBuilding",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "DistrictId:Name",
+        "BuildingType:Object",
+        "ActionOrigin:Object",
+        "OverridePlacementSlotIndex:Int",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "OpenCommunicationTracker",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "trackerIndex:Int"
+      ]
+    },
+    {
+      "name": "Negotiate",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "Policy:Object",
+        "communityType:Object",
+        "replayBypassData:Struct<PXReplayVoteBypassData>!text"
+      ]
+    },
+    {
+      "name": "InstructVote",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Policy:Object",
+        "ReturnValue:Struct<PXVoteResultData>"
+      ]
+    },
+    {
+      "name": "InstructUpdateTradeRoute",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "tradeRoute:Object",
+        "TargetCity:Object",
+        "Resources:Map"
+      ]
+    },
+    {
+      "name": "InstructStopTerritoryExploration",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object"
+      ]
+    },
+    {
+      "name": "InstructStartTerritoryExploration",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object",
+        "City:Object",
+        "unitCity:Object"
+      ]
+    },
+    {
+      "name": "InstructStartResearch",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Community:Object",
+        "Topic:Object",
+        "Outcome:Object"
+      ]
+    },
+    {
+      "name": "InstructSetActorAbilityActive",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Owner:Object",
+        "Ability:Object",
+        "Active:Bool",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "InstructResolveDilemma",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Dilemma:Object",
+        "choiceId:Int",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "InstructRecountVotes",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object"
+      ]
+    },
+    {
+      "name": "InstructNegotiate",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Policy:Object",
+        "communityType:Object",
+        "bypassData:Struct<PXVoteBypassData>!text"
+      ]
+    },
+    {
+      "name": "InstructDeactivateLogic",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Owner:Object",
+        "Type:Object"
+      ]
+    },
+    {
+      "name": "InstructCreateTradeRoute",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "SourceCity:Object",
+        "TargetCity:Object",
+        "Resources:Map",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "InstructConstructOutpost",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "Outpost:Object",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "InstructConnectOutpostToCity",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outpost:Object",
+        "City:Object"
+      ]
+    },
+    {
+      "name": "InstructCommunityAction",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "ActionOrigin:Object",
+        "actingCommunity:Object",
+        "isForced:Bool",
+        "OptionalDistrict:Object",
+        "OptionalTargetCommunity:Object"
+      ]
+    },
+    {
+      "name": "InstructBuildCity",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parentCity:Object",
+        "CityArea:Object",
+        "CityType:Object",
+        "ActionOrigin:Object",
+        "communityType:Object",
+        "sendUnit:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "InstructBreakNegotiations",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "InstructActivateLogic",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Owner:Object"
+      ]
+    },
+    {
+      "name": "ExpandDistrict",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "districtExpansionId:Name",
+        "cellIndices:Array",
+        "BuildingSlotPositions:Array",
+        "freeCost:Bool"
+      ]
+    },
+    {
+      "name": "ExpandArea",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "cityId:Name",
+        "expanderType:Object",
+        "cellIndices:Array",
+        "ActionOrigin:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "ExecuteCommunityAction",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "Action:Object",
+        "ActionOrigin:Object",
+        "actingCommunityId:Name",
+        "isForced:Bool",
+        "optionalDistrictId:Name",
+        "optionalTargetCommunityId:Name"
+      ]
+    },
+    {
+      "name": "DeactivateLogic",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "ActorId:Name",
+        "Type:Object"
+      ]
+    },
+    {
+      "name": "CreateTradeRoute",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "sourceCityId:Name",
+        "targetCityId:Name",
+        "Resources:Map",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ConstructOutpost",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "cityId:Name",
+        "outpostId:Name",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "ConnectOutpostToCity",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "outpostId:Name",
+        "cityId:Name"
+      ]
+    },
+    {
+      "name": "CheckSelectChoice",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "Channel:Class",
+        "ChoiceIndex:Int",
+        "ClosePanel:Bool"
+      ]
+    },
+    {
+      "name": "CheckOpenCommunicationTracker",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "trackerIndex:Int"
+      ]
+    },
+    {
+      "name": "BuildTrail",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "ownerCityId:Name",
+        "trailType:Object",
+        "ActionOrigin:Object",
+        "trailCells:Array",
+        "chunksCount:Int",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "BuildCity",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "parentCityId:Name",
+        "cityAreaId:Name",
+        "CityType:Object",
+        "ActionOrigin:Object",
+        "communityType:Object",
+        "sendUnit:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "BreakNegotiations",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object"
+      ]
+    },
+    {
+      "name": "ActivateLogic",
+      "owner": "PXInstructionUtils",
+      "params": [
+        "World:Object",
+        "ActorId:Name"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

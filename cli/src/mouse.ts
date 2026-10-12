@@ -1,14 +1,14 @@
 // Mouse input in game client coordinates (physical pixels, as in `fp2 screenshot` at scale 1).
 import { dlopen, FFIType, ptr } from "bun:ffi";
-import { focusGame } from "./win32";
+import { focusGame, lazySymbols } from "./win32";
 
-const user32 = dlopen("user32.dll", {
+const user32 = lazySymbols(() => dlopen("user32.dll", {
   SetProcessDPIAware: { args: [], returns: FFIType.bool },
   ClientToScreen: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.bool },
   GetClientRect: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.bool },
   SetCursorPos: { args: [FFIType.i32, FFIType.i32], returns: FFIType.bool },
   mouse_event: { args: [FFIType.u32, FFIType.u32, FFIType.u32, FFIType.i32, FFIType.ptr], returns: FFIType.void },
-}).symbols;
+}).symbols);
 
 const LEFTDOWN = 0x02, LEFTUP = 0x04, RIGHTDOWN = 0x08, RIGHTUP = 0x10, WHEEL = 0x0800;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

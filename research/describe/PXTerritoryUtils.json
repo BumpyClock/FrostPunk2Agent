@@ -1,0 +1,291 @@
+{
+  "chain": [
+    "PXTerritoryUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXTerritoryUtils",
+  "functions": [
+    {
+      "name": "StopTerritoryExploration",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object"
+      ]
+    },
+    {
+      "name": "StartTerritoryExploration",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object",
+        "City:Object",
+        "unitCity:Object",
+        "DifficultyOverride:Object"
+      ]
+    },
+    {
+      "name": "SetTerritoryObjectiveMarkStatus",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "exploration:Object",
+        "isMarked:Bool",
+        "ObjectiveMarkerType:Object"
+      ]
+    },
+    {
+      "name": "SetTerritoryExplorationState",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object",
+        "State:Enum<EPXTerritoryState>",
+        "silent:Bool"
+      ]
+    },
+    {
+      "name": "SetExplorationTimeScale",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Source:Interface",
+        "Scale:Float"
+      ]
+    },
+    {
+      "name": "IsExploringAnyTerritory",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsAnyTerritoryOfTypeExplored",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Type:Object",
+        "Nation:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetTerritoryWithNeighbours",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "startingTerritory:Object",
+        "searchDepth:Int",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetTerritoryPossibleResources",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "territory:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetTerritoryExplorationTime",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetTerritoryExplorationGameplayDescription",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "exploration:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetTerritoryExplorationEffectsDescription",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object",
+        "City:Object",
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetTerritoryDifficultyIcon",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "exploration:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetTerritoryDifficulty",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "territory:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetTerritoryBaseDifficulty",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "territory:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetTerritoriesByType",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "TerritoryType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetTerritoriesByState",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "State:Enum<EPXTerritoryState>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetTerritoriesBetween",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "A:Object",
+        "B:Object",
+        "Nation:Object",
+        "onlyExploredTerritories:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetResearchedTerritoryRequirements",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "Nation:Object",
+        "territory:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetExplorationPreparationTime",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "territory:Object",
+        "cityForExploration:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetCurrentlyExploringTerritory",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCityTerritory",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetAvailableSiteSlot",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "territory:Object",
+        "Query:Struct<GameplayTagQuery>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetAllTerritoriesWithTag",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Query:Struct<GameplayTagQuery>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllTerritories",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAllCurrentlyExploringTerritories",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "FindClosestCityForExploration",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "territory:Object",
+        "City:Object"
+      ]
+    },
+    {
+      "name": "CreateTerritoryTrackerLocationController",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "TerritoryVisualization:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CanCityExploreTerritory",
+      "owner": "PXTerritoryUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "territory:Object",
+        "City:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

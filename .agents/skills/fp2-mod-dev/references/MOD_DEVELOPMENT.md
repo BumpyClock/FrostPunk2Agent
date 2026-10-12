@@ -6,11 +6,12 @@ Scripts live in `mod/FP2AgentBridge/Scripts/`.
 
 | File | Role |
 |---|---|
-| `main.lua` | File IPC loop. A 50 ms `LoopAsync` reads `bridge/request.json`, runs the command on the game thread (`ExecuteInGameThread`), and writes `response.json`. Rewrites `status.json` (heartbeat) every second. Handles `bridge.reload`. |
+| `main.lua` | File IPC loop. A 10 ms `LoopAsync` reads `bridge/request.json`, runs the command on the game thread (`ExecuteInGameThread`), and writes `response.json`. Rewrites `status.json` (heartbeat) every second. Handles `bridge.reload`. |
 | `commands.lua` | Command registry (`def(name, {help, mutation, run})`). Generic reflection commands, then game actions. `fp2 help` lists them. |
 | `actions.lua` | Gameplay actions through the game's command layer (`PXInstructionUtils`, `PX*Utils`), all with the Leader ActionOrigin. |
 | `extractors.lua` | Extractor registry (`register`, declarative `fromClass`, `snapshot`) and the engine-level `session` extractor. |
 | `fp2_extractors.lua` | Frostpunk 2 extractors. Add new ones here. |
+| `extensions.txt`, `<name>.lua` | Extension modules (`colony_actions`, `society_actions`, `frostland_actions`, `economy_actions`). See Extension modules below. |
 | `reflect.lua` | UE value to JSON conversion, object lookup (`first:<Class>` or a full path), crash guards. Every read is pcall-guarded. |
 | `geo.lua` | World location and world-to-screen projection. |
 | `json.lua` | JSON encode and decode. |
@@ -33,6 +34,28 @@ Bridge directory: `mod/FP2AgentBridge/bridge/` (override with `FP2_BRIDGE_DIR`).
   blocked. Run `watch-stop` and `watch-start` to move the watcher to the new build.
 - Logs: `bridge/bridge.log` (command failures and lifecycle), and
   `<game>\Frostpunk2\Binaries\Win64\ue4ss\UE4SS.log` (Lua errors).
+
+## Extension modules
+
+Add commands in their own file instead of editing `actions.lua` or `commands.lua`.
+
+- `Scripts/extensions.txt` lists one module name per line (lines starting `--` are comments). Each
+  `Scripts/<name>.lua` returns `{ register = function(def, env) ... end }`.
+- Load order: `main.lua` reload loads the base modules, then the extensions in file order, then `commands`, which
+  calls each `register(def, env)` once. A later `def` with the same name replaces the earlier one (`society_actions`
+  overrides the core `propose` with a lobby guard).
+- `env` fields: `def`, `actions`, `reflect`, `extractors`, `geo`, `json`, `num`, `lower`, `findClass`,
+  `requireObject`, `h`.
+- `env.h` (also `actions.h`, set at the end of `actions.lua`) exports the helpers actions use: `cdo` (Default__
+  library object), `assetId`, `ctx` (the PlayerController world context), `world`, `cityId`, `try`, `fresh` (re-find
+  an object by path), `textOf`, `uarray`, `nationOf`, `objList`, `communityLabel`, `costMap`, `compactCost`,
+  `enumName`, `parliament`, `simplify`, `findPolicy`, `findDistrict`, `territoryInfo`, `siteInfo`, `tagName`,
+  `liveWidget`, `districtByLabel`, `findTyped`, `resolveCells`, `cellInfo`, `outcomeInfo`.
+- Hot reload: add the module name to `extensions.txt`, then `fp2 reload` (no keypress, no UE4SS restart). The reload
+  result lists the modules it loaded and reports a Lua load error with file, line and context. Never hide it.
+- Every mutating command sets `mutation = true`, has a `dryRun` path that validates and prices without acting, calls
+  `A.assertNoCutscene` when it touches the Council or dialogs, uses the Leader ActionOrigin (`A.leaderOrigin()`),
+  and validates every UObject with `reflect.isValid` before passing it.
 
 ## Discovery commands
 
@@ -82,6 +105,34 @@ not play (see the no-cheats rule in SKILL.md).
   param name for scalars (`prog.outProgress`) or by field for structs (`left.ScaledTicks`). Measured with
   `PXResearchUtils.GetResearchProgress(nation, topic, prog, left)`.
 - TSet properties: `ForEach` passes `(elem)`; TArray passes `(index, elem)`. `actions.lua` `uarray` handles both.
+
+## Council UI entry points
+
+`council_ui` (in `society_actions.lua`) fires the Council hub widgets' own bound button events, so the UI stays in
+step with the Council. Each event takes only the widget's own button (a `PXButtonEvent` delegate), so no FText
+struct crosses the Lua boundary. The event name is
+`BndEvt__<Owner>_<Button>_K2Node_ComponentBoundEvent_<N>_PXButtonEvent__DelegateSignature`, where `<N>` is the
+K2Node index shown below (full names are in the `EV` table of `society_actions.lua`). The live hub is the
+`WBP_ParliamentHub_C` instance under `/Engine/Transient.GameEngine_*` (the other `FindAllOf` match is the class
+template). Read a widget's child only when the property is an object property (SoftObject reads crash). Chain
+measured 2026-10-11 on one run, UI in sync, no crash:
+
+| Step | Widget class | Entry point | Measured result |
+|---|---|---|---|
+| `laws` | `WBP_Parliament_MainScreen_C` (lobby) | bound event of `ExploreLawsButton` (index 4) | Lobby hides, law list shows |
+| `law policy=X` | `WBP_Parliament_PolicyChoicePanel_C` | `OpenLawPoliciesPanel(law)` | Entries `WBP_ParliamentAdditionalPolicy_C` (property `Policy`) |
+| `select policy=X` | `WBP_ParliamentAdditionalPolicy_C` | bound event of `ProposeButtonWidget` (index 9) | Phase Agenda -> Negotiations, agenda set, hub back to the lobby |
+| `negotiate` | `WBP_Parliament_MainScreen_C` | bound event of `NegotiateButton` (index 2) | Intro panel (`WBP_Parliament_NegotiationsIntroPanel_C`) |
+| `community` | `WBP_Parliament_NegotiationsIntroPanel_C` | `OnChoiceClickedFunc(communityType)` | `WBP_Parliament_GroupNegotiationsPanel_C`: MY TERMS (vote for/against) and THEIR TERMS (2 options: Grant Agenda community action; Research and hold vote) |
+| `side` | the For/Against widget of the group panel (`WBP_HoD_Negotiationsingle_myterm_Widget`) | bound event of `MyTermsDecisionButton` (index 0) | Side selected |
+| `term index=N` | `WBP_Parliament_Negotiation_option_Widget_C` | bound event of `TheirTermsCheckmarkButton` (index 1) | Term checked |
+| `accept` | `WBP_Parliament_GroupNegotiationsPanel_C` | bound event of `AcceptNegotiation_Button` (index 1) | Hub back to the lobby; `plannedPromises` holds the community's `PXDesire` |
+| `vote` | `WBP_Parliament_MainScreen_C` | bound event of `VoteButton` (index 1) | LAW PASSED 55 For / 51 required; promise quest "Promise to Merchants", 40 weeks; Escape -> phase 4 Maintenance |
+
+`ChangeProposalButton` (bound event index 6) is wired but untested. `step=terms` reads the option widgets' visible text blocks
+(`GetText` returns a plain FText); the `PXDesire` struct itself is never passed. Pixel clicks on the lobby did
+nothing (click and hold at the text position), and a Space keypress did not advance it. Calling a widget's bound
+event from Lua works because the handler runs the same Blueprint path as a click (inferred).
 
 ## Crash hazards (measured)
 
@@ -145,6 +196,17 @@ not play (see the no-cheats rule in SKILL.md).
   as a crash, kills the game and loads again, up to 3 loads. Only a crash in the quiet phase marks the save bad in
   `.runtime/bad-saves.json` (keyed by name and file time; an overwritten slot is usable again) and moves to the next
   save (`agent-rolling*`, `agent-*`, `AutoSave*`).
+- A Wwise `AK::WriteBytesMem::SetCount` <- UE4SS `FAnsiString::operator=` <- `process_lua_function` stack is not an
+  audio fault. It has appeared for a guessed world context, `colony_exchange` (static `PXStockpileExchangeUtils`
+  tier getters and out-params) and `PXDesireUtils.AbandonPromise` with a valid `PXPromiseQuest` (measured, three
+  times). Read it as a bad call into a static Utils function (inferred). A declared-class check (`ForEachProperty`,
+  `GetPropertyClass`, `IsA`) is necessary but did not prevent the `AbandonPromise` crash. Prefer property reads and
+  the UI's own widget events; test a new static call once, after a save.
+- A crash in UI rendering (`nsvgRasterizeFull`, AntiLag2, no Lua frames) followed a bridge-driven `propose` while the
+  Council hub showed its lobby (measured). Bridge-driven state changes need the matching UI step: use `council_ui`.
+- A load that runs while the main-menu shader compile is active destroys `BP_ShaderCompilerActor_C`; the loading
+  screen then stays on "COMPILING SHADERS N/743" with input blocked (measured twice). `fp2 unstick` clears it.
+- A save written inside the Council scene did not load (measured). Save outside it.
 
 ## Verify
 

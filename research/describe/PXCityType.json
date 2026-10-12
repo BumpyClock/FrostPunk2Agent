@@ -1,0 +1,310 @@
+{
+  "chain": [
+    "PXCityType",
+    "DataAsset",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXCityType",
+  "functions": [
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "IngameName",
+      "owner": "PXCityType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Description",
+      "owner": "PXCityType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "GameplayBlueprint",
+      "owner": "PXCityType",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "Tags",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "CityInitialSetup",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "MainDistrictInitialBuildings",
+      "owner": "PXCityType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "ActivitySetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "PrioritySetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "TraitGroup",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "NeedFulfilmentGroup",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CyclicalEventGroup",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "PredefinedProducerGroup",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "GeneratorType",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "NeedOveruseType",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AbilityGroup",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "ResourceAllocationGroup",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "CellProximityGroup",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "AbsenceGroup",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "EconomySetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "CommunityEconomySizeSetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "CanHaveParliament",
+      "owner": "PXCityType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "StartupRulesOverride",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "ConstructionSetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "RecolonizationSetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "TradeSetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "TradeHolderSetup",
+      "owner": "PXCityType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "StartCommunitySize",
+      "owner": "PXCityType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "MinimalCommunitySize",
+      "owner": "PXCityType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "MinimalCommunitySizeAfterTransfer",
+      "owner": "PXCityType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "CanBeAbandonedByPlayer",
+      "owner": "PXCityType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "AbandonmentRequirements",
+      "owner": "PXCityType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "AbandonmentAvailabilityRequirements",
+      "owner": "PXCityType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "RecolonizationRequirements",
+      "owner": "PXCityType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "RecolonizationAvailabilityRequirements",
+      "owner": "PXCityType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "ActionsOnAbandon",
+      "owner": "PXCityType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "BaseBuildRadius",
+      "owner": "PXCityType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "PlacementRadius",
+      "owner": "PXCityType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "MainDistrictRadius",
+      "owner": "PXCityType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "MainDistrictNeighborCellsUseChance",
+      "owner": "PXCityType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "MainDistrictNeighborRadiusScale",
+      "owner": "PXCityType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "MainDistrictRoadRadius",
+      "owner": "PXCityType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "HideMainDistrictRoads",
+      "owner": "PXCityType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "MainDistrictPipesRadius",
+      "owner": "PXCityType",
+      "type": "FloatProperty"
+    },
+    {
+      "name": "CartoMarkerClass",
+      "owner": "PXCityType",
+      "type": "SoftClassProperty"
+    },
+    {
+      "name": "CityMainResourceIcon",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "TransportLimit",
+      "owner": "PXCityType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "WeatherStateToCityConfig",
+      "owner": "PXCityType",
+      "type": "MapProperty"
+    },
+    {
+      "name": "ColonizationButtonVisibilityRequirements",
+      "owner": "PXCityType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "ColonyCreationImage",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "ColonyManagementImage",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "ColonyTransferImage",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "ColonyCommunityRepresentativeImage",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "CityIcon",
+      "owner": "PXCityType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "TensionStatistic",
+      "owner": "PXCityType",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "BlockColonyHUD",
+      "owner": "PXCityType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "DebugName",
+      "owner": "PXCityType",
+      "type": "StrProperty"
+    },
+    {
+      "name": "NativeClass",
+      "owner": "DataAsset",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "ElbDrmData",
+      "owner": "DataAsset",
+      "type": "ArrayProperty"
+    }
+  ]
+}
+

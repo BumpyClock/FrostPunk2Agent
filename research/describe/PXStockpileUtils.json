@@ -1,0 +1,139 @@
+{
+  "chain": [
+    "PXStockpileUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXStockpileUtils",
+  "functions": [
+    {
+      "name": "TryChangeNationStockpile",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "Resource:Object",
+        "Amount:Int",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "TryChangeCityStockpile",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "Resource:Object",
+        "Amount:Int",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsCityStockpileOfResourceFull",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "CityComponent:Object",
+        "Resource:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetStockpileUpdateInterval",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "Resource:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetResourceStockpileChangeSpriteFromValues",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "currentStockpile:Int",
+        "currentStockpileChange:Int",
+        "StockpileLimit:Int",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetResourceStockpileChangeSprite",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "CityComponent:Object",
+        "Resource:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCityStockpileOfResource",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "City:Object",
+        "Resource:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityStockpileLimitOfResource",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "City:Object",
+        "Resource:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityStockpileDemandOfResource",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "City:Object",
+        "Resource:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityStockpileChangeOfResource",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "City:Object",
+        "Resource:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityNotAffordedStockpileResources",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "City:Object",
+        "operationCost:Struct<PXOperationCost>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCityFromStockpile",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "stockpile:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CanCityAffordStockpileOperationCost",
+      "owner": "PXStockpileUtils",
+      "params": [
+        "City:Object",
+        "operationCost:Struct<PXOperationCost>",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

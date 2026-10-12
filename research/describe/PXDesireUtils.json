@@ -1,0 +1,442 @@
+{
+  "chain": [
+    "PXDesireUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXDesireUtils",
+  "functions": [
+    {
+      "name": "ZeroDesireCooldown",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desire:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "MakeResearchOutcomeDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "ResearchOutcome:Object",
+        "withFollowup:Bool",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "MakePromise",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Desire:Struct<PXDesire>!text",
+        "CustomParameters:Struct<PXPromiseQuestParameters>!text",
+        "applyOnPromiseMadeModifier:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "MakePolicyDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Policy:Object",
+        "repeal:Bool",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "MakeMultipleDesirePromise",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Desires:Array!text",
+        "CustomParameters:Struct<PXPromiseQuestParameters>!text",
+        "applyOnPromiseMadeModifier:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "MakeFilteredDesiredList",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "Desires:Array!text",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "MakeDistrictDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "District:Object",
+        "numberToBuild:Int",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "MakeCustomQuestDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "CustomQuestClass:Class",
+        "CustomName:Text",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "MakeBuildingDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Building:Object",
+        "numberToBuild:Int",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "MakeActionDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "CommunityAction:Object",
+        "City:Object",
+        "communityType:Object",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "MakeAbilityDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Ability:Object",
+        "City:Object",
+        "OptionalTargetCommunity:Object",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "IsValidDesireForCommunity",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desire:Struct<PXDesire>!text",
+        "communityType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsFollowupIncluded",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDesireValid",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyMadePromises",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "ExcludedDesires:Struct<PXExcludedDesires>",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetResearchDesireLeadingToTopic",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Topic:Object",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "GetPolicyQuestType",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Enum<EPXPolicyQuestObjectiveType>"
+      ]
+    },
+    {
+      "name": "GetPlannedPromises",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Map"
+      ]
+    },
+    {
+      "name": "GetPlannedPromiseForCommunityType",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "GetFollowupDesire",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "GetEarliestResearchDesireOnPathToTopic",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Topic:Object",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "GetDesireType",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Enum<EPXDesireType>"
+      ]
+    },
+    {
+      "name": "GetDesiresSortedByRank",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desires:Array!text",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetDesireRank",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetDesireGameplayDescription",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeWithPromise",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeResearchDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "ExcludedDesires:Struct<PXExcludedDesires>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypePolicyDesiresFromLastSessions",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "lastSessions:Int",
+        "excludedLaws:Array",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypePolicyDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "excludedLaws:Array",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypePolicyDesireInLaw",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Law:Object",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Struct<PXDesire>!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeDistrictDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "excludedQuery:Struct<GameplayTagQuery>",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeDesiresHelpingWithStatistic",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Statistic:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeCommunityActionDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "excludedCategories:Array",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeBuildingDesiresInDistrict",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "District:Object",
+        "excludedQuery:Struct<GameplayTagQuery>",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeBuildingDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "excludedQuery:Struct<GameplayTagQuery>",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityTypeAbilityDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetCommunityPromises",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetBuildingQuestType",
+      "owner": "PXDesireUtils",
+      "params": [
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Enum<EPXBuildingQuestObjectiveType>"
+      ]
+    },
+    {
+      "name": "GetBroadSpectrumDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "Params:Struct<PXBroadSpectrumDesiresSearchParameters>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetAllCommunityTypeDesires",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "ExcludedDesires:Struct<PXExcludedDesires>",
+        "adversity:Enum<EPXDesireAdversity>",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "CanDesireBePromised",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Desire:Struct<PXDesire>!text",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanCreatePromiseQuest",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "includePlannedPromises:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "AbandonPromise",
+      "owner": "PXDesireUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "promise:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

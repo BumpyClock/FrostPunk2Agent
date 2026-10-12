@@ -4,17 +4,17 @@ import { dlopen, FFIType, ptr } from "bun:ffi";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { deflateSync } from "node:zlib";
-import { focusGame } from "./win32";
+import { focusGame, lazySymbols } from "./win32";
 
-const user32 = dlopen("user32.dll", {
+const user32 = lazySymbols(() => dlopen("user32.dll", {
   SetProcessDPIAware: { args: [], returns: FFIType.bool },
   GetClientRect: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.bool },
   ClientToScreen: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.bool },
   GetDC: { args: [FFIType.ptr], returns: FFIType.ptr },
   ReleaseDC: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.i32 },
-}).symbols;
+}).symbols);
 
-const gdi32 = dlopen("gdi32.dll", {
+const gdi32 = lazySymbols(() => dlopen("gdi32.dll", {
   CreateCompatibleDC: { args: [FFIType.ptr], returns: FFIType.ptr },
   CreateCompatibleBitmap: { args: [FFIType.ptr, FFIType.i32, FFIType.i32], returns: FFIType.ptr },
   SelectObject: { args: [FFIType.ptr, FFIType.ptr], returns: FFIType.ptr },
@@ -22,7 +22,7 @@ const gdi32 = dlopen("gdi32.dll", {
   GetDIBits: { args: [FFIType.ptr, FFIType.ptr, FFIType.u32, FFIType.u32, FFIType.ptr, FFIType.ptr, FFIType.u32], returns: FFIType.i32 },
   DeleteObject: { args: [FFIType.ptr], returns: FFIType.bool },
   DeleteDC: { args: [FFIType.ptr], returns: FFIType.bool },
-}).symbols;
+}).symbols);
 
 const SRCCOPY = 0x00cc0020;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

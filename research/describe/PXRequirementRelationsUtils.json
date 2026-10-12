@@ -1,0 +1,163 @@
+{
+  "chain": [
+    "PXRequirementRelationsUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXRequirementRelationsUtils",
+  "functions": [
+    {
+      "name": "GetResearchTopicsRequiringUtopiaToolNode",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolNode:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetResearchTopicsRequiringResearchTopic",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Topic:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetResearchTopicsRequiringResearchOutcome",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetResearchOutcomeEffectIngameNameWithSuffix",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetResearchOutcomeEffectIngameName",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetResearchOutcomeEffectDescription",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetPoliciesRequiringUtopiaToolNode",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolNode:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetPoliciesRequiringResearchOutcome",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetPoliciesRequiringFactionType",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "factionType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictsRequiringUtopiaToolNode",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolNode:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictsRequiringResearchOutcome",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCommunityActionsRequiringUtopiaToolNode",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolNode:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetBuildingsRequiringUtopiaToolNode",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolNode:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetBuildingsRequiringResearchOutcome",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAbilitiesRequiringUtopiaToolNode",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "utopiaToolNode:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetAbilitiesRequiringResearchOutcome",
+      "owner": "PXRequirementRelationsUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Outcome:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

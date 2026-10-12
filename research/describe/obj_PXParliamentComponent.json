@@ -1,0 +1,377 @@
+{
+  "class": "PXParliamentComponent",
+  "props": {
+    "Agenda": [],
+    "AgendaSetTime": {
+      "$struct": "PXGameTime",
+      "ScaledTicks": 290360
+    },
+    "BypassedVotesMap": [],
+    "City": {
+      "class": "PXCityComponent",
+      "ref": "/Game/Scenarios/Sandbox/Levels/Sandbox_LevelInstance_2.Sandbox:PersistentLevel.BP_BaseCity_C_2147452251.PXCityComponent_2147452250"
+    },
+    "ComponentAdded": true,
+    "ComponentEnabled": true,
+    "CurrentAnimOccurances": [
+      {
+        "key": {
+          "class": "AnimSequence",
+          "ref": "/Game/Scenarios/Shared/Meshes/Characters/Animations/Standing/A_Standing_Talking_C.A_Standing_Talking_C"
+        },
+        "value": 2
+      },
+      {
+        "key": {
+          "class": "AnimSequence",
+          "ref": "/Game/Scenarios/Shared/Meshes/Characters/Animations/Standing/A_Standing_Talking_a_Idle.A_Standing_Talking_a_Idle"
+        },
+        "value": 2
+      },
+      {
+        "key": {
+          "class": "AnimSequence",
+          "ref": "/Game/Scenarios/Shared/Meshes/Characters/Animations/Standing/A_Standing_Upset_B.A_Standing_Upset_B"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "AnimSequence",
+          "ref": "/Game/Scenarios/Shared/Meshes/Characters/Animations/Standing_Custom_Root/A_Standing_Leaning_arm_crossed.A_Standing_Leaning_arm_crossed"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "AnimSequence",
+          "ref": "/Game/Scenarios/Shared/Meshes/Characters/Animations/Standing/A_Standing_Talking_b_Idle.A_Standing_Talking_b_Idle"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "AnimSequence",
+          "ref": "/Game/Scenarios/Shared/Meshes/Characters/Animations/Standing/A_Standing_Arguing_to_the_right_offset.A_Standing_Arguing_to_the_right_offset"
+        },
+        "value": 2
+      }
+    ],
+    "CurrentClusterOccurances": [
+      {
+        "key": {
+          "class": "PXClusterSceneData",
+          "ref": "/Game/Scenarios/Shared/HoDAnimationSystem/ClusterDAs/DA_Shouting_left_catastrophic_B.DA_Shouting_left_catastrophic_B"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "PXClusterSceneData",
+          "ref": "/Game/Scenarios/Shared/HoDAnimationSystem/ClusterDAs/DA_Tension_People_shouting.DA_Tension_People_shouting"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "PXClusterSceneData",
+          "ref": "/Game/Scenarios/Shared/HoDAnimationSystem/ClusterDAs/DA_Arguing_benchrawNotable.DA_Arguing_benchrawNotable"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "PXClusterSceneData",
+          "ref": "/Game/Scenarios/Shared/HoDAnimationSystem/ClusterDAs/DA_Sitting_Talking_Notable.DA_Sitting_Talking_Notable"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "PXClusterSceneData",
+          "ref": "/Game/Scenarios/Shared/HoDAnimationSystem/ClusterDAs/DA_Arguing_In_the_bench_cluster_catastrophic.DA_Arguing_In_the_bench_cluster_catastrophic"
+        },
+        "value": 1
+      },
+      {
+        "key": {
+          "class": "PXClusterSceneData",
+          "ref": "/Game/Scenarios/Shared/HoDAnimationSystem/ClusterDAs/DA_PeopleChatting_center_tensionabsent.DA_PeopleChatting_center_tensionabsent"
+        },
+        "value": 1
+      }
+    ],
+    "CurrentSessionInfo": {
+      "$struct": "PXParliamentSessionInfo",
+      "Forced": false,
+      "Requested": false
+    },
+    "CustomCharacters": [],
+    "HasFinishedVote": false,
+    "MaintenanceStartTime": {
+      "$struct": "PXGameTime",
+      "ScaledTicks": 307160
+    },
+    "NextSessionInfo": {
+      "$struct": "PXParliamentSessionInfo",
+      "Forced": false,
+      "Requested": false
+    },
+    "ParliamentType": {
+      "class": "PXParliamentType",
+      "ref": "/Game/Scenarios/Shared/Configs/Parliament/DA_ParliamentType.DA_ParliamentType"
+    },
+    "PendingPromiseQuestsAndPolicies": [],
+    "RepresentationModifiers": [],
+    "Representatives": {
+      "count": 100,
+      "items": [
+        {
+          "class": "PXRepresentative",
+          "ref": "/Game/Scenarios/Shared/Levels/PersistentWorld/Permafrost.Permafrost:PXParliamentSubsystem_2147469603.PXRepresentative_2147425796"
+        },
+        {
+          "class": "PXRepresentative",
+          "ref": "/Game/Scenarios/Shared/Levels/PersistentWorld/Permafrost.Permafrost:PXParliamentSubsystem_2147469603.PXRepresentative_2147425795"
+        },
+        {
+          "class": "PXRepresentative",
+          "ref": "/Game/Scenarios/Shared/Levels/PersistentWorld/Permafrost.Permafrost:PXParliamentSubsystem_2147469603.PXRepresentative_2147425794"
+        },
+        {
+          "class": "PXRepresentative",
+          "ref": "/Game/Scenarios/Shared/Levels/PersistentWorld/Permafrost.Permafrost:PXParliamentSubsystem_2147469603.PXRepresentative_2147425793"
+        },
+        {
+          "class": "PXRepresentative",
+          "ref": "/Game/Scenarios/Shared/Levels/PersistentWorld/Permafrost.Permafrost:PXParliamentSubsystem_2147469603.PXRepresentative_2147425792"
+        },
+        {
+          "class": "PXRepresentative",
+          "ref": "/Game/Scenarios/Shared/Levels/PersistentWorld/Permafrost.Permafrost:PXParliamentSubsystem_2147469603.PXRepresentative_2147425791"
+        }
+      ],
+      "truncated": true
+    },
+    "SeatCountPerCommunity": [
+      {
+        "key": {
+          "class": "PXCommunityComponent",
+          "ref": "/Game/Scenarios/Sandbox/Levels/Sandbox_LevelInstance_2.Sandbox:PersistentLevel.CommunityActor_0.PXCommunityComponent_2147425878"
+        },
+        "value": 28
+      },
+      {
+        "key": {
+          "class": "PXCommunityComponent",
+          "ref": "/Game/Scenarios/Sandbox/Levels/Sandbox_LevelInstance_2.Sandbox:PersistentLevel.CommunityActor_1.PXCommunityComponent_2147425693"
+        },
+        "value": 28
+      },
+      {
+        "key": {
+          "class": "PXCommunityComponent",
+          "ref": "/Game/Scenarios/Sandbox/Levels/Sandbox_LevelInstance_2.Sandbox:PersistentLevel.CommunityActor_2.PXCommunityComponent_2147425633"
+        },
+        "value": 29
+      },
+      {
+        "key": {
+          "class": "PXCommunityComponent",
+          "ref": "/Game/Scenarios/Sandbox/Levels/Sandbox_LevelInstance_2.Sandbox:PersistentLevel.CommunityActor_3.PXCommunityComponent_2147372150"
+        },
+        "value": 9
+      },
+      {
+        "key": {
+          "class": "PXCommunityComponent",
+          "ref": "/Game/Scenarios/Sandbox/Levels/Sandbox_LevelInstance_2.Sandbox:PersistentLevel.CommunityActor_4.PXCommunityComponent_2147406992"
+        },
+        "value": 6
+      }
+    ],
+    "SessionIndex": 10,
+    "SwayModifiers": [],
+    "VotingHistory": {
+      "count": 10,
+      "items": [
+        {
+          "$struct": "PXVotingHistoryItem",
+          "AyePromiseMade": false,
+          "NayPromiseMade": false,
+          "Passed": true,
+          "Policy": {
+            "class": "PXPolicyType",
+            "ref": "/Game/Scenarios/Shared/Configs/Policies/Economy/BasicNecessities/DA_BasicNecessities_Merit_Policy.DA_BasicNecessities_Merit_Policy"
+          },
+          "PromiseMade": false,
+          "RecountedVotes": false,
+          "Results": {
+            "struct": "PXVoteResultData",
+            "truncated": true
+          },
+          "SessionIndex": 0,
+          "SessionRequested": false,
+          "SwayUsed": false,
+          "SwayedMode": {
+            "name": "EPXSwayMode::DoNotSway",
+            "value": 0
+          },
+          "Timestamp": {
+            "struct": "PXGameTime",
+            "truncated": true
+          }
+        },
+        {
+          "$struct": "PXVotingHistoryItem",
+          "AyePromiseMade": false,
+          "NayPromiseMade": false,
+          "Passed": true,
+          "Policy": {
+            "class": "PXPolicyType",
+            "ref": "/Game/Scenarios/Shared/Configs/Policies/Survival/Quarantine/DA_Quarantine_Merit.DA_Quarantine_Merit"
+          },
+          "PromiseMade": false,
+          "RecountedVotes": false,
+          "Results": {
+            "struct": "PXVoteResultData",
+            "truncated": true
+          },
+          "SessionIndex": 1,
+          "SessionRequested": false,
+          "SwayUsed": false,
+          "SwayedMode": {
+            "name": "EPXSwayMode::DoNotSway",
+            "value": 0
+          },
+          "Timestamp": {
+            "struct": "PXGameTime",
+            "truncated": true
+          }
+        },
+        {
+          "$struct": "PXVotingHistoryItem",
+          "AyePromiseMade": false,
+          "NayPromiseMade": false,
+          "Passed": true,
+          "Policy": {
+            "class": "PXPolicyType",
+            "ref": "/Game/Scenarios/Shared/Configs/Policies/Survival/CommunityService/DA_CommunityService_Merit.DA_CommunityService_Merit"
+          },
+          "PromiseMade": false,
+          "RecountedVotes": false,
+          "Results": {
+            "struct": "PXVoteResultData",
+            "truncated": true
+          },
+          "SessionIndex": 2,
+          "SessionRequested": true,
+          "SwayUsed": false,
+          "SwayedMode": {
+            "name": "EPXSwayMode::DoNotSway",
+            "value": 0
+          },
+          "Timestamp": {
+            "struct": "PXGameTime",
+            "truncated": true
+          }
+        },
+        {
+          "$struct": "PXVotingHistoryItem",
+          "AyePromiseMade": false,
+          "NayPromiseMade": false,
+          "Passed": true,
+          "Policy": {
+            "class": "PXPolicyType",
+            "ref": "/Game/Scenarios/Shared/Configs/Policies/Economy/AccessToHeat/DA_AccessToHeat_Merit_PaidHeating_Policy.DA_AccessToHeat_Merit_PaidHeating_Policy"
+          },
+          "PromiseMade": false,
+          "RecountedVotes": false,
+          "Results": {
+            "struct": "PXVoteResultData",
+            "truncated": true
+          },
+          "SessionIndex": 3,
+          "SessionRequested": true,
+          "SwayUsed": false,
+          "SwayedMode": {
+            "name": "EPXSwayMode::DoNotSway",
+            "value": 0
+          },
+          "Timestamp": {
+            "struct": "PXGameTime",
+            "truncated": true
+          }
+        },
+        {
+          "$struct": "PXVotingHistoryItem",
+          "AyePromiseMade": false,
+          "NayPromiseMade": false,
+          "Passed": true,
+          "Policy": {
+            "class": "PXPolicyType",
+            "ref": "/Game/Scenarios/Shared/Configs/Policies/Economy/Migration/DA_Migration_AllowSelectOutsiders.DA_Migration_AllowSelectOutsiders"
+          },
+          "PromiseMade": false,
+          "RecountedVotes": false,
+          "Results": {
+            "struct": "PXVoteResultData",
+            "truncated": true
+          },
+          "SessionIndex": 4,
+          "SessionRequested": true,
+          "SwayUsed": false,
+          "SwayedMode": {
+            "name": "EPXSwayMode::DoNotSway",
+            "value": 0
+          },
+          "Timestamp": {
+            "struct": "PXGameTime",
+            "truncated": true
+          }
+        },
+        {
+          "$struct": "PXVotingHistoryItem",
+          "AyePromiseMade": false,
+          "NayPromiseMade": false,
+          "Passed": true,
+          "Policy": {
+            "class": "PXPolicyType",
+            "ref": "/Game/Scenarios/Shared/Configs/Policies/Society/Children/DA_Children_ReasonStart.DA_Children_ReasonStart"
+          },
+          "PromiseMade": false,
+          "RecountedVotes": false,
+          "Results": {
+            "struct": "PXVoteResultData",
+            "truncated": true
+          },
+          "SessionIndex": 5,
+          "SessionRequested": true,
+          "SwayUsed": false,
+          "SwayedMode": {
+            "name": "EPXSwayMode::DoNotSway",
+            "value": 0
+          },
+          "Timestamp": {
+            "struct": "PXGameTime",
+            "truncated": true
+          }
+        }
+      ],
+      "truncated": true
+    },
+    "VotingModifiers": [],
+    "WasComponentStarted": true,
+    "currentPhase": {
+      "name": "EPXSessionPhase::Agenda",
+      "value": 1
+    },
+    "voteResultData": {
+      "$struct": "PXVoteResultData",
+      "AyeCount": 0,
+      "HesitateCount": 0,
+      "NayCount": 0
+    }
+  },
+  "ref": "/Game/Scenarios/Sandbox/Levels/FrostlandTiles/Neutralgood_Landscape_2/GameplayLevels/GameplayLevel_x2_y1_DA_NeutralGood2_MainTile.NeutralGood2_Gameplay_MainTile:PersistentLevel.BP_City2_0.PXParliamentComponent_2147447642"
+}

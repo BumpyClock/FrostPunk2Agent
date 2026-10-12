@@ -13,12 +13,29 @@ Mod code: `mod/FP2AgentBridge/Scripts/` (Lua). CLI: `cli/src/` (Bun/TypeScript, 
 discovery commands and Lua patterns: [MOD_DEVELOPMENT.md](references/MOD_DEVELOPMENT.md). Read it before the first
 edit. Check [MOD_GAPS.md](references/MOD_GAPS.md) first: the gap may be known, with measured dead ends.
 
-## Detour policy
+## Who uses this skill
 
-**Current policy: inline.** When play needs a read or action the bridge lacks, build it now, then resume play.
+The maintainer, between play sessions. Play agents (the `play-frostpunk2` skill) treat `mod/`, `cli/` and `fp2.exe`
+as read-only and log what they lacked in `BRIDGE_FEEDBACK.md` (repo root). Start a bridge session by reading that
+file, turning each entry into a command, a doc fix, or a MOD_GAPS.md entry, and deleting it once handled.
 
-Alternative (not active): **log and continue**. Append the gap to MOD_GAPS.md, play on with what exists, and fix
-it between play sessions.
+## Action path policy
+
+Plug into the entry points the game's own UI uses; never invent a parallel write path.
+
+1. Most UI buttons call `PXInstructionUtils.Instruct*` or a `PX*Utils.Try*` with plain parameters (objects, bools,
+   ints, FName) and the Leader ActionOrigin. Measured by hooking them during a UI district expansion: the UI calls
+   them natively. Call the same function with the same arguments.
+2. Where the UI builds a struct first (any `!text` struct such as `PXVoteBypassData`, `PXDesire`,
+   `PXPromiseQuestParameters`; cell or route arrays), call the widget handler that builds it (open the panel, then
+   drive the handlers through `liveWidget`, as `utopia_assign` does) so the game constructs the struct. Never build
+   an FText struct from a Lua table: it crashes the game (measured).
+3. Pixel input (`click`, `hold`, `keys`) only when neither entry point is visible, and only with wait conditions.
+
+Find the entry point from the dumps (`research/fp2_functions.txt`, `research/describe/*.json`: widget classes
+`WBP_*`, `PX*Panel`, `PX*Widget`, handlers `Handle*`/`On*Clicked`) and record it in the command's help text.
+
+Never `set` game state, never call `*Immediately`/`instant*`/`PXCheat*`/`TryChange*Stockpile` paths.
 
 ## Before the first call of anything new
 

@@ -1,0 +1,276 @@
+{
+  "chain": [
+    "PXCityUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXCityUtils",
+  "functions": [
+    {
+      "name": "TransferCommunity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "SourceCity:Object",
+        "TargetCity:Object",
+        "communityType:Object",
+        "populationSize:Int"
+      ]
+    },
+    {
+      "name": "RecolonizeCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "Nation:Object",
+        "ActionOrigin:Object",
+        "communityType:Object"
+      ]
+    },
+    {
+      "name": "IsCityRecolonizationAvailable",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "City:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsCityAccessible",
+      "owner": "PXCityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsCityAbandonmentAvailable",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "GetTransferCommunityCost",
+      "owner": "PXCityUtils",
+      "params": [
+        "communityType:Object",
+        "populationSize:Int",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetTrackerComponentCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "TrackerComponent:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetRandomCommunityFromCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCityWorkforceGeneratedByCommunitySize",
+      "owner": "PXCityUtils",
+      "params": [
+        "City:Object",
+        "Size:Int",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetCityTensionStatistic",
+      "owner": "PXCityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCityRecolonizationCost",
+      "owner": "PXCityUtils",
+      "params": [
+        "CityType:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCityGameplayDescription",
+      "owner": "PXCityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCityFilteredGameplayDescription",
+      "owner": "PXCityUtils",
+      "params": [
+        "City:Object",
+        "sourceQuery:Struct<GameplayTagQuery>",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCityEconmySizeGameplayDescription",
+      "owner": "PXCityUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCityConstructionDuration",
+      "owner": "PXCityUtils",
+      "params": [
+        "CityType:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetCityConstructionCost",
+      "owner": "PXCityUtils",
+      "params": [
+        "CityType:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCityByType",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "CityType:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ExecuteCityAction",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "Action:Object",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "DoesTrackerComponentBelongToCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "TrackerComponent:Object",
+        "CityComponent:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CreateCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "CityArea:Object",
+        "CityType:Object",
+        "ActionOrigin:Object",
+        "communityType:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ColonizeCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "parentCity:Object",
+        "CityArea:Object",
+        "CityType:Object",
+        "ActionOrigin:Object",
+        "communityType:Object",
+        "sendUnit:Bool",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CanTransferCommunity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "SourceCity:Object",
+        "TargetCity:Object",
+        "communityType:Object",
+        "populationSize:Int",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanRecolonizeCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "City:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanExecuteCityAction",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "Action:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanCreateCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Nation:Object",
+        "CityArea:Object",
+        "CityType:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "CanAbandonCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "AbandonCity",
+      "owner": "PXCityUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "ActionOrigin:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

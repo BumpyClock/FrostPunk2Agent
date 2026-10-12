@@ -1,0 +1,169 @@
+{
+  "chain": [
+    "PXCommunityActionUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXCommunityActionUtils",
+  "functions": [
+    {
+      "name": "WasGameplayActionEverExecuted",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "Community:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "WasCommunityActionEverExecuted",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "Community:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "ResetCooldown",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "actingCommunity:Object"
+      ]
+    },
+    {
+      "name": "ReplaceGameplayDescriptionTargetTypes",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "GameplayDescription:Struct<PXGameplayDescription>!text",
+        "originalAttributeType:Interface",
+        "replacementAttributeType:Interface",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "IsActionVisible",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "Community:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "IsActionPossible",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "Community:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "GetVisibleCommunityActionsPerCategory",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "targetCommunity:Object",
+        "ReturnValue:Array!text"
+      ]
+    },
+    {
+      "name": "GetVisibleCommunityActions",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "onlyVisibleOnFactionPanel:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetPossibleCommunityActions",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "communityType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCommunityActionGameplayDescription",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Community:Object",
+        "Action:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetCommunityActionExecutionInfo",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "lastExecutionTime:Struct<PXGameTime>",
+        "lastExecutedCommunity:Object",
+        "allExecutions:Map",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetCommunityActionCooldownTimeLeft",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "CommunityAction:Object",
+        "Community:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetAllCommunityActions",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "Nation:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "FilterCommunityActionsOfCategory",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "Array:Array",
+        "Category:Struct<PXCommunityActionCategoryEntry>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "ExecuteCommunityAction",
+      "owner": "PXCommunityActionUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Action:Object",
+        "ActionOrigin:Object",
+        "actingCommunity:Object",
+        "isForced:Bool",
+        "OptionalDistrict:Object",
+        "OptionalTargetCommunity:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

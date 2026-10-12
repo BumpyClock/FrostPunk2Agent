@@ -1253,6 +1253,11 @@ function A.setAbility(args)
                 if (assetId(ab) or ""):lower():find(want, 1, true) then
                     local active = args.active ~= false
                     local actorPath = reflect.path(a.actor)
+                    if args.dryRun then
+                        local was
+                        pcall(function() was = au:IsActorAbilityActive(ctx(), a.actor, ab) end)
+                        return { owner = a.label, ability = assetId(ab), requested = active, activeNow = was, dryRun = true }
+                    end
                     cdo("PXInstructionUtils"):InstructSetActorAbilityActive(ctx(), a.actor, ab, active, A.leaderOrigin())
                     local now
                     local actor = fresh(actorPath)
@@ -2292,5 +2297,14 @@ function A.connectOutpost(args)
     if now then pcall(function() out.connectedNow = reflect.isValid(now.CurrentConnection) end) end
     return out
 end
+
+-- Helpers shared with extension modules (see extensions.txt).
+A.h = { cdo = cdo, assetId = assetId, ctx = ctx, world = world, cityId = cityId, try = try, fresh = fresh,
+    textOf = textOf, uarray = uarray, nationOf = nationOf, objList = objList, communityLabel = communityLabel,
+    costMap = costMap, compactCost = compactCost, enumName = enumName, playerPolicyComponent = playerPolicyComponent,
+    parliament = parliament, parliamentCommunityTypes = parliamentCommunityTypes, simplify = simplify,
+    policyEffects = policyEffects, findPolicy = findPolicy, findDistrict = findDistrict, territoryInfo = territoryInfo,
+    tagName = tagName, liveWidget = liveWidget, siteInfo = siteInfo, districtByLabel = districtByLabel,
+    findTyped = findTyped, resolveCells = resolveCells, cellInfo = cellInfo, outcomeInfo = outcomeInfo }
 
 return A

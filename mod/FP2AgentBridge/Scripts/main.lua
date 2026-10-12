@@ -1,5 +1,6 @@
 -- FP2AgentBridge: file-based request/response bridge between agents and Frostpunk 2.
 --
+-- Request poll: 10 ms (was 50; measured 30-100 ms per round trip, mostly poll latency).
 -- Bridge dir: mod/FP2AgentBridge/bridge in the repo (see `base` below)
 --   request.json   client -> mod  (client creates atomically; mod deletes after reading)
 --   response.json  mod -> client  (written via .tmp + rename; client deletes after reading)
@@ -15,9 +16,27 @@ local commands = require("commands")
 -- the game's R = Research hotkey). Returns the module list that was reloaded.
 -- UE4SS's require caches outside package.loaded, so load each file directly (dependency order)
 -- and seed package.loaded before the next module requires it.
-local MODULES = { "json", "reflect", "geo", "fp2_extractors", "extractors", "actions", "commands" }
+local BASE_MODULES = { "json", "reflect", "geo", "fp2_extractors", "extractors", "actions" }
+-- Extension modules (Scripts/extensions.txt, one per line) load after actions and before commands,
+-- which registers their commands. Adding a module needs only `fp2 reload`, not a full UE4SS reload.
+local function moduleList()
+    local dir = (debug.getinfo(1, "S").source or ""):match("^@(.+)[\\/][^\\/]+$") or "."
+    local list = {}
+    for _, m in ipairs(BASE_MODULES) do list[#list + 1] = m end
+    local f = io.open(dir .. "\\extensions.txt", "r")
+    if f then
+        for line in f:lines() do
+            local m = line:gsub("%s+$", ""):gsub("^%s+", "")
+            if m ~= "" and m:sub(1, 2) ~= "--" then list[#list + 1] = m end
+        end
+        f:close()
+    end
+    list[#list + 1] = "commands"
+    return list
+end
 local function reloadModules()
     local dir = (debug.getinfo(1, "S").source or ""):match("^@(.+)[\\/][^\\/]+$") or "."
+    local MODULES = moduleList()
     for _, m in ipairs(MODULES) do
         local chunk, err = loadfile(dir .. "\\" .. m .. ".lua")
         if not chunk then error("reload " .. m .. ": " .. tostring(err), 0) end
@@ -118,7 +137,7 @@ local function handle(raw)
 end
 
 local lastStatus = 0
-LoopAsync(50, function()
+LoopAsync(10, function()
     local now = os.time()
     if now ~= lastStatus then
         lastStatus = now

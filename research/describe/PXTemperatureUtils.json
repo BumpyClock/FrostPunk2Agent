@@ -1,0 +1,151 @@
+{
+  "chain": [
+    "PXTemperatureUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXTemperatureUtils",
+  "functions": [
+    {
+      "name": "TemperatureLevelToString",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "TemperatureLevel:Object",
+        "ReturnValue:Str"
+      ]
+    },
+    {
+      "name": "SetTemperatureLevelChangeAt",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Timestamp:Struct<PXGameTime>",
+        "Change:Int"
+      ]
+    },
+    {
+      "name": "SetTemperatureLevelAt",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Timestamp:Struct<PXGameTime>",
+        "Level:Object"
+      ]
+    },
+    {
+      "name": "SetPostprocessExposureAndTemperature",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Postprocess:Object",
+        "exposureCompoensation:Float",
+        "Temperature:Float"
+      ]
+    },
+    {
+      "name": "RefreshTimeline",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "OffsetTemperatureLevel",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "base:Object",
+        "Offset:Int",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetTemperatureTimeline",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "Target:Object",
+        "From:Struct<PXGameTime>",
+        "To:Struct<PXGameTime>",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetLastTemperatureTimelineEntryTimestamp",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "FormatTemperatureLevel",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "TemperatureLevel:Object",
+        "unit:Enum<EPXTemperatureUnit>",
+        "ReturnValue:Str"
+      ]
+    },
+    {
+      "name": "FormatTemperature",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "degreesC:Int",
+        "unit:Enum<EPXTemperatureUnit>",
+        "useSymbolTag:Bool",
+        "ReturnValue:Str"
+      ]
+    },
+    {
+      "name": "ClearTemperatureTimelineSegment",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "From:Struct<PXGameTime>",
+        "To:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "ClearTemperatureTimelineFrom",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "From:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "ClearTemperatureTimeline",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object"
+      ]
+    },
+    {
+      "name": "AddTemperatureLevelChange",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "lastEntryOffset:Struct<PXGameTime>",
+        "Change:Int"
+      ]
+    },
+    {
+      "name": "AddTemperatureLevel",
+      "owner": "PXTemperatureUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "lastEntryOffset:Struct<PXGameTime>",
+        "Level:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

@@ -1,7 +1,13 @@
 // Minimal user32 bindings: find the Frostpunk 2 window, focus it, send keys.
 import { dlopen, FFIType, ptr } from "bun:ffi";
 
-const user32 = dlopen("user32.dll", {
+/** dlopen on first use: bun:ffi builds a trampoline per symbol, which every fp2 start paid before (measured). */
+export function lazySymbols<T extends object>(load: () => T): T {
+  let s: T | undefined;
+  return new Proxy({} as T, { get: (_t, k) => (s ??= load())[k as keyof T] });
+}
+
+const user32 = lazySymbols(() => dlopen("user32.dll", {
   FindWindowExW: { args: [FFIType.ptr, FFIType.ptr, FFIType.ptr, FFIType.ptr], returns: FFIType.ptr },
   GetWindowTextW: { args: [FFIType.ptr, FFIType.ptr, FFIType.i32], returns: FFIType.i32 },
   GetForegroundWindow: { args: [], returns: FFIType.ptr },
@@ -9,7 +15,7 @@ const user32 = dlopen("user32.dll", {
   ShowWindow: { args: [FFIType.ptr, FFIType.i32], returns: FFIType.bool },
   IsIconic: { args: [FFIType.ptr], returns: FFIType.bool },
   keybd_event: { args: [FFIType.u8, FFIType.u8, FFIType.u32, FFIType.ptr], returns: FFIType.void },
-}).symbols;
+}).symbols);
 
 const KEYUP = 2;
 const VK_MENU = 0x12;
@@ -89,4 +95,21 @@ export async function sendKeys(chords: string[], keepFocus = false): Promise<voi
     await sleep(120);
   }
   if (!keepFocus && prev) user32.SetForegroundWindow(prev);
+}
+
+const kernel32 = lazySymbols(() =>
+  dlopen("kernel32.dll", {
+    GetCurrentProcess: { args: [], returns: FFIType.ptr },
+    SetProcessInformation: { args: [FFIType.ptr, FFIType.i32, FFIType.ptr, FFIType.u32], returns: FFIType.bool },
+  }).symbols,
+);
+
+/**
+ * Opt this process out of Windows power throttling (EcoQoS and ignored timer requests), which Windows applies to
+ * windowless background processes such as the daemon. Returns false when the call fails.
+ */
+export function disablePowerThrottling(): boolean {
+  // PROCESS_POWER_THROTTLING_STATE { Version = 1, ControlMask = EXECUTION_SPEED | IGNORE_TIMER_RESOLUTION, StateMask = 0 }
+  const state = new Uint32Array([1, 0x1 | 0x4, 0]);
+  return kernel32.SetProcessInformation(kernel32.GetCurrentProcess(), 4 /* ProcessPowerThrottling */, ptr(state), 12);
 }

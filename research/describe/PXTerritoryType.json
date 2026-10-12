@@ -1,0 +1,95 @@
+{
+  "chain": [
+    "PXTerritoryType",
+    "DataAsset",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXTerritoryType",
+  "functions": [
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "FallbackUnexploredName",
+      "owner": "PXTerritoryType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "UnexploredNames",
+      "owner": "PXTerritoryType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "FallbackExploredName",
+      "owner": "PXTerritoryType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "ExploredNames",
+      "owner": "PXTerritoryType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "BaseDifficulty",
+      "owner": "PXTerritoryType",
+      "type": "IntProperty"
+    },
+    {
+      "name": "Icon",
+      "owner": "PXTerritoryType",
+      "type": "SoftObjectProperty"
+    },
+    {
+      "name": "Description",
+      "owner": "PXTerritoryType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "EnableInteraction",
+      "owner": "PXTerritoryType",
+      "type": "BoolProperty"
+    },
+    {
+      "name": "ResourcesToFind",
+      "owner": "PXTerritoryType",
+      "type": "TextProperty"
+    },
+    {
+      "name": "Tags",
+      "owner": "PXTerritoryType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "DifficultyUnlocks",
+      "owner": "PXTerritoryType",
+      "type": "ArrayProperty"
+    },
+    {
+      "name": "AdditionalExplorationTime",
+      "owner": "PXTerritoryType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "PrioritySetup",
+      "owner": "PXTerritoryType",
+      "type": "StructProperty"
+    },
+    {
+      "name": "NativeClass",
+      "owner": "DataAsset",
+      "type": "ClassProperty"
+    },
+    {
+      "name": "ElbDrmData",
+      "owner": "DataAsset",
+      "type": "ArrayProperty"
+    }
+  ]
+}
+

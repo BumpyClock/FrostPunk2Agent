@@ -1,0 +1,149 @@
+{
+  "chain": [
+    "PXPaintTrailInputTool",
+    "PXInputTool",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXPaintTrailInputTool",
+  "functions": [
+    {
+      "name": "TryStartPainting",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "worldPos:Struct<Vector>",
+        "canEnterSelectingStartPoint:Bool"
+      ]
+    },
+    {
+      "name": "TrySetTrailType",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "trailType:Object"
+      ]
+    },
+    {
+      "name": "PaintTrailStarted__DelegateSignature",
+      "owner": "PXPaintTrailInputTool",
+      "params": []
+    },
+    {
+      "name": "PaintTrailEnded__DelegateSignature",
+      "owner": "PXPaintTrailInputTool",
+      "params": []
+    },
+    {
+      "name": "PaintTrailChanged__DelegateSignature",
+      "owner": "PXPaintTrailInputTool",
+      "params": []
+    },
+    {
+      "name": "OnSceneViewChanged",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "sceneViewType:Enum<EPXVisibleInViewType>"
+      ]
+    },
+    {
+      "name": "IsTrailPaintingStarted",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsTrailPaintingFinished",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetChuncksCount",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "CanSetTrailType",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanBuildTrail",
+      "owner": "PXPaintTrailInputTool",
+      "params": [
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "BuildTrail",
+      "owner": "PXPaintTrailInputTool",
+      "params": []
+    },
+    {
+      "name": "GetLMBHoldDuration",
+      "owner": "PXInputTool",
+      "params": [
+        "ReturnValue:Float"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "PaintTrailStartedEvent",
+      "owner": "PXPaintTrailInputTool",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "PaintTrailChangedEvent",
+      "owner": "PXPaintTrailInputTool",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "PaintTrailEndedEvent",
+      "owner": "PXPaintTrailInputTool",
+      "type": "MulticastInlineDelegateProperty"
+    },
+    {
+      "name": "trailType",
+      "owner": "PXPaintTrailInputTool",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "UnderConstructionTrailType",
+      "owner": "PXPaintTrailInputTool",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "City",
+      "owner": "PXPaintTrailInputTool",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "VisualizationActor",
+      "owner": "PXPaintTrailInputTool",
+      "type": "ObjectProperty"
+    },
+    {
+      "name": "PaintingPauseReason",
+      "owner": "PXPaintTrailInputTool",
+      "type": "NameProperty"
+    },
+    {
+      "name": "InteractionTargeter",
+      "owner": "PXInputTool",
+      "type": "ObjectProperty"
+    }
+  ]
+}
+

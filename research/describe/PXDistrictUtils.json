@@ -1,0 +1,601 @@
+{
+  "chain": [
+    "PXDistrictUtils",
+    "BlueprintFunctionLibrary",
+    "Object"
+  ],
+  "class": "/Script/Frostpunk2.PXDistrictUtils",
+  "functions": [
+    {
+      "name": "TryGetDistrictOrBuildingTargetActorForDistrictTracker",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "ResolveHubFromBaseDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Component:Object",
+        "IsValid:Enum<EReturnValueValid>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "RefreshBuildingSlots",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "districtVisual:Object"
+      ]
+    },
+    {
+      "name": "RebuildDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "District:Object",
+        "CellsToAdd:Array",
+        "CellsToRemove:Array",
+        "ActionOrigin:Object",
+        "BuildingSlotPositions:Array"
+      ]
+    },
+    {
+      "name": "IsDistrictSupportingBuilding",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "DistrictType:Object",
+        "BuildingType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictSupported",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictRequiringDeposits",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictOrAnyBuildingUnderDeconstruction",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "districtComponent:Object",
+        "outDeconstructionComponent:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictOrAnyBuildingUnderConstruction",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "districtComponent:Object",
+        "outConstructionComponent:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictOnDeposit",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "depositType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictInsulated",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "District:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictIndependent",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictHub",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "IsDistrictFactionHub",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasUnlockedDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasRequiredDeposits",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "DistrictType:Object",
+        "targetCityCells:Array",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasDistrictWithTagInCity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "Query:Struct<GameplayTagQuery>",
+        "activeOnly:Bool",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasDistrictOfTypeInNation",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "Type:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasCityDistrictTypeWithFreeSlots",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "CityComponent:Object",
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "HasAnyBlockingDeposits",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "DistrictType:Object",
+        "targetCityCell:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "GetSupportedDistricts",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetRebuildingCostAsGameplayDescription",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "ActorComponent:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetPreviousDistrictWithSameTypeFromCity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "CityComponent:Object",
+        "districtComponent:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetNextDistrictWithSameTypeFromCity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "CityComponent:Object",
+        "districtComponent:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetNeighborDistricts",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "checkIfLogicIsActive:Bool",
+        "checkIfUniqueType:Bool",
+        "ReturnValue:Set"
+      ]
+    },
+    {
+      "name": "GetHubFromDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Component:Object",
+        "IsValid:Enum<EReturnValueValid>",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetFirstDistrictOfTypesFromCity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "Types:Array",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetEmptySingleAndMultipleDistrictNeighbourCells",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "cellModesExcluded:Array",
+        "singleDistrictNeighbours:Set",
+        "multipleDistrictsNeighbours:Set"
+      ]
+    },
+    {
+      "name": "GetEmptyDistrictNeighbourCells",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "cellModesExcluded:Array",
+        "ReturnValue:Set"
+      ]
+    },
+    {
+      "name": "GetDistrictWithTagFromNation",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "Query:Struct<GameplayTagQuery>",
+        "activeOnly:Bool",
+        "excludeDistrict:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictWithTagFromCity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "Query:Struct<GameplayTagQuery>",
+        "activeOnly:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictTypeMaxCellProximityDepth",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "Type:Object",
+        "ReturnValue:Int"
+      ]
+    },
+    {
+      "name": "GetDistrictTypeGameplayDescription",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "Type:Object",
+        "CityComponent:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetDistrictTimeToFinishExtraction",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Struct<PXGameTime>"
+      ]
+    },
+    {
+      "name": "GetDistrictSupportedBuildings",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "DistrictType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictsSupportingBuilding",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "BuildingType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictsOfTypeFromNation",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "Type:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictsInProximity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "Depth:Int",
+        "checkIfLogicIsActive:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictsFromCity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "activeOnly:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictRebuildingCost",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Struct<PXOperationCost>"
+      ]
+    },
+    {
+      "name": "GetDistrictPanelSectionsSetup",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "District:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetDistrictOfTypeFromCity",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "Type:Object",
+        "activeOnly:Bool",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetDistrictNeighbourCells",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Set"
+      ]
+    },
+    {
+      "name": "GetDistrictGameplayDescription",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetDistrictFromActor",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Owner:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetDistrictDeconstructionCost",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetDistrictConstructionCostAsGameplayDescription",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "Type:Object",
+        "ReturnValue:Struct<PXGameplayDescription>!text"
+      ]
+    },
+    {
+      "name": "GetDistrictConstructionCost",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Nation:Object",
+        "Type:Object",
+        "includeModifiers:Bool",
+        "ReturnValue:Struct<PXOperationCost>"
+      ]
+    },
+    {
+      "name": "GetDistrictComponentInArrayRemovedByIndex",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "District:Object",
+        "Index:Int",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "GetCustomGameplayEffectsText",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "DistrictType:Object",
+        "usePrefixes:Bool",
+        "ReturnValue:Text"
+      ]
+    },
+    {
+      "name": "GetCompatibleDistrictsWithFreeSlots",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "CityComponent:Object",
+        "BuildingType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "GetCellsNeighborDistricts",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "cityCells:Array",
+        "checkIfLogicIsActive:Bool",
+        "checkIfUniqueType:Bool",
+        "ReturnValue:Set"
+      ]
+    },
+    {
+      "name": "FindParentDistrictVisual",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "ActorComponent:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "FindClosestDistrictVisual",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "position:Struct<Vector2D>",
+        "City:Object",
+        "ignoredDistrictVisual:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "FindClosestDistrictToViewport",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "City:Object",
+        "preferableType:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "FindClosestDistrictOfType",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "position:Struct<Vector>",
+        "City:Object",
+        "Type:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "FindClosestDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "position:Struct<Vector2D>",
+        "City:Object",
+        "ignoredDistrict:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "FilterDistrictsByHeatLevel",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "Districts:Array",
+        "minHeatLevelType:Object",
+        "maxHeatLevelType:Object",
+        "ReturnValue:Array"
+      ]
+    },
+    {
+      "name": "CreateDistrictOnFreeSpaceWithDeposits",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "DistrictType:Object",
+        "ActionOrigin:Object",
+        "depositsToSpawn:Array",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CreateDistrictOnFreeSpace",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "DistrictType:Object",
+        "ActionOrigin:Object",
+        "ReturnValue:Object"
+      ]
+    },
+    {
+      "name": "CanConstructDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "DistrictType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanAffordDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "City:Object",
+        "BuildingType:Object",
+        "ReturnValue:Bool"
+      ]
+    },
+    {
+      "name": "CanActivateDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "District:Object",
+        "ReturnValue:Struct<PXCheckResult>!text"
+      ]
+    },
+    {
+      "name": "ActivateDistrict",
+      "owner": "PXDistrictUtils",
+      "params": [
+        "WorldContextObject:Object",
+        "District:Object"
+      ]
+    },
+    {
+      "name": "ExecuteUbergraph",
+      "owner": "Object",
+      "params": [
+        "EntryPoint:Int"
+      ]
+    }
+  ],
+  "properties": []
+}
+

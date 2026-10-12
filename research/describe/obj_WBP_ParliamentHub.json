@@ -1,0 +1,78 @@
+{
+  "class": "WBP_ParliamentHub_C",
+  "props": {
+    "BlockAnalogNavigation": false,
+    "BlockControllerNavigationToDisabledWidget": false,
+    "BlockOpeningWithContexts": false,
+    "BlockParentClosingAnimation": false,
+    "BlockRenderAsDisabled": false,
+    "CloseFinalizer": {
+      "$null": true
+    },
+    "CloseWithParent": true,
+    "DelayedFocusRequestTimerRate": 0.10000000149012,
+    "DesiredFocusTargetWidget": {
+      "$struct": "WidgetChild",
+      "WidgetName": "None"
+    },
+    "FocusBehaviour": {
+      "name": "EPXFocusRecipientBehaviour::IgnoreFocus",
+      "value": 0
+    },
+    "IgnoreFocusBehaviourOnOpen": false,
+    "IsCloseFinalizerRequired": false,
+    "IsModalOpened": false,
+    "LawSelectionPanel": {
+      "$null": true
+    },
+    "LobbyScreenPanel": {
+      "$null": true
+    },
+    "LogEventsToAnalytics": true,
+    "NegotiationPanel": {
+      "$null": true
+    },
+    "OnWidgetVisibilityChangedEvent": {
+      "delegate": "MulticastInlineDelegateProperty"
+    },
+    "OpenedFromStart": false,
+    "OverrideBlockAnalogNavigation": false,
+    "ParlimentHubDialog": {
+      "class": "PXConfirmationDialog",
+      "ref": "/Game/Scenarios/Shared/Configs/Messages/Dialogs/DA_WBP_ParlimentHub.DA_WBP_ParlimentHub"
+    },
+    "PauseGameWhenVisible": true,
+    "Policy Agenda Variable": {
+      "$null": true
+    },
+    "PolicyAgenda": {
+      "$null": true
+    },
+    "ResultsScreenPanel": {
+      "$null": true
+    },
+    "ReturnFocusToPreviousPanelOnClose": false,
+    "ShowEditorPreview": true,
+    "StaticIntroSequenceCutsceneName": "IntroSequence",
+    "UIGroup": {
+      "class": "PXUIGroup",
+      "ref": "/Game/UI/Utilities/UIGroups/Groups/DA_MainParliamentPanelGroup.DA_MainParliamentPanelGroup"
+    },
+    "UIPanelTriggeredBehaviour": [],
+    "UberGraphFrame": {
+      "$struct": "PointerToUberGraphFrame"
+    },
+    "VignetteAnimation": {
+      "$null": true
+    },
+    "VignetteIdleToVoting": {
+      "$null": true
+    },
+    "WasPanelClosedByPlayerChoice": false,
+    "WholeViewCanvasContainer": {
+      "$null": true
+    },
+    "darkModeFlag": false
+  },
+  "ref": "/Game/UI/WBP_KBM_GameplayScreen.WBP_KBM_GameplayScreen_C:WidgetTree.HouseOfDelegates_Hub_Widget"
+}
