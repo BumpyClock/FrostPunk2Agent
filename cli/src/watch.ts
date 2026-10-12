@@ -144,6 +144,12 @@ export function weatherEvents(s: Snap): WatchEvent[] {
   return ev;
 }
 
+/** True when research is supported and active but no topic is in progress (measured: it sat idle for weeks, unflagged). */
+export function researchIdle(s: Snap): boolean {
+  const r = s?.research;
+  return Boolean(r) && r.error === undefined && r.supported !== false && r.active === true && r.anyInProgress === false;
+}
+
 function city(s: Snap, key: string) {
   const v = s?.[key];
   return Array.isArray(v) ? v[0] : undefined;
@@ -179,6 +185,7 @@ export function facts(s: Snap): Map<string, string> {
   const r = s.research ?? {};
   put("research.topic", r.topic ?? null);
   put("research.active", Boolean(r.active));
+  put("research.idle", researchIdle(s));
 
   const council = s.council ?? {};
   put("council.phase", council.phase ?? null);
@@ -333,6 +340,11 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         ev.push({ kind: `${k}.changed`, detail: { from, to } });
         break;
       case "research":
+        if (k === "research.idle") {
+          // Only the move into idle is news; research.started covers the move out.
+          if (to === true) ev.push({ kind: "research.idle", detail: { topic: null } });
+          break;
+        }
         if (k === "research.topic" && to === null) {
           ev.push({ kind: "research.finished", detail: { topic: from } });
           break;
@@ -347,11 +359,14 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
         ev.push({ kind: `${k}.changed`, detail: { from, to } });
     }
   }
-  ev.push(...weatherEvents(s));
-  return ev;
+  // research.finished already reports the same moment; do not stop twice for it.
+  const finished = ev.some((e) => e.kind === "research.finished");
+  const out = finished ? ev.filter((e) => e.kind !== "research.idle") : ev;
+  out.push(...weatherEvents(s));
+  return out;
 }
 
-const CRITICAL = new Set(["threat.warning", "whiteout.incoming", "whiteout.started", "weather.forecastDrop", "district.deactivated", "deposit.depleting","dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
+const CRITICAL = new Set(["threat.warning", "whiteout.incoming", "whiteout.started", "weather.forecastDrop", "district.deactivated", "deposit.depleting","dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "research.idle", "construction.finished", "council.sessionAvailable.changed"]);
 
 const TICKS_PER_WEEK = 1680;
 
@@ -390,6 +405,7 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
     const next = facts(s);
     if (prev === null) {
       opts.out({ at: new Date().toISOString(), kind: "watch.started", date: s.date?.date, week: s.date?.week, paused: asArray(s.pauseReasons).includes("UserPaused") });
+      if (researchIdle(s)) opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, kind: "research.idle", detail: { topic: null, atStart: true } });
     } else {
       // Ignore stock runway "growing" -> bucket noise when nothing is actually short.
       let events = diff(prev, next, s).filter((e) => !(e.kind === "stock.runway" && (e.detail as any).weeksLeftUnder === null));

@@ -800,6 +800,76 @@ function A.buildingTypes(args)
     return out
 end
 
+-- Why a placement may be refused, from scalar/object reads only (no Can* requirement structs: they carry FText and
+-- crash the game). Slots: PXDistrictComponent.GetBuildingLimit and GetBuildings; the game's own free-slot filter
+-- PXDistrictUtils.GetCompatibleDistrictsWithFreeSlots; workforce via PXWorkforceUtils; stock vs cost from the
+-- resources extractor. Every read is pcall-guarded and validated first.
+local function placementCheck(city, district, btype, cost)
+    local c = {}
+    local bu, du = cdo("PXBuildingUtils"), cdo("PXDistrictUtils")
+    local dpath = reflect.path(district)
+    pcall(function() c.buildingLimit = district:GetBuildingLimit() end)
+    pcall(function()
+        local names = json.array()
+        for _, b in ipairs(objList(district:GetBuildings())) do
+            if reflect.isValid(b) then
+                local okT, t = pcall(function() return b.Type end)
+                names[#names + 1] = okT and reflect.isValid(t) and assetId(t) or "?"
+            end
+        end
+        c.buildings = names
+        c.buildingsUsed = #names
+    end)
+    if c.buildingLimit and c.buildingsUsed then c.freeSlots = c.buildingLimit - c.buildingsUsed end
+    pcall(function()
+        local list, here = json.array(), false
+        for _, d in ipairs(objList(du:GetCompatibleDistrictsWithFreeSlots(city, btype))) do
+            if reflect.isValid(d) then
+                list[#list + 1] = (assetId(d.DistrictType) or "?") .. "#" .. tostring(d.DistrictId)
+                if reflect.path(d) == dpath then here = true end
+            end
+        end
+        c.districtsWithFreeSlot = list
+        c.thisDistrictHasFreeSlot = here
+    end)
+    pcall(function() c.hasRequiredDeposits = bu:HasRequiredDeposits(district, btype) end)
+    pcall(function()
+        local wu = cdo("PXWorkforceUtils")
+        c.availableWorkforce = wu:GetCityAvailableWorkforce(city)
+        if type(cost) == "table" and type(cost.workforce) == "number" then
+            c.workforceNeeded = math.abs(cost.workforce)
+            c.canAffordWorkforce = wu:CanCityAffordWorkforce(city, c.workforceNeeded)
+        end
+    end)
+    pcall(function()
+        if type(cost) ~= "table" or type(cost.stockpile) ~= "table" then return end
+        local entries = require("extractors").run("resources", {})
+        local mine = entries[1]
+        for _, e in ipairs(entries) do if e.ref == reflect.path(city) then mine = e end end
+        if not mine or type(mine.stock) ~= "table" then return end
+        local short = {}
+        for id, need in pairs(cost.stockpile) do
+            local have = mine.stock[id] or 0
+            if have < need then short[id] = need - have end
+        end
+        c.shortOfStock = short
+    end)
+    local why = json.array()
+    if c.thisDistrictHasFreeSlot == false then
+        why[#why + 1] = "no free building slot in this district" ..
+            (c.buildingLimit and (" (" .. tostring(c.buildingsUsed) .. "/" .. tostring(c.buildingLimit) .. " used)") or "")
+    end
+    if c.hasRequiredDeposits == false then why[#why + 1] = "required deposit missing" end
+    if c.canAffordWorkforce == false then
+        why[#why + 1] = "not enough free workforce (" .. tostring(c.workforceNeeded) .. " needed, " .. tostring(c.availableWorkforce) .. " available)"
+    end
+    if c.shortOfStock then
+        for id, n in pairs(c.shortOfStock) do why[#why + 1] = "short " .. n .. " " .. id end
+    end
+    c.blockers = why
+    return c
+end
+
 -- args: type (building id substring), district (district ref, or district type id substring), dryRun
 function A.placeBuilding(args)
     local city = A.city(args)
@@ -830,12 +900,17 @@ function A.placeBuilding(args)
     local out = { type = assetId(btype), district = assetId(district.DistrictType), districtRef = reflect.path(district) }
     local okC, c = pcall(reflect.invoke, bu, "GetBuildingTypeConstructionCost", { city.Nation, btype, true })
     out.cost = okC and compactCost(c) or nil
+    -- Read everything before the instruction (a created building may replace objects held here).
+    local okK, check = pcall(placementCheck, city, district, btype, out.cost)
+    out.check = okK and check or { error = tostring(check) }
     if args.dryRun then return out end
     local res = bu:CreateBuilding(ctx(), district, btype, A.leaderOrigin())
     if not reflect.isValid(res) then
         -- Measured: a refused placement (e.g. no free building slot) returned nothing and charged nothing.
-        error("game refused to place " .. assetId(btype) .. " in " .. tostring(out.district) ..
-            " (no free building slot, unmet requirement or missing resources); try another district", 0)
+        local why = okK and #check.blockers > 0 and (": " .. table.concat(check.blockers, "; ")) or
+            " (no free building slot, unmet requirement or missing resources)"
+        error("game refused to place " .. assetId(btype) .. " in " .. tostring(out.district) .. why ..
+            "; try another district (dryRun=true shows the full check)", 0)
     end
     out.result = reflect.ref(res)
     return out

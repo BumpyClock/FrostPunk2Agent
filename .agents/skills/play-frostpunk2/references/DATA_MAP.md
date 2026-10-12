@@ -63,7 +63,7 @@ The snapshot has no `time` or `session` sections; use `date` and `pauseReasons`,
 
 `fp2 turn` returns these in `events`; each has `week`, `date`, `kind`, `detail`. Every event, including noise, is
 appended to `.runtime/watch.jsonl`. Stop kinds by default: `dialog.opened`, `dialog.ackFailed`, `threat.warning`, `deaths.increased`,
-`need.deficit`, `stock.runway` (10 weeks or less), `research.finished`, `construction.finished`,
+`need.deficit`, `stock.runway` (10 weeks or less), `research.finished`, `research.idle`, `construction.finished`,
 `council.sessionAvailable.changed` (session opens), `exploration.finished`, `temperature.changed`,
 `building.unlocked`, `ability.available`, `district.deactivated`, `deposit.depleting` (10 weeks or less),
 `weather.forecastDrop` (a drop of 2+ levels or to level 3 or colder), `whiteout.incoming`, `homeless.changed`. Noise kinds (`icons.changed`,
@@ -77,6 +77,7 @@ appended to `.runtime/watch.jsonl`. Stop kinds by default: `dialog.opened`, `dia
 | `threat.warning` | A one-option dialog whose title or text names a danger (whiteout, storm, blizzard, cold wave, temperature drop, mortal risk, generator failure, riot, uprising, civil war; `watch.ts` `THREAT_RE`). It was acknowledged, but it stops the turn; `detail.threat` is the matched word, `detail.source` `dialog`. Measured: the whiteout warning "An Old Enemy" came 73 weeks before the whiteout | `fp2 goals add horizon=threat priority=1 due=<week> expect=".."`; reorder the stack (SKILL.md thinking pattern 6, GAMEPLAY.md Whiteout playbook) |
 | `dialog.ackFailed` | Auto-ack could not dismiss a one-option dialog (`detail.error`); the game stays paused | `fp2 modals`, then `fp2 choose index=0 ref=<modal ref>` |
 | `notification` | Dialog without choices (population growth, info popup) | Read `detail`; usually no action |
+| `research.idle` | Research is supported and active but no topic is in progress (`research.anyInProgress` false; measured: it sat idle for weeks, unflagged). Fires once on the move into idle; not emitted in the same poll as `research.finished` (that event already stops). Also returned once, without stopping, when a turn starts while idle (`detail.atStart`). `brief.alerts` repeats "research idle" every turn until a topic runs | `fp2 research_topics`, then `fp2 research_start topic=X` |
 | `need.deficit` / `need.ok` | A need balance went below or back to 0 | Heating: see [GAMEPLAY.md](GAMEPLAY.md) Heat |
 | `stock.runway` / `stock.recovered` | Stock runway crossed 20, 10, 5 or 2 weeks, or recovered | Fix the supply of that resource |
 | `stat.rising` / `stat.falling` | A statistic crossed a 10-point band; `detail` has current and target | Treat Cold, Hunger, Tension, Sickliness, Crime, Squalor |

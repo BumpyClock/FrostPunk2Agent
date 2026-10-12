@@ -56,6 +56,10 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
   and the HUD heat bars is unmeasured.
 - Other ability and city actions beyond the toggle in `fp2 ability` (`PXAbilityUtils.ActivateActorAbility`).
 - Logistics district placement needs a Logistics deposit inside the build area. Frostbreak toward it first.
+- `place_building` refusal reasons come from scalar reads (`GetBuildingLimit`, `GetBuildings`,
+  `GetCompatibleDistrictsWithFreeSlots`, workforce, stock vs cost; measured). `PXBuildingUtils.CanConstructBuilding*` and
+  `CanAffordBuilding` return requirement structs (FText) and stay unread, so a refusal from an unmet building
+  requirement (law, research) is not named: `blockers` is empty then.
 - Cost checks for area expanders and construction return FText structs, which the crash guard blocks.
   `dryRun` on `expand` reports the error in `check`, `cost` and `duration`; the real call still runs and the
   game validates it.

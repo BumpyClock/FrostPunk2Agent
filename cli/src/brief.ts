@@ -1,5 +1,6 @@
 // Turn the raw `state` snapshot into a short triage list an agent can act on.
 import { call } from "./bridge";
+import { researchIdle } from "./watch";
 
 type Num = Record<string, number>;
 type CityRes = { cityType?: string; stock: Num; limits: Num; supply: Num; demand: Num; change?: Num };
@@ -15,11 +16,14 @@ const round = (n: number) => Math.round(n * 10) / 10;
  * `weather` is the snapshot's weather section when the caller already has one (turn); otherwise the extractor is
  * read here, so the forecast strip (a coming drop, a whiteout) is part of every triage.
  */
-export async function brief(given?: { weather?: any }) {
+export async function brief(given?: { weather?: any; research?: any }) {
   const s = await call<any>("state");
   const alerts: string[] = [];
   const weather = given && "weather" in given ? given.weather : await call<any>("extract", { name: "weather" }).catch((e) => ({ error: String(e) }));
   const w = weather ?? {};
+  // `state` has no research section; turn passes the snapshot's, otherwise ask the bridge (one cheap call).
+  const research = given && "research" in given ? given.research : await call<any>("research").catch((e) => ({ error: String(e) }));
+  if (researchIdle({ research })) alerts.push("research idle: no topic in progress (fp2 research_topics, then research_start)");
   if (w.whiteout?.known && w.whiteout.active) alerts.push(`WHITEOUT active (level ${w.current?.level}${w.whiteout.endsInWeeks !== undefined ? `, ends in ~${w.whiteout.endsInWeeks} weeks` : ""})`);
   else if (w.whiteout?.known && typeof w.whiteout.startsInWeeks === "number") alerts.push(`whiteout forecast in ~${w.whiteout.startsInWeeks} weeks${w.whiteout.endsInWeeks !== undefined ? ` (ends ~${w.whiteout.endsInWeeks})` : ""}: prepare now`);
   if (Array.isArray(w.forecast)) {
@@ -98,6 +102,7 @@ export async function brief(given?: { weather?: any }) {
   return {
     time: { paused: t.paused, pauseReasons: t.pauseReasons, speed: t.speed, gameTimeTicks: t.gameTimeTicks, date },
     weather: w.error || w.timelineError ? { error: w.error ?? w.timelineError, level: w.current?.level } : { level: w.current?.level, degrees: w.current?.degrees, horizonWeeks: w.horizonWeeks, forecast: Array.isArray(w.forecast) ? w.forecast.map((f: any) => ({ inWeeks: f.weeksFromNow, level: f.level, degrees: f.degrees, ...(f.whiteout ? { whiteout: true } : {}) })) : [], whiteout: w.whiteout?.known ? w.whiteout : "unknown" },
+    research: research && !research.error ? { topic: research.topic, progress: research.progress, weeksLeft: research.weeksLeft, idle: researchIdle({ research }) } : { error: research?.error },
     modals,
     construction: (s.construction ?? []).map((c: any) => ({ what: c.district ?? c.target, state: c.state, progress: c.progress, weeksLeft: c.weeksLeft })),
     alerts,

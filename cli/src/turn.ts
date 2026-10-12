@@ -8,7 +8,7 @@ import { brief } from "./brief";
 import { goalView, nextDueWeek } from "./goals";
 import { nextRollingSlot } from "./saves";
 import { TICKS_PER_WEEK, setPaused, setSpeed, sleep, userPaused } from "./game";
-import { diff, facts, isAckOnly, type WatchEvent } from "./watch";
+import { diff, facts, isAckOnly, researchIdle, type WatchEvent } from "./watch";
 
 // Lua encodes empty tables as {}; treat anything non-array as empty.
 const asArray = (v: unknown): any[] => (Array.isArray(v) ? v : []);
@@ -23,6 +23,8 @@ export const STOP_DEFAULT = [
   "need.deficit",
   "stock.runway",
   "research.finished",
+  // Research went idle with nothing queued (measured: it sat idle for weeks, unflagged).
+  "research.idle",
   "construction.finished",
   "council.sessionAvailable.changed",
   "exploration.finished",
@@ -136,7 +138,7 @@ export async function turn(opts: TurnOptions) {
   const goals = () => goalView(s.date?.week);
   if (blocking.length || open.modals) {
     // Something already needs the agent (a modal, a cutscene): do not resume time.
-    return { turn: { fromWeek, toWeek: fromWeek, date: s.date?.date, advancedWeeks: 0, stoppedBy: { reason: blocking.join(", ") || "modal open", kinds: [] } }, events: [], dropped: {}, goals: goals(), brief: await brief({ weather: s.weather }), weather: weatherSummary(s.weather), warnings };
+    return { turn: { fromWeek, toWeek: fromWeek, date: s.date?.date, advancedWeeks: 0, stoppedBy: { reason: blocking.join(", ") || "modal open", kinds: [] } }, events: [], dropped: {}, goals: goals(), brief: await brief({ weather: s.weather, research: s.research }), weather: weatherSummary(s.weather), warnings };
   }
 
   // Turn length. Never run past the nearest open goal's due week, so a check or threat is judged exactly when the
@@ -165,6 +167,12 @@ export async function turn(opts: TurnOptions) {
   let prev = facts(s);
   let lastSaveTicks = fromTicks;
   const returned: unknown[] = [];
+  // Idle at turn start: report it (event + brief alert) but do not stop; the agent may have nothing it can start.
+  if (researchIdle(s)) {
+    const e = { kind: "research.idle", detail: { topic: null, atStart: true } };
+    emit(e);
+    returned.push({ week: s.date?.week, date: s.date?.date, ...e });
+  }
   const dropped: Record<string, number> = {};
   let stoppedBy: { reason: string; kinds: string[] } | null = null;
   let pauseGraceUsed = false;
@@ -312,7 +320,7 @@ export async function turn(opts: TurnOptions) {
     events: returned,
     dropped,
     goals: goals(),
-    brief: await brief({ weather: s.weather }),
+    brief: await brief({ weather: s.weather, research: s.research }),
     weather: weatherSummary(s.weather),
     ...(warnings.length ? { warnings } : {}),
   };
