@@ -11,7 +11,7 @@ The project has no tagged releases yet.
   weeks with nothing flagging it. `brief` now carries a `research` summary.
 - `place_building` dryRun and refusal report `check`: district building limit and used slots, buildings present,
   districts with a free slot, deposits, workforce and stock shortfall, with a plain `blockers` list (Housing#4 was
-  1/1 used).
+  1/1 used, measured).
 - `threat.warning` turn event: a one-option story dialog whose text names a whiteout, storm, cold wave, generator
   failure or unrest is still acknowledged but now stops the turn (the whiteout warning "An Old Enemy" was
   auto-acknowledged and missed; 40 died 73 weeks later).

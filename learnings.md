@@ -44,7 +44,7 @@ label (measured / inferred / guessed), and what to do differently. Durable rules
 - Crash classes `pcall` does not catch: FText in struct/container params, SoftObject reads, null/stale UObjects,
   guessed world-context args, Lua strings for FName params (measured). Save before any first call.
 - Hiding `fp2 reload` output let a Lua syntax error go unnoticed (measured). Never hide reload output.
-- 2026-10-11: added `research.idle` event (stops the turn, `brief` alert) and a `check` block on `place_building` dryRun/refusal (slots used/limit, free-slot districts, workforce, stock shortfall). Housing districts hold 1 building, so `X_HousingBloc_Base` refusals in Housing#1/#4/#9 were full slots (measured).
+- 2026-10-11: added `research.idle` event (stops the turn, `brief` alert) and a `check` block on `place_building` dryRun/refusal (slots used/limit, free-slot districts, workforce, stock shortfall). `X_HousingBloc_Base` refusals in Housing#1/#4/#9 were full slots: limit 1, 1 used (measured). The limit varies by district; what raises it is unknown.
 
 ## Process
 

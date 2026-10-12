@@ -400,7 +400,7 @@ async function main(argv: string[]): Promise<number> {
       const exe = join(rt, "fp2-watch.exe");
       copyFileSync(process.execPath, exe);
       const log = join(rt, "watch.jsonl");
-      const wargs = [`interval=${args.interval ?? 2}`, `pauseOn=${args.pauseOn ?? "dialog.opened,need.deficit,stock.runway,research.finished,construction.finished"}`, `saveEvery=${args.saveEvery ?? 2}`, `saveName=${args.saveName ?? "agent-rolling"}`, `autoAck=${args.autoAck ?? "true"}`];
+      const wargs = [`interval=${args.interval ?? 2}`, `pauseOn=${args.pauseOn ?? "dialog.opened,need.deficit,stock.runway,research.finished,research.idle,construction.finished"}`, `saveEvery=${args.saveEvery ?? 2}`, `saveName=${args.saveName ?? "agent-rolling"}`, `autoAck=${args.autoAck ?? "true"}`];
       const ps = `Start-Process -FilePath '${exe}' -ArgumentList ${["watch", ...wargs].map((a) => `'${a}'`).join(",")} -WorkingDirectory '${repoRoot()}' -RedirectStandardOutput '${log}' -RedirectStandardError '${log}.err' -WindowStyle Hidden -PassThru | ForEach-Object Id`;
       const res = Bun.spawnSync(["powershell", "-NoProfile", "-Command", ps]);
       const pid = res.stdout.toString().trim();
