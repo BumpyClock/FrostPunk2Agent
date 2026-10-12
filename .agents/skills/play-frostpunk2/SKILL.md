@@ -19,8 +19,9 @@ All commands go through `./fp2.exe` at the repo root (`fp2 -h` lists them). Run 
 
 - **Heat drives everything.** Generator power and heat allocation feed the needs (Heating, Warmth, Shelter,
   Nourishment, Possession, Maintenance). A negative need raises its statistic (Cold, Hunger, Squalor, ...), which
-  raises Tension and erodes Trust. Temperature drops arrive without warning, so generator headroom (`power` vs
-  `powerLimit`) is the safety margin.
+  raises Tension and erodes Trust. Temperature drops are forecast (`turn.weather`, `fp2 brief` alerts, the HUD
+  strip); a whiteout is announced by a story dialog about 70 weeks ahead (measured). Generator headroom (`power`
+  vs `powerLimit`) is the safety margin for what the forecast misses.
 - **Inputs are scarce and shared.** Workforce staffs districts and running construction. Prefabs and Cores gate
   districts, upgrades and colonies. Heatstamps pay for research, buildings and hubs. Coal, food and materials are
   flows: read `change` and runway, not stock alone.
@@ -48,6 +49,11 @@ These habits separated good turns from bad ones in past runs. They do not say wh
    action a failure before then. (A past run called the migration law useless; it later brought +200, then +1,191.)
 5. **Name the binding constraint and the trade.** State which input limits you and what the choice costs. When
    unsure, prefer reversible moves (district on/off, ability toggles), then measure.
+6. **A catastrophe outranks the plan.** A whiteout warning is not one more event: it reorders the stack. Decide
+   out loud where survival sits (`priority=1`), which long-horizon goals it defers and until when, and keep that
+   order until the threat has passed. (A past run noted "whiteout coming" as an undated short goal at week 128, went
+   back to colonies and factories, undid its own heat shedding, and lost 40 people at week 201.) Playbook:
+   [GAMEPLAY.md](references/GAMEPLAY.md#whiteout-playbook).
 
 ## Session start
 
@@ -56,13 +62,19 @@ These habits separated good turns from bad ones in past runs. They do not say wh
    3 loads). After any load, bridge calls wait ~90 s (polling mid-load crashed the game); do not work around it. First install: `./scripts/Install-Bridge.ps1` with the game closed. If `turn` warns about a
    detached watcher, run `fp2 watch-stop`.
 2. `fp2 goals`. If empty, seed it: `long` = the scenario quest (`fp2 snapshot --fields quests`); `short` = one
-   city-problem target, one capacity goal, and the research path from `fp2 research_plan topic=X`. Then `fp2 turn`.
+   city-problem target, one capacity goal, and the research path from `fp2 research_plan topic=X`. Read
+   `goals.focus` (top of the stack) and `goals.threats` (every open threat with `weeksLeft`), and `fp2 brief`
+   `weather` before the first turn. Then `fp2 turn`.
 
 ## The turn loop
 
 `fp2 turn` resumes time, runs until the first stop event or `weeks` in-game weeks (the heartbeat), pauses, and
-returns `{turn: {fromWeek, toWeek, date, advancedWeeks, stoppedBy: {reason, kinds}}, events, dropped,
-goals: {open, due, file}, brief, warnings?}`. Each turn:
+returns `{turn: {fromWeek, toWeek, date, advancedWeeks, stoppedBy: {reason, kinds}, capped?}, events, dropped,
+goals: {focus, open, due, threats, file}, brief, weather, warnings?}`. Two rules shorten a turn on their own:
+it never runs past the nearest open goal's `due` week (`stoppedBy.reason` `goalDue`, so every check and threat
+is judged exactly when you said it would be), and in a cold crisis (whiteout active, or temperature level 3 or
+colder) the default length is 1 week (an explicit `weeks=N` is kept). `turn.capped` says which rule applied.
+Each turn:
 
 - Pauses: `turn` ends paused by design. A story event sets the player pause flag, and its dialog only appears once time runs; `turn` resumes once on a bare `UserPaused` so the dialog shows up as a stop event (measured). A second bare `UserPaused` is a real player pause. Your own district toggles and temperature rises do not stop a turn.
 - Read `stoppedBy.reason`. `event` or `heartbeat`: continue below. A modal class: `fp2 modals`, decide,
@@ -70,15 +82,26 @@ goals: {open, due, file}, brief, warnings?}`. Each turn:
   resuming. With a modal or cutscene already open, `turn` returns at once without resuming time.
 - Treat each event as a question: does it threaten a goal, finish one, or open an option? If not, let it pass.
   Quiet turn: run the next one. Event kinds and reactions: [DATA_MAP.md](references/DATA_MAP.md#turn-events).
-- Act only when a goal or a stop event calls for it. Apply thinking patterns 1, 3 and 5 first.
-- A warning of a future threat (whiteout, storm, unrest) becomes a goal with a `due` week and an `expect`, re-checked at every heartbeat until it resolves. An open threat goal without a due date was missed once and a whiteout killed 40 (measured).
+- Act only when a goal or a stop event calls for it. Apply thinking patterns 1, 3, 5 and 6 first.
+- **Threats.** `threat.warning` (a story dialog whose text names a whiteout, storm, cold wave or unrest; it is
+  acknowledged for you but still stops the turn), `whiteout.incoming`, `weather.forecastDrop` and
+  `whiteout.started` each demand a decision now, not a note. Add `fp2 goals add horizon=threat priority=1
+  due=<arrival week> expect="<what prepared looks like>" text=".."`; `due`, `expect` and `priority` are required,
+  so you state the arrival week and the rank. `due` = the current week plus `turn.weather.whiteout.startsInWeeks`
+  (measured: the strip held the whiteout 70 weeks ahead, at the same time as the story warning). Add check goals
+  for the preparation steps with their own due weeks (fuel full by week X, generator upgrade done by week Y), so
+  `turn` lands on each. Then edit the goals it defers (`goals edit id=N priority=..` or a note) so `goals.focus`
+  reads the threat. Work the playbook in GAMEPLAY.md until `whiteout.ended`; only then restore deferred priorities.
 - When an action has a delay (law, build, research), add `fp2 goals add horizon=check due=<week> expect=".."`.
 - When `goals.due` is non-empty, judge each `expect` against the brief, then `fp2 goals done id=N note=".."` or
   `fp2 goals edit id=N due=.. expect=..` with the reason.
 - Re-plan when research finishes, a build completes, a Council session opens, a territory is explored, or the
   heartbeat fires: re-read `snapshot.quests`, `fp2 research_plan`, `fp2 utopia`, `fp2 frost_sites`, free workforce
   and stocks, and update the `long` and `short` goals.
-- Read only what the decision needs: `fp2 turn --fields turn,events,goals.due,brief.alerts`.
+- Read only what the decision needs: `fp2 turn --fields turn,events,goals.focus,goals.due,goals.threats,weather,brief.alerts`.
+- Target shape (not yet built): the game keeps running, `fp2 watch-start` streams events to `.runtime/watch.jsonl`,
+  and the agent reads them under a Monitor while it reasons, adapting without pausing. Until then `turn` pauses
+  at each stop; keep turns short in a crisis and long when the stack is quiet.
 
 **Gameplay blog.** Keep a decision log in `gameplay-<YYYY-MM-DD>.html` (one self-contained page per real-world day,
 repo root). At each major decision (law, large build, deaths, crisis, recovery), insert an entry after
@@ -95,10 +118,10 @@ validate through the game and charge normal costs; most accept `dryRun=true`.
 | Need | Command |
 |---|---|
 | Play a turn | `fp2 turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]`; saves rotate over `agent-rolling-a/-b/-c` |
-| Goal stack | `fp2 goals [all=true]`, `goals add text=".." [horizon=long\|short\|check] [due=<week>] [expect=".."]`, `goals done id=N [note=..]`, `goals edit id=N [text=..] [due=..] [expect=..] [horizon=..]`, `goals rm id=N`. File: `.runtime/goals.jsonl` |
+| Goal stack | `fp2 goals [all=true]` (`focus`, `open` ordered by `priority` then threat/check/short/long then due, `due`, `threats`), `goals add text=".." [horizon=long\|short\|check\|threat] [due=<week>] [expect=".."] [priority=<1..>]` (threat: `due`, `expect`, `priority` required), `goals done id=N [note=..]`, `goals edit id=N [text=..] [due=..] [expect=..] [horizon=..] [priority=..]`, `goals rm id=N`. File: `.runtime/goals.jsonl` |
 | Start, crash recovery | `fp2 recover [name=<save display name>] [attempts=3]`; in a loaded game it only pauses. Load crashes go to `.runtime/bad-saves.json` (`fp2 saves` shows `bad`) |
 | Wait for state | `fp2 wait-for cond=<c> [timeout=20]`; `c`: `modal`, `no-modal`, `council`, `no-council`, `cutscene`, `no-cutscene`, `paused`, `running`, `ready`, `reason:<s>`, `no-reason:<s>`. `click`, `hold`, `keys` take `wait=<c>` |
-| HUD, triage | `fp2 snapshot` (every HUD section), `fp2 brief` (alerts, deficits, depleting stocks, modals, construction), `fp2 extract name=<x>` (omit `name` to list), `fp2 date`, `fp2 extract name=weather` (temperature now, forecast strip, whiteout) |
+| HUD, triage | `fp2 snapshot` (every HUD section), `fp2 brief` (weather and whiteout first, then alerts, deficits, depleting stocks, modals, construction), `fp2 extract name=<x>` (omit `name` to list), `fp2 date`, `fp2 extract name=weather` (level and degrees now, forecast entries with `whiteout`/`whiteoutEnds`, `whiteout {active, startsInWeeks, endsInWeeks}`, `storm` while one covers the city; measured) |
 | Districts | `fp2 districts` (efficiency, proximity, workforce), `fp2 district_types`, `fp2 district_active district=Production#2 active=false` (frees workforce) |
 | Place a district | `fp2 pick_cells count=6 [type=X] [deposit=soil]`, `fp2 layout_preview type=X 'cells=[..]'`, `fp2 place_district type=Housing 'cells=[..6..]'`; deposits: `fp2 cells free=true deposit=..`, `fp2 extract name=deposits` |
 | Deconstruct | `fp2 deconstruct district=X dryRun=true` shows the refund (a depleted Extraction district returned 158 prefabs + 75 heatstamps over 3 weeks, measured); without dryRun starts it at normal duration |

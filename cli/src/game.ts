@@ -129,7 +129,12 @@ export async function overdriveCycle(opts: { weeks: number; maxWear: number; min
   if (userPaused(start)) await setPaused(false);
   let switches = 0;
   let peak = 0;
+  let overshoots = 0;
   let stoppedBy: string | null = null;
+  // Wear climbs faster the larger the heat gap: in a whiteout it went 0.05 -> 0.69 inside one 250 ms poll, so the
+  // old loop hit its "overshot" check before it ever switched off (measured, twice). Predict the next poll's wear
+  // from the last two readings and switch off early; a switch-off is never skipped for an overshoot.
+  let last: { wear: number; at: number } | null = null;
   try {
     for (;;) {
       const t = await time();
@@ -143,6 +148,7 @@ export async function overdriveCycle(opts: { weeks: number; maxWear: number; min
         stoppedBy = others.join(", ");
         break;
       }
+      const t0 = Date.now();
       const g = await call<any>("generator");
       const wear = Number(g.wear ?? 0);
       peak = Math.max(peak, wear);
@@ -150,22 +156,29 @@ export async function overdriveCycle(opts: { weeks: number; maxWear: number; min
         stoppedBy = "generator broken";
         break;
       }
-      if (g.overdriveActive && wear >= opts.maxWear + 0.15) {
-        stoppedBy = `wear ${wear} overshot the ceiling`;
-        break;
-      }
-      if (!g.overdriveActive && wear <= opts.minWear) {
-        await call("overdrive", { active: true });
-        switches++;
-      } else if (g.overdriveActive && wear >= opts.maxWear) {
+      const now = (t0 + Date.now()) / 2;
+      const ratePerMs = last && g.overdriveActive && now > last.at ? Math.max(0, (wear - last.wear) / (now - last.at)) : 0;
+      last = { wear, at: now };
+      const pollMs = 120;
+      const predicted = wear + ratePerMs * (pollMs + 2 * (Date.now() - t0));
+      if (g.overdriveActive && predicted >= opts.maxWear) {
         const r = await call<any>("overdrive", { active: false });
         switches++;
+        if (wear >= opts.maxWear + 0.15) overshoots++;
         if (r?.overdriveActive) {
           stoppedBy = "overdrive did not switch off";
           break;
         }
+        if (wear >= 0.95) {
+          stoppedBy = `wear ${wear} too close to malfunction; stopped`;
+          break;
+        }
+      } else if (!g.overdriveActive && wear <= opts.minWear) {
+        await call("overdrive", { active: true });
+        switches++;
+        last = null;
       }
-      await sleep(250);
+      await sleep(pollMs);
     }
   } finally {
     await call("overdrive", { active: false }).catch(() => undefined);
@@ -175,5 +188,5 @@ export async function overdriveCycle(opts: { weeks: number; maxWear: number; min
     else if (/Fast/.test(String(prevSpeed))) await setSpeed(2).catch(() => undefined);
   }
   const end = await time();
-  return { advancedWeeks: Math.round((((end.gameTimeTicks ?? 0) - (start.gameTimeTicks ?? 0)) / TICKS_PER_WEEK) * 100) / 100, switches, peakWear: peak, stoppedBy };
+  return { advancedWeeks: Math.round((((end.gameTimeTicks ?? 0) - (start.gameTimeTicks ?? 0)) / TICKS_PER_WEEK) * 100) / 100, switches, peakWear: peak, overshoots, stoppedBy };
 }

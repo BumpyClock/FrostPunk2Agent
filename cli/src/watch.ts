@@ -64,7 +64,10 @@ function depositBuckets(s: Snap): Map<string, number | "ok"> {
     const base = samples.get(key);
     let weeksLeft: number | null = null;
     if (!base || ticks < base.ticks || d.amount > base.amount) {
-      samples.set(key, { ticks, amount: d.amount, weeksLeft: null });
+      // A deposit that is already empty is not news for a fresh baseline: start it at 0 weeks so the first poll does
+      // not report "ok" -> "under 5" (measured: a long-dead sawmill stopped every new turn after 0.25 weeks).
+      weeksLeft = d.amount <= 0 ? 0 : null;
+      samples.set(key, { ticks, amount: d.amount, weeksLeft });
     } else {
       const dt = ticks - base.ticks;
       weeksLeft = base.weeksLeft;
@@ -245,11 +248,20 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
     const from = parse(a);
     const to = parse(b);
     switch (group) {
-      case "modal":
-        ev.push({ kind: b === undefined ? "dialog.closed" : "dialog.opened", detail: b === undefined ? { title: k.slice(6) } : to });
+      case "modal": {
+        if (b === undefined) {
+          ev.push({ kind: "dialog.closed", detail: { title: k.slice(6) } });
+          break;
+        }
+        const threat = threatOf(to);
+        ev.push({ kind: "dialog.opened", detail: threat ? { ...(to as object), threat } : to });
         break;
+      }
       case "notice":
-        if (b !== undefined) ev.push({ kind: "notification", detail: to });
+        if (b !== undefined) {
+          const threat = threatOf(to);
+          ev.push({ kind: "notification", detail: threat ? { ...(to as object), threat } : to });
+        }
         break;
       case "dstate":
         if (a !== undefined && b !== undefined) {
@@ -339,7 +351,7 @@ export function diff(prev: Map<string, string>, next: Map<string, string>, s: Sn
   return ev;
 }
 
-const CRITICAL = new Set(["whiteout.incoming", "whiteout.started", "weather.forecastDrop", "district.deactivated", "deposit.depleting","dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
+const CRITICAL = new Set(["threat.warning", "whiteout.incoming", "whiteout.started", "weather.forecastDrop", "district.deactivated", "deposit.depleting","dialog.ackFailed", "exploration.finished", "dialog.opened", "need.deficit", "stock.runway", "stat.rising", "ui.cutscene.changed", "research.finished", "construction.finished", "council.sessionAvailable.changed"]);
 
 const TICKS_PER_WEEK = 1680;
 
@@ -347,6 +359,18 @@ const TICKS_PER_WEEK = 1680;
 export function isAckOnly(m: any): boolean {
   const choices = asArray(m?.choices);
   return choices.length === 1 && !choices[0]?.effects && !choices[0]?.description;
+}
+
+// Story dialogs that warn of a coming danger look like any other one-option "I see" message (measured: the
+// whiteout warning "An Old Enemy" had one choice, "We must prepare", was auto-acknowledged, did not stop the turn,
+// and the whiteout killed 40 people 73 weeks later). Match the warning by its text instead.
+export const THREAT_RE = /whiteout|white-out|blizzard|great storm|storm (is|will|approach)|temperature[^.]{0,40}(drop|fall|plunge)|cold (front|wave|snap)|mortal risk|freez|generator (will )?(fail|malfunction|break)|uprising|riot|civil war/i;
+
+/** The first threat keyword in a dialog's title or description, or null. */
+export function threatOf(m: any): string | null {
+  const text = `${m?.title ?? ""} ${m?.description ?? ""}`;
+  const hit = THREAT_RE.exec(text);
+  return hit ? hit[0].toLowerCase() : null;
 }
 
 export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; once?: boolean; saveEveryWeeks?: number; saveName?: string; autoAck?: boolean; out: (line: unknown) => void }) {
@@ -383,6 +407,11 @@ export async function watch(opts: { intervalMs: number; pauseOn: Set<string>; on
             const failed = { kind: "dialog.ackFailed", detail: { ...d, error: err } };
             opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...failed });
             events.push(failed as any);
+          } else if (d.threat) {
+            // Acknowledged so the game is not blocked, but a warning is news: keep it as a pausing event.
+            const warn = { kind: "threat.warning", detail: { ...d, source: "dialog" } };
+            opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...warn });
+            events.push(warn as any);
           } else {
             opts.out({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, kind: "dialog.acknowledged", detail: d });
           }

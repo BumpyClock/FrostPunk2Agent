@@ -269,13 +269,15 @@ return function(X)
     -- Data path (static, from research/fp2_functions.txt and research/city/PXTemperatureComponent.json):
     --   current  PXTemperatureComponent.CurrentTemperatureLevel (PXTemperatureLevel asset; .Degrees measured in `population`)
     --   horizon  PXTemperatureComponent.PredictionInterval (PXGameTime; 168000 ticks in the research dump)
-    --   forecast PXTemperatureUtils.GetTemperatureTimeline(WorldContextObject, Target, From, To) -> TArray<struct>
-    --            Unverified: the Target class and the entry struct's fields. Both are read from reflection at run time,
-    --            and the call is refused when the entry struct holds FText or SoftObject fields or Target is unknown.
-    --   whiteout PXWeatherTimelineWidget.SetupWhiteoutEvent(widget, temperatureTimelineChange) suggests timeline entries
-    --            carry the whiteout. Unverified: matched by field name /whiteout/i (bool, object or PXGameTime duration)
-    --            on the entry or on the level asset; `whiteout.known` is false when no such field exists.
-    --   storm    PXWeatherUtils.GetCityWeatherLevel(WorldContextObject, City) (unverified)
+    --   forecast PXTemperatureUtils.GetTemperatureTimeline(WorldContextObject, Target:PXTemperatureComponent, From, To)
+    --            -> TArray<PXTemperatureTimelineChangeInfo> {Timestamp:PXGameTime, TemperatureLevel:PXTemperatureLevel,
+    --            TemperatureLevelChange:Int, Weather:PXWeatherSpawnInfo (nil unless a storm boundary),
+    --            EnterWeatherIntersection:Bool} (measured). Elements arrive as wrappers: unwrap with `:get()`.
+    --            The Target class and fields are still read by reflection and the call is refused when the entry struct
+    --            holds FText or SoftObject fields.
+    --   whiteout an entry with `Weather` set: EnterWeatherIntersection true = the storm reaches the city, false = it
+    --            leaves (measured: the exit entry carried TemperatureLevelChange -3). Active while
+    --            PXWeatherUtils.GetCityWeatherLevel(ctx, City) returns a PXWeatherLevel (measured: "Sun-Dimming Storm").
     -- TemperatureLevel numbers rise as it gets colder (DA_TemperatureLevel1 -> 4 was a whiteout, measured).
     local TICKS_WEEK = 1680
     local function hasSoft(prop, depth)
@@ -303,7 +305,7 @@ return function(X)
 
     X.register({
         name = "weather",
-        help = "Temperature now and the forecast strip: current level/degrees, forecast [{weeksFromNow, level, degrees, whiteout}], whiteout {known, active, startsInWeeks, endsInWeeks}, storm level. args: weeks=<horizon, capped at the game's prediction interval>, debug=true (entry schema, raw fields).",
+        help = "Temperature now and the forecast strip: current level/degrees, forecast [{weeksFromNow, level, degrees, whiteout (starts here), whiteoutEnds}], whiteout {known, active, startsInWeeks, endsInWeeks}, storm {id, name, level} while one covers the city. args: weeks=<horizon, default the game's prediction interval>, debug=true (entry schema, raw fields).",
         run = function(args)
             local debug = args.debug == true or args.debug == "true"
             local out = { forecast = json.array() }
@@ -364,7 +366,13 @@ return function(X)
                 end)
                 if cityClass ~= "PXCityComponent" then out.stormSkipped = "City param class " .. tostring(cityClass); return end
                 local lv = wu:GetCityWeatherLevel(wco, city)
-                if reflect.isValid(lv) then out.storm = assetId(lv) end
+                if reflect.isValid(lv) then
+                    -- Always set: "Calm" (WeatherLevel_0, level 0) with no storm, "Sun-Dimming Storm" (level 1) mid-whiteout (measured).
+                    local st = { id = assetId(lv) }
+                    pcall(function() st.name = lv.IngameName:ToString() end)
+                    pcall(function() st.level = lv.Level end)
+                    out.storm = st
+                end
             end)
 
             local now
@@ -418,9 +426,11 @@ return function(X)
                 return out
             end
 
-            local horizon = predictionTicks and predictionTicks > 0 and predictionTicks or 26 * TICKS_WEEK
+            -- Default to the game's whole prediction interval: the whiteout story warning came 73 weeks ahead
+            -- (measured), so a short cap would hide the one forecast entry that matters most.
+            local horizon = predictionTicks and predictionTicks > 0 and predictionTicks or 104 * TICKS_WEEK
             if tonumber(args.weeks) then horizon = math.min(horizon, tonumber(args.weeks) * TICKS_WEEK)
-            else horizon = math.min(horizon, 26 * TICKS_WEEK) end
+            else horizon = math.min(horizon, 104 * TICKS_WEEK) end
             -- Start 4 weeks back so an ongoing segment (e.g. an active whiteout) is in the list.
             local from = math.max(0, now - 4 * TICKS_WEEK)
             local raw = tu:GetTemperatureTimeline(wco, target, { ScaledTicks = from }, { ScaledTicks = now + horizon })
@@ -433,14 +443,24 @@ return function(X)
             out.horizonWeeks = math.floor(horizon / 168 + 0.5) / 10
 
             local entries = {}
+            local parsedAll = {}
             local sawWhiteoutField = (out.current and out.current.whiteout ~= nil) or false
             for _, item in ipairs(items) do
-                local e = { other = {} }
+                local e = { other = {}, errors = {} }
+                -- Array elements of a UFunction return may arrive as element wrappers: unwrap when `get` exists.
+                pcall(function()
+                    if type(item) == "userdata" and item.get then
+                        local g = item:get()
+                        if g ~= nil then item = g end
+                    end
+                end)
+                if debug then e.itemType = type(item); pcall(function() e.itemStr = tostring(item) end) end
                 for _, f in ipairs(fields) do
                     local name, ty = f.name, f.type
                     local isWo = name:lower():find("whiteout", 1, true) ~= nil
-                    pcall(function()
+                    local okF, errF = pcall(function()
                         local v = item[name]
+                        if debug and v == nil then e.errors[name] = "nil" end
                         if ty == "Struct<PXGameTime>" then
                             local ticks = v.ScaledTicks
                             if isWo then
@@ -480,49 +500,45 @@ return function(X)
                             if ty == "Int" and name:lower():find("change", 1, true) then e.change = v end
                         end
                     end)
+                    if not okF and debug then e.errors[name] = tostring(errF) end
                 end
                 if e.levelInfo and e.levelInfo.whiteout then e.whiteout = true end
+                parsedAll[#parsedAll + 1] = e
                 if type(e.at) == "number" then entries[#entries + 1] = e end
             end
             table.sort(entries, function(a, b) return a.at < b.at end)
 
             local function weeks(ticks) return math.floor((ticks - now) / 168 + 0.5) / 10 end
-            local active = out.current and out.current.whiteout == true
-            local currentEntry
-            for _, e in ipairs(entries) do
-                if e.at <= now then currentEntry = e end
-            end
-            if currentEntry and currentEntry.whiteout then
-                active = true
-                if currentEntry.whiteoutTicks and currentEntry.whiteoutTicks > 0 then
-                    out.whiteoutEndsAtTicks = currentEntry.at + currentEntry.whiteoutTicks
-                end
-            end
-            local wo = { known = sawWhiteoutField, active = active and true or false }
+            -- Whiteout representation (measured mid-whiteout, week 226): a timeline entry whose `Weather` field holds a
+            -- PXWeatherSpawnInfo marks the storm reaching (EnterWeatherIntersection true) or leaving (false) the city;
+            -- the exit entry carried TemperatureLevelChange -3 (level 4 -> 1). While the storm is over the city,
+            -- PXWeatherUtils.GetCityWeatherLevel returns its PXWeatherLevel ("Sun-Dimming Storm", level 1); otherwise
+            -- "Calm" (level 0). At week 129 the strip already held the whiteout 70.6 weeks ahead (measured).
+            local wo = { known = true, active = (out.storm ~= nil and tonumber(out.storm.level) or 0) >= 1 }
             -- Entries that hold a relative Change (SetTemperatureLevelChangeAt) instead of a level: accumulate from now.
             local running = out.current and out.current.level
             for _, e in ipairs(entries) do
+                local weather = e.other.Weather ~= nil
+                local enter = weather and e.other.EnterWeatherIntersection == true
+                local exit = weather and e.other.EnterWeatherIntersection == false
                 if e.at > now then
                     local li = e.levelInfo or {}
                     local level, derived = li.level, nil
                     if level == nil and running and e.change then level = running + e.change; derived = true end
                     if level then running = level end
-                    local item = { atTicks = e.at, weeksFromNow = weeks(e.at), level = level, levelId = li.id, degrees = li.degrees, whiteout = e.whiteout, derivedLevel = derived }
+                    local item = { atTicks = e.at, weeksFromNow = weeks(e.at), level = level, levelId = li.id, degrees = li.degrees, whiteout = enter, derivedLevel = derived }
+                    if exit then item.whiteoutEnds = true end
                     if debug then item.atField = e.atField; item.fields = e.other end
                     out.forecast[#out.forecast + 1] = item
-                    if wo.active then
-                        if wo.endsInWeeks == nil and not e.whiteout then wo.endsInWeeks = weeks(e.at) end
-                    elseif e.whiteout and wo.startsInWeeks == nil then
+                    if enter and wo.startsInWeeks == nil and not wo.active then
                         wo.startsInWeeks = weeks(e.at)
                         wo.startsAtTicks = e.at
-                        if e.whiteoutTicks and e.whiteoutTicks > 0 then wo.endsInWeeks = weeks(e.at + e.whiteoutTicks) end
-                    elseif wo.startsInWeeks ~= nil and wo.endsInWeeks == nil and not e.whiteout then
+                    elseif exit and wo.endsInWeeks == nil and (wo.active or wo.startsInWeeks ~= nil) then
                         wo.endsInWeeks = weeks(e.at)
+                        wo.endsAtTicks = e.at
                     end
                 end
             end
-            if wo.active and out.whiteoutEndsAtTicks and wo.endsInWeeks == nil then wo.endsInWeeks = weeks(out.whiteoutEndsAtTicks) end
-            out.whiteoutEndsAtTicks = nil
             out.whiteout = wo
             if debug then
                 local dump = json.array()
@@ -532,6 +548,12 @@ return function(X)
                 end
                 out.entries = dump
                 out.entryCount = #items
+                -- Entries that failed to parse: their per-field errors (debug only).
+                local failed = json.array()
+                for _, e in ipairs(parsedAll) do
+                    if type(e.at) ~= "number" and #failed < 3 then failed[#failed + 1] = { itemType = e.itemType, itemStr = e.itemStr, errors = e.errors, fields = e.other } end
+                end
+                out.unparsed = failed
             end
             return out
         end,

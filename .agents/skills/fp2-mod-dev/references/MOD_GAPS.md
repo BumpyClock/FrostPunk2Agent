@@ -4,6 +4,11 @@ Ordered by how often play needs them. Remove an entry when a command covers it.
 
 ## Not covered yet
 
+- Whiteout preparation actions: no bridge path to recall an expedition (exploration in progress; the storm cuts
+  off territories and outposts under it) or to raise a resource stock limit (`resources.limits`; coal sat at
+  50,000 "surplus wasted" before the whiteout, measured). Candidates: `PXTerritoryUtils`/`PXExplorationUtils`
+  cancel functions (`fp2 describe class=PXTerritoryExplorationSubsystem`), and whichever building or law raises
+  `StockLimits` (search `research/fp2_functions.txt` for `StockLimit`). Until then: Frostland view (V) in the UI.
 - Council negotiation and promises (`InstructNegotiate`, `PXDesireUtils.MakePromise`).
 - Proximity magnitudes: `layout_preview` matches giver/taker types but not effect sizes. Sizes live in
   `/Game/Scenarios/Shared/Configs/CellProximity/Rules/DA_CellProximityRule_*` and

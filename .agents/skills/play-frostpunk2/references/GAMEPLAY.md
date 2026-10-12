@@ -73,15 +73,55 @@ Frostpunk 2 knowledge; verify before relying on it.
 - Overdrive closes a heat gap fast but wears the generator quickly (wear +0.14 per 6 game-hours, measured; 1.0 =
   malfunction with casualties). Wear decays to 0 within a day once off. `fp2 overdrive-cycle` alternates it under
   a ceiling; half-time overdrive did not move Cold's target in one test, so weigh it against wear risk.
-- Whiteout preparation. A whiteout dropped the city from TemperatureLevel1 to TemperatureLevel4 in one step:
-  Heating -750, Cold target 50, 40 deaths (measured). The game warned weeks earlier in a story dialog and the HUD
-  forecast strip; `fp2 extract name=weather` and the `whiteout.incoming` / `weather.forecastDrop` turn events read
-  it. Before the whiteout: shed non-essential heated districts (industry, coal, food) for its duration, keep a fuel
-  runway for the whole whiteout plus margin, and turn on generator City Support "Housing". Measured: shedding the
-  industry, coal and food districts cut the Heating deficit from -750 to 0 and the Cold target from 50 to 7.
-  Re-enable them when `whiteout.ended` arrives; check food and coal runways first.
 - If the generator is at its power limit, distribution does not help. Check `fp2 generator`
   (`power`, `powerLimit`, `capacityPct`, `overdriveSupported`, `canOverdrive`) and fuel stock. (general)
+
+## Whiteout playbook
+
+A whiteout is the catastrophe the whole game builds toward. It outranks every other goal while it is coming or
+present (thinking pattern 6). What one run measured (Utopia Builder, week 128 to 230):
+
+- **Warning.** A story dialog ("An Old Enemy": "A whiteout is coming... Without shelter and ample fuel, our people
+  will be at mortal risk") with one option, 73 weeks before it hit. `turn` reports it as `threat.warning`. At the
+  same time the forecast strip (`turn.weather`, `fp2 brief`) already held the storm: at week 129 it showed level 4
+  (-60C) with `whiteout: true` 70.6 weeks out and `whiteoutEnds: true` 100.6 weeks out, and `turn` stopped on
+  `whiteout.incoming` (startsInWeeks 69.6, endsInWeeks 99.6). The strip looks 100 weeks ahead (the game's
+  prediction interval), so the arrival and end weeks are known from the first warning.
+- **Impact.** Temperature level 1 (-30C) to 4 (-60C) in one step. Heating went -750, Warmth -1090, Cold target 50,
+  and 40 people died in the first wave. The storm ("Sun-Dimming Storm") also cuts hothouse food output, blocks
+  exploration of territories under it, and cuts off sites and outposts under it (in-game description). It lasted
+  about 29 weeks (week 201 to about 230).
+- **Levers that worked during it.** Switching off every heated non-essential district (industry, coal mines, food,
+  faction hub) took Heating from -750 to 0 and the Cold target from 50 to 7; generator City Support "Housing" on.
+  Switching districts back on one at a time and measuring each (Extraction#8 alone pushed Heating to -180).
+- **Levers that did not.** Overdrive lowered the Heating requirement but not the Cold target, and wear reached 0.7
+  to 0.8 within one poll at whiteout demand (use `fp2 overdrive-cycle`, which now switches off predictively). A
+  Heating Hub cut Heating need by 60 but drew 60 power. Insulating one housing district changed nothing in 2 weeks.
+- **Costs of shedding.** The shed food district cost about 200 food per day: the stock fell from 25,000 to 700 in 17
+  weeks. Coal burned 300 per day with both mines off (runway 5 to 6 weeks), and the coal stock had sat at its
+  50,000 limit for weeks before ("surplus wasted" alert), so the cap, not production, set the fuel reserve.
+
+Preparation, from the warning to the arrival (general unless marked):
+
+1. **Reorder the stack.** `fp2 goals add horizon=threat priority=1 due=<arrival week> expect=".."`, and defer
+   colonies, outposts, Utopia and long research in the goal texts or priorities. Keep `turn` at 1 to 2 weeks when
+   the arrival is under 10 weeks away, and 1 week during the whiteout (the default does this).
+2. **Fuel.** Fill coal to the stock limit and raise the limit if a building or law allows it (not yet read; see
+   MOD_GAPS). Budget: whiteout weeks x 7 x coal per day at full heating, plus margin. Hold the coal mines on until
+   the stock is full, then decide what to shed.
+3. **Food.** Fill the food stock; hothouses lose output in the storm. Budget the same way. Prefer food districts that
+   do not depend on light if the tree offers them.
+4. **Heat capacity with lead time.** Generator Upgrade research is 12 to 20 weeks, a Heating Hub 5 weeks and 50
+   prefabs, Insulate District 50 prefabs per housing district. Start them so they finish before the arrival; a
+   reserve of prefabs for insulation beats a factory that finishes during the storm.
+5. **Frostland.** Recall expeditions and do not start exploration or outposts that the storm will cut off (no bridge
+   action for recall yet: use the Frostland view, V). Outposts under the whiteout stop supplying.
+6. **Shed list.** Write down, before the arrival, which districts go off at `whiteout.started` and in which order
+   they return, and what each costs per day. Housing, generator and the hub that heats housing stay on.
+7. **Do not undo the prep on a warm week.** A cold snap (level 2) at week 120 was not the whiteout; the run restored
+   its shed districts at week 151 and met the whiteout at week 201 with nothing shed and coal at the cap.
+8. **After `whiteout.ended`.** Check food and coal runways first, then restore districts one at a time, measuring
+   Heating after each; restore deferred goal priorities last.
 
 ## Stability check before expanding
 

@@ -32,11 +32,17 @@ Play loop:
                          that crashes the game marks the save bad (.runtime/bad-saves.json) and tries the next one
   turn [weeks=4] [stopOn=kind,..] [speed=3] [saveEvery=2] [saveName=agent-rolling] [autoAck=true]
                          resume, run until a stop event or weeks pass, pause; returns {turn, events, dropped,
-                         goals, brief}. Saves rotate over <saveName>-a/-b/-c (oldest overwritten).
+                         goals, brief, weather}. Never runs past the nearest open goal's due week (stoppedBy
+                         goalDue). In a cold crisis (whiteout, temperature level >= 3) the default length is 1
+                         week; an explicit weeks= is kept. Saves rotate over <saveName>-a/-b/-c.
                          Events also append to .runtime/watch.jsonl. Default stopOn: ${STOP_DEFAULT.join(",")}
-  goals                  open goals (all=true includes done); file .runtime/goals.jsonl, one JSON per line
-  goals add text=".." [horizon=long|short|check] [due=<week>] [expect=".."]
-  goals done id=N [note=".."] | goals edit id=N [text=..] [due=..] [expect=..] [horizon=..] | goals rm id=N
+  goals                  the stack: focus (top goal), open (ordered by priority, then threat/check/short/long,
+                         then due), due ones, every open threat with weeksLeft; all=true includes done.
+                         File .runtime/goals.jsonl, one JSON per line
+  goals add text=".." [horizon=long|short|check|threat] [due=<week>] [expect=".."] [priority=<1..>]
+                         threat = a warned danger (whiteout, storm, unrest): due=<arrival week>, expect and
+                         priority are required (decide what it outranks and what it defers)
+  goals done id=N [note=".."] | goals edit id=N [text=..] [due=..] [expect=..] [horizon=..] [priority=..] | goals rm id=N
   wait-for cond=<c> [timeout=20]
                          c: modal | no-modal | council | no-council | cutscene | no-cutscene | paused | running |
                          ready | reason:<substr> | no-reason:<substr>. click/hold/keys accept wait=<c>.
@@ -307,6 +313,7 @@ async function main(argv: string[]): Promise<number> {
       print(
         await turn({
           weeks: Number(args.weeks ?? 4),
+          weeksDefaulted: args.weeks === undefined,
           stopOn,
           speed: args.speed === undefined ? 3 : Number(args.speed),
           saveEveryWeeks: Number(args.saveEvery ?? 2),
@@ -330,7 +337,7 @@ async function main(argv: string[]): Promise<number> {
         }
         case "add": {
           const d = await call<any>("date").catch(() => ({}));
-          print(addGoal({ text: String(args.text ?? ""), horizon: args.horizon, due: args.due === undefined ? undefined : Number(args.due), expect: args.expect }, { week: d.week, date: d.date }));
+          print(addGoal({ text: String(args.text ?? ""), horizon: args.horizon, due: args.due === undefined ? undefined : Number(args.due), expect: args.expect, priority: args.priority === undefined ? undefined : Number(args.priority) }, { week: d.week, date: d.date }));
           return 0;
         }
         case "done": {
@@ -342,6 +349,7 @@ async function main(argv: string[]): Promise<number> {
           const patch: Record<string, unknown> = {};
           for (const k of ["text", "horizon", "expect", "note"]) if (args[k] !== undefined) patch[k] = String(args[k]);
           if (args.due !== undefined) patch.due = Number(args.due);
+          if (args.priority !== undefined) patch.priority = Number(args.priority);
           if (args.done !== undefined) patch.done = args.done === true;
           print(updateGoal(id, patch));
           return 0;

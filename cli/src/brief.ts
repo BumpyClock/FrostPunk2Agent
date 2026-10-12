@@ -11,9 +11,28 @@ type CityPop = { cityType?: string; population?: number; homeless?: number; tota
 const GOOD_STATS = new Set(["Wealth", "CitySize", "NationSize"]);
 const round = (n: number) => Math.round(n * 10) / 10;
 
-export async function brief() {
+/**
+ * `weather` is the snapshot's weather section when the caller already has one (turn); otherwise the extractor is
+ * read here, so the forecast strip (a coming drop, a whiteout) is part of every triage.
+ */
+export async function brief(given?: { weather?: any }) {
   const s = await call<any>("state");
   const alerts: string[] = [];
+  const weather = given && "weather" in given ? given.weather : await call<any>("extract", { name: "weather" }).catch((e) => ({ error: String(e) }));
+  const w = weather ?? {};
+  if (w.whiteout?.known && w.whiteout.active) alerts.push(`WHITEOUT active (level ${w.current?.level}${w.whiteout.endsInWeeks !== undefined ? `, ends in ~${w.whiteout.endsInWeeks} weeks` : ""})`);
+  else if (w.whiteout?.known && typeof w.whiteout.startsInWeeks === "number") alerts.push(`whiteout forecast in ~${w.whiteout.startsInWeeks} weeks${w.whiteout.endsInWeeks !== undefined ? ` (ends ~${w.whiteout.endsInWeeks})` : ""}: prepare now`);
+  if (Array.isArray(w.forecast)) {
+    let prev = Number(w.current?.level);
+    for (const f of [...w.forecast].sort((a: any, b: any) => Number(a?.atTicks) - Number(b?.atTicks))) {
+      if (typeof f?.level !== "number") continue;
+      if (Number.isFinite(prev) && f.level > prev) {
+        alerts.push(`temperature drops to level ${f.level}${f.degrees !== undefined ? ` (${f.degrees}C)` : ""} in ~${f.weeksFromNow} weeks`);
+        break;
+      }
+      prev = f.level;
+    }
+  }
   const cities: any[] = [];
   const res: CityRes[] = s.resources ?? [];
   const needs: CityNeeds[] = s.needs ?? [];
@@ -78,6 +97,7 @@ export async function brief() {
   } catch {}
   return {
     time: { paused: t.paused, pauseReasons: t.pauseReasons, speed: t.speed, gameTimeTicks: t.gameTimeTicks, date },
+    weather: w.error || w.timelineError ? { error: w.error ?? w.timelineError, level: w.current?.level } : { level: w.current?.level, degrees: w.current?.degrees, horizonWeeks: w.horizonWeeks, forecast: Array.isArray(w.forecast) ? w.forecast.map((f: any) => ({ inWeeks: f.weeksFromNow, level: f.level, degrees: f.degrees, ...(f.whiteout ? { whiteout: true } : {}) })) : [], whiteout: w.whiteout?.known ? w.whiteout : "unknown" },
     modals,
     construction: (s.construction ?? []).map((c: any) => ({ what: c.district ?? c.target, state: c.state, progress: c.progress, weeksLeft: c.weeksLeft })),
     alerts,

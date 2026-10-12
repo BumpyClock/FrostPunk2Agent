@@ -37,8 +37,9 @@ arrays in PowerShell: `'cells=[1,2,3]'`.
 |---|---|
 | Read everything the HUD shows | `fp2 snapshot` (one bridge call) |
 | Triage | `fp2 brief`: alerts, need deficits, depleting stocks, open modals, construction |
-| Play | `fp2 turn [weeks=4] [stopOn=..] [speed=3] [saveEvery=2]`: resume, stop at the first stop event or after `weeks` in-game weeks, pause, return `{turn, events, dropped, goals, brief}` |
-| Goals | `fp2 goals`, `fp2 goals add text=.. [horizon=long\|short\|check] [due=<week>] [expect=..]`, `goals done id=N`, `goals edit id=N ..`, `goals rm id=N` (stored in `.runtime/goals.jsonl`, returned by every `turn`) |
+| Play | `fp2 turn [weeks=4] [stopOn=..] [speed=3] [saveEvery=2]`: resume, stop at the first stop event or after `weeks` in-game weeks, pause, return `{turn, events, dropped, goals, brief, weather}`. Never runs past the nearest open goal's `due` week; in a cold crisis (whiteout, temperature level 3+) the default length is 1 week |
+| Goals | `fp2 goals` (`focus`, ordered `open`, `due`, `threats`), `fp2 goals add text=.. [horizon=long\|short\|check\|threat] [due=<week>] [expect=..] [priority=<1..>]` (threat: due, expect and priority required), `goals done id=N`, `goals edit id=N ..`, `goals rm id=N` (stored in `.runtime/goals.jsonl`, returned by every `turn`) |
+| Weather | `fp2 extract name=weather`: temperature now, forecast strip, whiteout start/end, current storm; `brief` leads with it; turn events `threat.warning`, `weather.forecastDrop`, `whiteout.incoming/started/ended` |
 | Recover | `fp2 recover [name=..]`: relaunch if needed, load the newest `agent-rolling` or AutoSave (or `name`), wait until ready, pause |
 | Wait | `fp2 wait-for cond=<modal\|no-modal\|council\|no-council\|cutscene\|no-cutscene\|paused\|running\|ready\|reason:X\|no-reason:X> [timeout=20]`; `click`, `hold` and `keys` take `wait=<cond>` |
 | Stream changes (secondary) | `fp2 watch-start`, then tail `.runtime/watch.jsonl`; `fp2 watch-stop`. `fp2 watch` runs the same loop in the foreground |
@@ -51,10 +52,10 @@ arrays in PowerShell: `'cells=[1,2,3]'`.
 | UI fallback | `fp2 screenshot`, `fp2 click`, `fp2 hold`, `fp2 keys` |
 | Mod development | `fp2 reload` (keyless), `fp2 reload --full` (for `main.lua`), `fp2 describe`, `fp2 object`, `fp2 get`, `fp2 call` |
 
-`turn` stops on: dialogs, deaths, need deficits, stock runway under 10 weeks, research or construction
-finished, Council session open, exploration finished, temperature change, building or ability unlocked,
-district deactivated, homeless. Events also go to `.runtime/watch.jsonl`. `turn` keeps a rolling save every
-`saveEvery` weeks.
+`turn` stops on: dialogs, threat warnings (a story dialog naming a whiteout, storm or unrest), deaths, need
+deficits, stock runway under 10 weeks, deposits running out, forecast drops and incoming whiteouts, research or
+construction finished, Council session open, exploration finished, temperature drops, district deactivated by the
+game, homeless. Events also go to `.runtime/watch.jsonl`. `turn` keeps a rolling save every `saveEvery` weeks.
 
 Add `--fields a.b,c[0].d` to any command to print only those paths.
 

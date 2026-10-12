@@ -5,7 +5,7 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { BridgeError, call, readStatus, repoRoot } from "./bridge";
 import { brief } from "./brief";
-import { goalView } from "./goals";
+import { goalView, nextDueWeek } from "./goals";
 import { nextRollingSlot } from "./saves";
 import { TICKS_PER_WEEK, setPaused, setSpeed, sleep, userPaused } from "./game";
 import { diff, facts, isAckOnly, type WatchEvent } from "./watch";
@@ -17,6 +17,8 @@ const asArray = (v: unknown): any[] => (Array.isArray(v) ? v : []);
 export const STOP_DEFAULT = [
   "dialog.opened",
   "dialog.ackFailed",
+  // A one-option story warning (whiteout, storm, unrest) is acknowledged but still stops the turn.
+  "threat.warning",
   "deaths.increased",
   "need.deficit",
   "stock.runway",
@@ -43,6 +45,43 @@ const STOP_DEPOSIT_WEEKS = 10;
 
 const levelNum = (v: unknown) => Number(String(v ?? "").match(/(\d+)$/)?.[1] ?? 0);
 
+/** Temperature level at or below which the city is in a crisis (TemperatureLevel4 was a whiteout, measured). */
+const CRISIS_LEVEL = 3;
+const CRISIS_WEEKS = 1;
+
+/** A compact weather line for the turn result: what the HUD forecast strip shows, or why it could not be read. */
+export function weatherSummary(w: any) {
+  if (!w) return { known: false };
+  if (w.error || w.timelineError) return { known: false, error: w.error ?? w.timelineError, level: w.current?.level, degrees: w.current?.degrees };
+  const forecast: any[] = Array.isArray(w.forecast) ? w.forecast : [];
+  let prev = Number(w.current?.level);
+  let nextDrop: { inWeeks: number; level: number; degrees?: number } | undefined;
+  for (const f of [...forecast].sort((a, b) => Number(a?.atTicks) - Number(b?.atTicks))) {
+    if (typeof f?.level !== "number") continue;
+    if (!nextDrop && Number.isFinite(prev) && f.level > prev && typeof f.weeksFromNow === "number") nextDrop = { inWeeks: f.weeksFromNow, level: f.level, degrees: f.degrees };
+    prev = f.level;
+  }
+  const wo = w.whiteout ?? {};
+  return {
+    known: true,
+    level: w.current?.level,
+    degrees: w.current?.degrees,
+    horizonWeeks: w.horizonWeeks,
+    ...(nextDrop ? { nextDrop } : {}),
+    whiteout: wo.known ? { active: Boolean(wo.active), ...(wo.startsInWeeks !== undefined ? { startsInWeeks: wo.startsInWeeks } : {}), ...(wo.endsInWeeks !== undefined ? { endsInWeeks: wo.endsInWeeks } : {}) } : "unknown",
+    // "Calm" (level 0) is the no-storm reading; only a real storm is worth a line.
+    ...(w.storm && Number(w.storm.level) >= 1 ? { storm: w.storm } : {}),
+  };
+}
+
+/** True when the city is in a cold crisis: an active whiteout or a temperature level at CRISIS_LEVEL or colder. */
+export function inCrisis(s: any): string | null {
+  if (s?.weather?.whiteout?.known && s.weather.whiteout.active) return "whiteout active";
+  const lvl = levelNum(asArray(s?.population)[0]?.temperatureLevel);
+  if (lvl >= CRISIS_LEVEL) return `temperature level ${lvl}`;
+  return null;
+}
+
 function isStop(e: WatchEvent, stopOn: Set<string>): boolean {
   if (!stopOn.has(e.kind)) return false;
   const d: any = e.detail ?? {};
@@ -67,6 +106,8 @@ function watcherPid(): number | null {
 
 export type TurnOptions = {
   weeks: number;
+  /** weeks came from the CLI default, so a crisis may shorten it; an explicit weeks= is kept. */
+  weeksDefaulted?: boolean;
   stopOn: Set<string>;
   speed?: number;
   saveEveryWeeks: number;
@@ -95,13 +136,31 @@ export async function turn(opts: TurnOptions) {
   const goals = () => goalView(s.date?.week);
   if (blocking.length || open.modals) {
     // Something already needs the agent (a modal, a cutscene): do not resume time.
-    return { turn: { fromWeek, toWeek: fromWeek, date: s.date?.date, advancedWeeks: 0, stoppedBy: { reason: blocking.join(", ") || "modal open", kinds: [] } }, events: [], dropped: {}, goals: goals(), brief: await brief(), warnings };
+    return { turn: { fromWeek, toWeek: fromWeek, date: s.date?.date, advancedWeeks: 0, stoppedBy: { reason: blocking.join(", ") || "modal open", kinds: [] } }, events: [], dropped: {}, goals: goals(), brief: await brief({ weather: s.weather }), weather: weatherSummary(s.weather), warnings };
+  }
+
+  // Turn length. Never run past the nearest open goal's due week, so a check or threat is judged exactly when the
+  // agent said it would be (a threat goal that was only read on its due week, 70 weeks on, was never read: 40 died).
+  // In a cold crisis the default length drops to CRISIS_WEEKS: a weeks=2 turn that overran to 5.5 weeks mid-whiteout
+  // let food fall to 2 weeks (measured). An explicit weeks= is respected.
+  let weeks = opts.weeks;
+  let capped: { by: string; weeks: number } | null = null;
+  const crisis = inCrisis(s);
+  if (crisis && opts.weeksDefaulted && weeks > CRISIS_WEEKS) {
+    weeks = CRISIS_WEEKS;
+    capped = { by: `crisis (${crisis})`, weeks };
+    warnings.push(`cold crisis (${crisis}): turn shortened to ${CRISIS_WEEKS} week; pass weeks=N to override`);
+  }
+  const nextDue = typeof fromWeek === "number" ? nextDueWeek(fromWeek) : undefined;
+  if (nextDue && nextDue.due - (fromWeek as number) < weeks) {
+    weeks = Math.max(0.25, nextDue.due - (fromWeek as number));
+    capped = { by: `goal ${nextDue.id} (${nextDue.horizon}) due week ${nextDue.due}`, weeks };
   }
 
   const emit = (e: object) => appendFileSync(log, JSON.stringify({ at: new Date().toISOString(), date: s.date?.date, week: s.date?.week, ...e }) + "\n");
   if (opts.speed) await setSpeed(opts.speed);
   await setPaused(false);
-  emit({ kind: "turn.started", detail: { weeks: opts.weeks, stopOn: [...opts.stopOn] } });
+  emit({ kind: "turn.started", detail: { weeks, requestedWeeks: opts.weeks, capped, stopOn: [...opts.stopOn] } });
 
   let prev = facts(s);
   let lastSaveTicks = fromTicks;
@@ -136,7 +195,10 @@ export async function turn(opts: TurnOptions) {
       });
       for (const d of acked) {
         const err = await call("choose", { index: 0, ref: d.ref }).then(() => undefined, (e) => String(e));
-        events.push(err ? { kind: "dialog.ackFailed", detail: { ...d, error: err } } : { kind: "dialog.acknowledged", detail: d });
+        if (err) events.push({ kind: "dialog.ackFailed", detail: { ...d, error: err } });
+        // A warning dialog is dismissed so the game is not blocked, but it is news that stops the turn.
+        else if (d.threat) events.push({ kind: "threat.warning", detail: { ...d, source: "dialog" } });
+        else events.push({ kind: "dialog.acknowledged", detail: d });
       }
       // The snapshot predates the ack; re-read pause reasons so a dismissed "I see" does not end the turn.
       if (acked.length) pauseReasons = asArray((await call<any>("extract", { name: "time" }).catch(() => ({ pauseReasons }))).pauseReasons);
@@ -163,10 +225,11 @@ export async function turn(opts: TurnOptions) {
       await sleep(1200);
       continue;
     }
+    const heartbeat = capped?.by.startsWith("goal ") ? "goalDue" : "heartbeat";
     if (stops.length) stoppedBy = { reason: "event", kinds: [...new Set(stops)] };
-    else if (heartbeatPaused && reasons.every((r) => r === "UserPaused")) stoppedBy = { reason: "heartbeat", kinds: [] };
+    else if (heartbeatPaused && reasons.every((r) => r === "UserPaused")) stoppedBy = { reason: heartbeat, kinds: [] };
     else if (reasons.length) stoppedBy = { reason: reasons.join(", "), kinds: [] }; // modal, cutscene, or the human paused
-    else if (ticks >= target) stoppedBy = { reason: "heartbeat", kinds: [] };
+    else if (ticks >= target) stoppedBy = { reason: heartbeat, kinds: [] };
     else if (Date.now() > deadline) stoppedBy = { reason: "timeout", kinds: [] };
 
     if (opts.saveEveryWeeks > 0 && ticks - lastSaveTicks >= opts.saveEveryWeeks * TICKS_PER_WEEK) {
@@ -181,7 +244,7 @@ export async function turn(opts: TurnOptions) {
   // Pacing. Measured: speed 3 runs about 3.4 in-game weeks per real second, so a fixed 1.5 s poll let a
   // weeks=2 turn run 5.75 weeks before the first heartbeat check. The loop now estimates the clock rate and,
   // near the target, polls the cheap time extractor and pauses the game itself when the target is reached.
-  const target = fromTicks + opts.weeks * TICKS_PER_WEEK;
+  const target = fromTicks + weeks * TICKS_PER_WEEK;
   let rate = 0; // ticks per ms while running
   let latMs = 150; // round trip of a light bridge call
   let sample = { ticks: fromTicks, at: Date.now() };
@@ -245,11 +308,12 @@ export async function turn(opts: TurnOptions) {
   emit({ kind: "turn.ended", detail: stoppedBy });
   const toTicks = Number(s.date?.ticks ?? fromTicks);
   return {
-    turn: { fromWeek, toWeek: s.date?.week, date: s.date?.date, advancedWeeks: Math.round(((toTicks - fromTicks) / TICKS_PER_WEEK) * 100) / 100, stoppedBy },
+    turn: { fromWeek, toWeek: s.date?.week, date: s.date?.date, advancedWeeks: Math.round(((toTicks - fromTicks) / TICKS_PER_WEEK) * 100) / 100, stoppedBy, ...(capped ? { capped } : {}) },
     events: returned,
     dropped,
     goals: goals(),
-    brief: await brief(),
+    brief: await brief({ weather: s.weather }),
+    weather: weatherSummary(s.weather),
     ...(warnings.length ? { warnings } : {}),
   };
 }

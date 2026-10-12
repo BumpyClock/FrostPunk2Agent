@@ -7,10 +7,25 @@ The project has no tagged releases yet.
 
 ### Added
 
+- `threat.warning` turn event: a one-option story dialog whose text names a whiteout, storm, cold wave, generator
+  failure or unrest is still acknowledged but now stops the turn (the whiteout warning "An Old Enemy" was
+  auto-acknowledged and missed; 40 died 73 weeks later).
+- Goals: `horizon=threat` (requires `due`, `expect` and `priority`), explicit `priority=<1..>` on any goal, an
+  ordered `open` list (priority, then threat/check/short/long, then due), `focus` (top of the stack) and `threats`
+  (every open threat with `weeksLeft`) in `fp2 goals` and every `turn`.
+- `turn`: never runs past the nearest open goal's `due` week (`stoppedBy.reason` `goalDue`); in a cold crisis
+  (whiteout active or temperature level 3+) the default length is 1 week (explicit `weeks=` kept); `turn.capped`
+  and a warning say which rule applied. The result carries a `weather` summary (level, next drop, whiteout).
+- `brief` reads the weather and leads its alerts with an active or forecast whiteout and the next temperature drop.
 - `weather` extractor (in `snapshot`): current temperature level and degrees, the forecast strip
-  (`PXTemperatureUtils.GetTemperatureTimeline` over the game's prediction interval) and whiteout state. Turn events
+  (`PXTemperatureUtils.GetTemperatureTimeline` over the game's prediction interval, 100 weeks) and whiteout state.
+  Measured live mid-whiteout: the storm is a timeline entry with a `Weather` object and `EnterWeatherIntersection`
+  (true = arrives, false = leaves), and `PXWeatherUtils.GetCityWeatherLevel` names it ("Sun-Dimming Storm") while it
+  covers the city ("Calm", level 0, otherwise); `whiteout.endsInWeeks` read 3.9. At week 129 the strip already held
+  the whiteout 70.6 weeks ahead and `turn` stopped on `whiteout.incoming` (measured). Turn events
   `weather.forecastDrop` (stops for a drop of 2+ levels or to level 3+) and `whiteout.incoming` (stops), plus
-  `whiteout.started` / `whiteout.ended`; each forecast warning fires once. Not yet verified on the live game.
+  `whiteout.started` / `whiteout.ended`; each forecast warning fires once.
+- Skill: thinking pattern 6 (a catastrophe outranks the plan) and a measured Whiteout playbook in GAMEPLAY.md.
 - `deposit.depleting` turn event (stops at 10 weeks or less) for deposits worked by Extraction-type districts, from the
   amount trend between snapshots. New extractor `districtDeposits`, included in `snapshot`.
 - `build_outpost` and `connect_outpost` (Frostland outposts; connection needs a trail).
@@ -85,6 +100,9 @@ The project has no tagged releases yet.
 
 ### Changed
 
+- `overdrive-cycle` switches off when the predicted wear at the next poll reaches `maxWear` (polling every 120 ms)
+  instead of after an overshoot; at whiteout demand wear went 0.05 to 0.69 inside one 250 ms poll and the old loop
+  stopped on "overshot" before switching off (measured, twice). Reports `overshoots`.
 - `turn` heartbeat: the loop estimates the game clock rate and, in the final stretch, polls `extract time` and pauses
   at `weeks` itself. Before, the fixed 1.5 s poll let speed 3 (about 3.4 weeks per real second, measured) run
   5.75 weeks on `weeks=2`. Overshoot is now about one bridge round trip.
@@ -105,6 +123,8 @@ The project has no tagged releases yet.
 
 ### Fixed
 
+- `deposit.depleting` no longer fires for a deposit that was already empty when a new `turn` took its first sample
+  (a dead sawmill stopped every turn after 0.25 weeks, measured).
 - `build_outpost` validates the outpost, its type, the city and the Leader origin before `InstructConstructOutpost`
   and refuses an already-built outpost; `frost_sites`, `overdrive`, `heat`, abilities and `connect_outpost` validate
   optional sub-objects before calls (food-herd outpost crash; needs live verification).
