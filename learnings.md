@@ -6,6 +6,10 @@ label (measured / inferred / guessed), and what to do differently. Durable rules
 
 ## Gameplay
 
+- 2026-10-11, wk 356: Heated Commons (fewer unhoused die of cold, trust +0.05) went from a predicted margin of -45 to
+  LAW PASSED 71/51 by negotiating with Foragers and Merchants (measured). The price: three 40-week promises (three
+  research items and a vote on a forced-maintenance law). A "hopeless" vote prediction is a starting price, not a
+  verdict; read each faction's terms on screen.
 - 2026-10-11, wk 327-341: I called a Warmth deficit (-70, later -130) harmless because no district showed a bad heat
   level and Cold read 0. At wk 341 Cold reached 16 (target 14) and 54 people died of cold at temperature level 2
   (measured). A Warmth deficit raises Cold with a lag; treat it as a death risk. Auto heat allocation left 36 heat

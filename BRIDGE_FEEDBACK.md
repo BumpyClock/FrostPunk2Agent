@@ -68,3 +68,9 @@ maintainer reads this between sessions, fixes the bridge, and removes handled en
 - Workaround: set housing levels to need+1 by hand.
 - Cost: 54 deaths; the help text sent me the wrong way once.
 - Also: `extract name=population` returns `population` 1032 and per-community sizes in the hundreds while `extract name=society` returns 15,492 (measured). One of them is a different measure under the same name.
+
+## 2026-10-11 wk 356 | council_ui negotiate | bug
+- Wanted: a negotiated vote (Heated Commons) through the `council_ui` steps.
+- Tried: `council_ui step=community community=Sandbox_Dominion_CommunityType`, `step=side side=for`, `step=term index=1`, `step=accept` all returned ok. On screen the "VOTE FOR" diamond stayed unselected and their terms stayed greyed (measured, screenshots). The community still became "already negotiated" and the bar did not move until the vote. `step=terms` returned the same merged text for every index (law, ability and building text mixed); the screen showed different terms (research Waste Incineration Facility / Grant Agenda) (measured).
+- Workaround: pixel clicks worked: VOTE FOR diamond (476,758), term diamond (3344,620 for the first term), ACCEPT (3344,1300 or 3344,1108 depending on term count); the bar moved 18 -> 40 -> 63 For. `step=vote` then worked: LAW PASSED 71 For / 51 required. A pixel click on the back arrow (84,94) returns from a negotiation to the community list.
+- Cost: ~10 screenshots; the Machinists' negotiation was spent without visible effect (it did count at the vote: a "Promise to Machinists" quest exists).
