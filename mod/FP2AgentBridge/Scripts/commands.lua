@@ -487,6 +487,11 @@ def("research_start", {
     mutation = true,
     run = function(args) return actions.researchStart(args) end,
 })
+def("research_cancel", {
+    help = "Cancel the active research (PXResearchUtils.CancelResearch). Use when a topic is stuck at 0%. args: dryRun",
+    mutation = true,
+    run = function(args) return actions.researchCancel(args) end,
+})
 def("districts", { help = "City districts with type, id, buildings, construction state.", run = function(args) return actions.districts(args) end })
 def("building_types", {
     help = "Unlocked building types with the district types that accept them and cost. args: district (filter), contains",
@@ -611,7 +616,7 @@ def("explore", { help = "Start exploring a revealed territory (InstructStartTerr
 def("expanders", { help = "Area expander (frostbreaking) types for the city.", run = function(args) return actions.expanders(args) end })
 def("frostbreak_path", { help = "Plan frostbreaking to a target: shortest frozen route from thawed land, split into expander batches in build order. args: target (cell) or deposit (type substring, e.g. Logistics), around (extra cells thawed around the target; default 5 for deposit), batch=8, go=true starts batch 1", mutation = true, run = function(args) return actions.frostbreakPath(args) end })
 def("utopia", { help = "Utopia Tree per faction: points, cap, next threshold, nodes (tag, name, type, state, description, unlocks/requires). Read-only. args: faction, brief=true", run = function(args) return actions.utopia(args) end })
-def("utopia_assign", { help = "Spend a Utopia Tree point on a node via the panel handlers. Needs the Utopia panel open (key U). args: node (tag suffix like Venturers.Hub, or name)", mutation = true, run = function(args) return actions.utopiaAssign(args) end })
+def("utopia_assign", { help = "Spend a Utopia Tree point on a node via the panel handlers. args: node (tag suffix like Venturers.Hub, or name), faction (switches/opens the panel to that faction's tree first)", mutation = true, run = function(args) return actions.utopiaAssign(args) end })
 def("research_plan", { help = "Ordered research path to a topic (prerequisites first) with each step's other requirements (buildings, laws), remaining count and research weeks. args: topic (id or name substring)", run = function(args) return actions.researchPlan(args) end })
 def("frost_sites", { help = "Frostland outposts (settlement chain via upgradesTo) and colony sites with territory, site state, built flag and population. args: kind=outpost|colony, state, territory, limit=60", run = function(args) return actions.frostSites(args) end })
 def("layout_preview", { help = "Preview a district placement: neighbouring districts and the proximity (adjacency) effects it would receive and give, e.g. SqualorGiver next to Housing. args: type, cells=[indices from pick_cells]", run = function(args) return actions.layoutPreview(args) end })

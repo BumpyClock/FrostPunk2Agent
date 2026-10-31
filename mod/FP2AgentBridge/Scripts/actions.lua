@@ -711,6 +711,20 @@ function A.researchStart(args)
     return out
 end
 
+-- Cancel the active research (PXResearchUtils.CancelResearch). Measured in play: a topic could sit at 0%
+-- and only the UI hold-to-cancel freed it. args: dryRun
+function A.researchCancel(args)
+    local u = cdo("PXResearchUtils")
+    local nation = nationOf(args)
+    local before = A.researchStatus(args)
+    local out = { before = before }
+    if args.dryRun then out.dryRun = true; return out end
+    local ok, err = pcall(function() u:CancelResearch(ctx(), nation) end)
+    if not ok then error("CancelResearch failed: " .. tostring(err), 0) end
+    out.after = A.researchStatus(args)
+    return out
+end
+
 ---------------------------------------------------------------------------
 -- Buildings
 
@@ -855,7 +869,10 @@ local function placementCheck(city, district, btype, cost)
         c.shortOfStock = short
     end)
     local why = json.array()
-    if c.thisDistrictHasFreeSlot == false then
+    -- Measured in play: GetCompatibleDistrictsWithFreeSlots also leaves a district out when the city lacks the
+    -- workforce, so "no free slot" was reported with slots free. Trust the slot count when we have it.
+    local slotsKnownFree = type(c.freeSlots) == "number" and c.freeSlots > 0
+    if c.thisDistrictHasFreeSlot == false and not slotsKnownFree then
         why[#why + 1] = "no free building slot in this district" ..
             (c.buildingLimit and (" (" .. tostring(c.buildingsUsed) .. "/" .. tostring(c.buildingLimit) .. " used)") or "")
     end
@@ -865,6 +882,10 @@ local function placementCheck(city, district, btype, cost)
     end
     if c.shortOfStock then
         for id, n in pairs(c.shortOfStock) do why[#why + 1] = "short " .. n .. " " .. id end
+    end
+    if #why == 0 and c.thisDistrictHasFreeSlot == false then
+        why[#why + 1] = "the game lists no usable slot here although " .. tostring(c.freeSlots) ..
+            " look free; usually free workforce is short (" .. tostring(c.availableWorkforce) .. " available)"
     end
     c.blockers = why
     return c
@@ -1720,13 +1741,51 @@ local function liveWidget(className)
     end
 end
 
--- Spend a Utopia Tree point through the panel's own handlers (needs the Utopia panel open: key U).
--- args: node (tag suffix or name substring)
+-- The PXCommunityComponent that owns a faction's Utopia tool (faction id substring, e.g. "Merchants").
+local function utopiaCommunity(want)
+    want = tostring(want or ""):lower()
+    local cls = StaticFindObject("/Script/Frostpunk2.PXCommunityComponent")
+    local have = {}
+    for _, comp in ipairs(FindAllOf("PXUtopiaToolComponent") or {}) do
+        if reflect.isValid(comp) then
+            local okC, cc = pcall(function() return comp:GetOwner():GetComponentByClass(cls) end)
+            if okC and reflect.isValid(cc) then
+                local id = assetId(cc.Type) or ""
+                have[#have + 1] = id
+                if id:lower():find(want, 1, true) then return cc, id end
+            end
+        end
+    end
+    error("no Utopia faction matching " .. want .. " (have: " .. table.concat(have, ", ") .. ")", 0)
+end
+
+-- Spend a Utopia Tree point through the panel's own handlers.
+-- args: node (tag suffix or name substring), faction (optional: switch the panel to that faction's tree first;
+-- opens the panel when closed, via PXUtopiaToolPanelsUtils.OpenUtopiaToolPanel / ChangeUtopiaToolCommunity)
 function A.utopiaAssign(args)
     local want = tostring(args.node or ""):lower()
     if want == "" then error("node required (tag or name)", 0) end
+    local switched, openedPanel
+    if args.faction then
+        local cc, fid = utopiaCommunity(args.faction)
+        local pu = cdo("PXUtopiaToolPanelsUtils")
+        local okCur, cur = pcall(function() return pu:GetCurrentCommunity(ctx()) end)
+        local same = okCur and reflect.isValid(cur) and reflect.path(cur) == reflect.path(cc)
+        if not liveWidget("PXUtopiaToolNodesPanel") then
+            local ok, err = pcall(function() pu:OpenUtopiaToolPanel(ctx(), cc) end)
+            if not ok then error("could not open the Utopia panel for " .. fid .. ": " .. tostring(err), 0) end
+            switched, openedPanel = fid, true
+        elseif not same then
+            local ok, err = pcall(function() pu:ChangeUtopiaToolCommunity(ctx(), cc) end)
+            if not ok then error("could not switch the Utopia panel to " .. fid .. ": " .. tostring(err), 0) end
+            switched = fid
+        end
+    end
     local panel = liveWidget("PXUtopiaToolNodesPanel")
-    if not panel then error("Utopia panel not open (press U, or use the CLI utopia-assign)", 0) end
+    if not panel then
+        if switched then error("asked the game to show " .. switched .. "'s Utopia tree; the panel is not up yet, run again in a moment", 0) end
+        error("Utopia panel not open (pass faction=<id> to open it, or press U)", 0)
+    end
     local target, inst
     for _, w in ipairs(FindAllOf("PXUtopiaToolNodeWidget") or {}) do
         if reflect.isValid(w) and (reflect.path(w) or ""):find("^/Engine/Transient") then
@@ -1739,7 +1798,10 @@ function A.utopiaAssign(args)
             end
         end
     end
-    if not target then error("no node widget matching " .. want .. " (is the right faction's tree shown?)", 0) end
+    if not target then
+        if switched then error("switched the Utopia panel to " .. switched .. "; its node widgets are not built yet, run again in a moment", 0) end
+        error("no node widget matching " .. want .. " (pass faction=<id> to show that faction's tree)", 0)
+    end
     local before = inst.State
     local node = tagName(inst.GameplayTag)
     local instPath = reflect.path(inst)
@@ -1748,7 +1810,7 @@ function A.utopiaAssign(args)
     if not details then error("node details panel did not open", 0) end
     details:AssignPoint()
     local names = reflect.enumNames("EPXUtopiaToolNodeState")
-    local out = { node = node, before = names[before] or before }
+    local out = { node = node, before = names[before] or before, switchedTo = switched, openedPanel = openedPanel }
     local now = fresh(instPath)
     if now then pcall(function() out.after = names[now.State] or now.State end) end
     return out
