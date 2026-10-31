@@ -590,7 +590,7 @@ function M.register(def, env)
         end
         if not args.community then error("community required (id substring; see fp2 vote_predict)", 0) end
         local info = negotiationStatus(args, st)
-        info.next = "fp2 council_ui step=negotiate -> step=community community=<id> -> step=side side=for -> step=terms -> step=term index=N -> step=accept -> step=vote"
+        info.next = "fp2 council_ui step=negotiate -> step=community community=<id> -> step=side side=for -> step=terms -> step=term match=<deal text> -> step=accept -> step=vote"
         return info
     end
 
@@ -1041,6 +1041,40 @@ function M.register(def, env)
         return out
     end
 
+    -- What the player actually sees on an option card: walk the widget tree (panels, nested user widgets),
+    -- skip hidden subtrees and the inactive pages of widget switchers. visibleTexts reads only direct
+    -- TextBlock properties and returned template text from hidden pages (measured: every deal looked alike).
+    local function deepTexts(root, limit)
+        local out, seen, count = json.array(), {}, 0
+        limit = limit or 8
+        local function walk(w, depth)
+            if #out >= limit or depth > 14 or count > 400 or not reflect.isValid(w) then return end
+            count = count + 1
+            if not isVisible(w) then return end
+            local cls = reflect.className(w) or ""
+            if cls:find("TextBlock", 1, true) then
+                local okT, s = pcall(function() return textOf(w:GetText()) end)
+                if okT and s then
+                    s = s:gsub("%s+", " "):gsub("^ ", ""):gsub(" $", "")
+                    if s ~= "" and not seen[s] then seen[s] = true; out[#out + 1] = s end
+                end
+                return
+            end
+            if cls:find("WidgetSwitcher", 1, true) then
+                local okA, active = pcall(function() return w:GetActiveWidget() end)
+                if okA and reflect.isValid(active) then walk(active, depth + 1) end
+                return
+            end
+            local kids = children(w)
+            if kids then for _, k in ipairs(kids) do walk(k, depth + 1) end end
+            local okR, rootW = pcall(function() return w.WidgetTree.RootWidget end)
+            if okR and reflect.isValid(rootW) then walk(rootW, depth + 1) end
+        end
+        local okR, rootW = pcall(function() return root.WidgetTree.RootWidget end)
+        if okR and reflect.isValid(rootW) then walk(rootW, 0) else walk(root, 0) end
+        return out
+    end
+
     -- Their terms (faction demands) in screen order: { index, option (widget), text, promiseType }.
     local OPTION = "WBP_Parliament_Negotiation_option_Widget_C"
     local function termOptions(group)
@@ -1067,7 +1101,9 @@ function M.register(def, env)
         for i, opt in ipairs(opts) do
             local e = { index = i, option = opt, ref = reflect.path(opt) }
             do
-                e.text = visibleTexts(opt, 6)
+                local okD, deep = pcall(deepTexts, opt, 8)
+                e.text = (okD and #deep > 0) and deep or visibleTexts(opt, 6)
+                e.visible = isVisible(opt)
                 pcall(function()
                     local d = reflect.dump(opt, { depth = 1, filter = "PromiseType" })
                     local v = d and d.PromiseType
@@ -1169,10 +1205,25 @@ function M.register(def, env)
             if not reflect.isValid(law) then error("no law for policy " .. tostring(assetId(p)), 0) end
             if not transientWidget(POLICY_CHOICE, false) then error("council_ui law refused: " .. POLICY_CHOICE .. " not found", 0) end
             out.policy, out.law = assetId(p), assetId(law)
-            return finish(POLICY_CHOICE .. ".OpenLawPoliciesPanel(" .. out.law .. ")", function()
-                local panel = transientWidget(POLICY_CHOICE, false)
+            local r = finish(POLICY_CHOICE .. ".OpenLawPoliciesPanel(" .. out.law .. ")", function()
+                -- Prefer the visible panel: the first instance found was sometimes a stale, hidden one, and
+                -- opening the law there left the old page on screen (measured in play).
+                local panel = transientWidget(POLICY_CHOICE, true) or transientWidget(POLICY_CHOICE, false)
                 if panel then safeCall(panel, "OpenLawPoliciesPanel", law) end
             end)
+            if not args.dryRun then
+                local ids = json.array()
+                pcall(function() for _, e in ipairs(policyEntries()) do ids[#ids + 1] = e.policy end end)
+                r.visiblePolicies = ids
+                local wantId = lower(out.policy):gsub("^da_", "")
+                local shown = false
+                for _, id in ipairs(ids) do if lower(id) and lower(id):gsub("^da_", "") == wantId then shown = true end end
+                if not shown then
+                    r.warning = "the target policy is not among the visible entries; the screen may show another law's page. " ..
+                        "Check with a screenshot, or step back to the law list and run step=law again."
+                end
+            end
+            return r
         end
         if step == "select" then
             -- Propose button of the visible policy entry whose Policy matches.
@@ -1269,7 +1320,31 @@ function M.register(def, env)
             if step == "terms" then out.call = "read only"; out.dryRun = true; return out end
             local n = tonumber(args.index)
             if n == 0 then error("term index is 1-based (step=terms lists them)", 0) end
+            local want = lower(args.match)
+            if want then
+                -- Pick the deal by the text the player sees (safer than the index: the internal button order
+                -- did not always follow the screen). Must match exactly one visible option.
+                local hits = {}
+                for _, e in ipairs(opts) do
+                    local hay = lower(table.concat(e.text or {}, " | ")) or ""
+                    if e.visible ~= false and hay:find(want, 1, true) then hits[#hits + 1] = e end
+                end
+                if #hits == 0 then error("no term option text contains '" .. want .. "' (step=terms lists them)", 0) end
+                if #hits > 1 and not n then
+                    local idx = {}
+                    for _, e in ipairs(hits) do idx[#idx + 1] = tostring(e.index) end
+                    error("'" .. want .. "' matches options " .. table.concat(idx, ", ") .. "; refine match or add index", 0)
+                end
+                if n then
+                    local ok = false
+                    for _, e in ipairs(hits) do if e.index == n then ok = true end end
+                    if not ok then error("option " .. n .. " text does not contain '" .. want .. "'", 0) end
+                else
+                    n = hits[1].index
+                end
+            end
             local pick = n and opts[n]
+            if pick then out.pickedText = pick.text end
             if not pick or not pick.option then error("term index must be 1.." .. #opts .. " (see step=terms; source " .. tostring(opts.source) .. ")", 0) end
             local optPath = pick.ref
             out.index = n
@@ -1335,7 +1410,7 @@ function M.register(def, env)
         help = "Council hub UI: no step = state (hub sub-panels incl. lobby, panel visibility, phase, agenda, dialog). Steps fire the "
             .. "panels' own handlers and refuse unless the panel/phase fits: laws (lobby PROPOSE A LAW), law policy=<id> (policy list), "
             .. "select policy=<exact id> (propose it), negotiate (Negotiations phase), community community=<id>, side=for|against, "
-            .. "terms (list their terms), term index=N, accept, vote, sway mode=<EPXSwayMode>, change_proposal, negotiate_open, sync. args: step, dryRun",
+            .. "terms (list their terms with the visible text), term match=<text> and/or index=N, accept, vote, sway mode=<EPXSwayMode>, change_proposal, negotiate_open, sync. args: step, dryRun",
         mutation = true,
         run = councilUi,
     })
