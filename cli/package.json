@@ -1,6 +1,7 @@
 {
   "name": "fp2-cli",
   "private": true,
+  "packageManager": "bun@1.2.20",
   "type": "module",
   "scripts": {
     "build": "bun build src/main.ts --compile --outfile ../fp2.exe",
